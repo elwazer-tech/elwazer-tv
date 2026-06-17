@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ar">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta name="robots" content="noindex,nofollow"/>
+        <meta property="og:site_name" content="Elwazer Sports">
+        <title>Elwazer Sports - Live Match</title>
+        
+        <!-- استدعاء مكتبة المشغل العالمي Clappr Player فائق الاستقرار في البث المباشر -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+        
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box }
+            html,body { height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif }
+            body { display: flex; flex-direction: column }
+
+            /* شريط القنوات العلوي */
+            .albaplayer_name {
+                display: flex; list-style: none; background: #0a0a0a; padding: 8px 10px; gap: 6px;
+                border-bottom: 1px solid rgba(255,255,255,.06); overflow-x: auto; scrollbar-width: none;
+                flex-shrink: 0;
+            }
+            .albaplayer_name::-webkit-scrollbar { display: none }
+            .albaplayer_name li { flex: 1 1 0; min-width: 0; }
+            .albaplayer_name a {
+                display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.04);
+                border: 1px solid rgba(255,255,255,.06); font: 600 13px -apple-system,sans-serif; cursor: pointer;
+                padding: 9px 14px; height: 38px; color: rgba(255,255,255,.6); text-decoration: none; border-radius: 10px;
+                transition: all .25s ease; white-space: nowrap; width: 100%; position: relative;
+            }
+            .albaplayer_name a:hover { background: rgba(255,255,255,.08); color: #fff; }
+            .albaplayer_name a.active {
+                background: linear-gradient(135deg,#2e0d5e 0%,#421480 100%); color: #fff;
+                border: 1px solid rgba(50,15,100,.5); font-weight: 700; box-shadow: 0 2px 12px rgba(46,13,94,.3);
+            }
+
+            /* حاوية المشغل الخارجية */
+            .player-container { 
+                flex: 1; 
+                position: relative; 
+                width: 100%; 
+                min-height: 0; 
+                background: #000; 
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px;
+            }
+
+            /* الحاوية الذكية التي تمنع ظهور أي هوامش سوداء داخل المشغل وتثبت العناصر */
+            .player-wrapper {
+                position: relative;
+                width: 100%;
+                max-width: 120vh; 
+                aspect-ratio: 16 / 9;
+                background: #000;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            }
+
+            /* تهيئة مساحة عرض Clappr */
+            #clappr-player {
+                width: 100%;
+                height: 100%;
+            }
+
+            /* إجبار الفيديو على التمدد الكامل لمنع وظهور الهوامش السوداء في جميع أوضاع المتصفح وملء الشاشة */
+            video {
+                object-fit: fill !important;
+            }
+            .clappr-player video {
+                object-fit: fill !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+            .clappr-player:fullscreen video {
+                object-fit: fill !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+            .clappr-player:-webkit-full-screen video {
+                object-fit: fill !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            /* زر التحديث */
+            .embed-btn {
+                position: absolute; top: 12px; left: 12px; z-index: 99999999 !important; background: rgba(15, 15, 15, 0.85);
+                border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 6px 12px;
+                border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px;
+                transition: background 0.2s;
+            }
+            .embed-btn:hover { background: rgba(30, 30, 30, 0.9); }
+            .embed-btn svg { width: 14px; height: 14px; fill: currentColor }
+
+            /* ربط الحجم بأبعاد الفيديو الفعلي */
+            .video-js .vjs-tech {
+                object-fit: fill !important; 
+            }
+
+            /* 🎯 تنسيق اللوجو الأصلي المعتمد لديك بالكامل دون أي تعديل 🎯 */
+            .custom-video-logo {
+                position: absolute !important;
+                top: 0.1% !important;            /* الارتفاع المثالي الذي اعتمدته */
+                right: 2.1% !important;          /* الاتجاه الجانبي المثالي الذي اعتمدته */
+                z-index: 999999 !important;      /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
+                width: 18% !important;           
+                aspect-ratio: 1.45 / 1 !important; 
+                object-fit: fill !important;     
+                pointer-events: none !important;
+                background: transparent !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* زر تفعيل الصوت التفاعلي المطور للتغلب على حماية المتصفحات */
+            .unmute-overlay {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 9999999 !important; /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
+                background: rgba(10, 10, 10, 0.85);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                color: #fff;
+                padding: 12px 24px;
+                border-radius: 30px;
+                font-size: 14px;
+                font-weight: bold;
+                display: none; 
+                align-items: center;
+                gap: 10px;
+                cursor: pointer;
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                transition: all 0.2s ease;
+                animation: pulse 2s infinite;
+            }
+            .unmute-overlay:hover {
+                background: rgba(46, 13, 94, 0.9);
+                border-color: #00ff88;
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+            .unmute-overlay svg {
+                width: 20px;
+                height: 20px;
+                fill: currentColor;
+            }
+
+            /* لوحة التنبيه الزجاجية الأنيقة في حال كان البث متوقفاً */
+            .offline-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 9999998 !important; /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
+                background: rgba(10, 10, 10, 0.92);
+                display: none; 
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                text-align: center;
+                padding: 20px;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            .offline-overlay svg {
+                width: 55px;
+                height: 55px;
+                fill: #ff3b30; 
+                margin-bottom: 15px;
+            }
+            .offline-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 8px;
+                color: #fff;
+            }
+            .offline-subtitle {
+                font-size: 13px;
+                color: rgba(255, 255, 255, 0.6);
+                max-width: 320px;
+                line-height: 1.5;
+            }
+
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+            }
+
+            @media (max-width: 768px) {
+                .custom-video-logo { 
+                    right: 2.1% !important; 
+                    top: 0.1% !important; 
+                    width: 18% !important; 
+                }
+            }
+        </style>
+    </head>
+    <body>
+        
+        <!-- أزرار التنقل بين القنوات (بدون أعلام) -->
+        <ul class="albaplayer_name">
+            <li>
+                <!-- تم تصحيح الرابط الإملائي هنا ليطابق السيرفر الفعلي ويعمل بنجاح -->
+                <a class="tablinks" onclick="changeSource('https://live.kooran53.cfd/goolato3_480/index.m3u8', this)">
+                    Channel 1
+                </a>
+            </li>
+            <li>
+                <a class="tablinks" onclick="changeSource('https://2cup.s3.us-east-2.amazonaws.com/max2/max2_720p/index.m3u8', this)">
+                    Channel 2
+                </a>
+            </li>
+            <li>
+                <a class="tablinks" onclick="changeSource('#', this)">
+                    Channel 3
+                </a>
+            </li>
+            <li>
+                <a class="tablinks" onclick="changeSource('#', this)">
+                    Channel 4
+                </a>
+            </li>
+        </ul>
+
+        <div class="player-container">
+            
+            <!-- الحاوية الذكية التي تحافظ على التناسق التام وبأبعاد 16:9 حقيقية ومغلقة -->
+            <div class="player-wrapper">
+                
+                <!-- زر تحديث المشغل -->
+                <button class="embed-btn" onclick="window.location.reload();">
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    تحديث المشغل
+                </button>
+
+                <!-- هنا يتم بناء مشغل Clappr تلقائياً دون الحاجة لوسم video تقليدي -->
+                <div id="clappr-player"></div>
+
+                <!-- 🎯 تم استعادة وسم الصورة المستقل الخاص بك ليعود كما كان في مشغلك القديم 🎯 -->
+                <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
+
+                <div id="offline-overlay" class="offline-overlay">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    <div class="offline-title">البث متوقف مؤقتاً</div>
+                    <div class="offline-subtitle">هذه القناة لا تحتوي على بث نشط حالياً. يرجى تجربة القنوات الأخرى أو العودة لاحقاً.</div>
+                </div>
+
+                <div id="unmute-overlay" class="unmute-overlay" onclick="unmutePlayer()">
+                    <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0 3.28-2.16 6.07-5.14 7.03c1.92-.61 3.44-2.13 4.05-4.05C18.42 13.93 19 12.82 19 12zm-8.81 7.19L5.35 14H2v-4h3.35l4.84-5.19C10.74 4.26 11.5 4.61 11.5 5.3v13.4c0 .69-.76 1.04-1.31.49z"/></svg>
+                    انقر لتفعيل الصوت والمشاهدة
+                </div>
+
+            </div>
+
+        </div>
+
+        <script>
+            // استعادة القناة الأخيرة أو تشغيل القناة الأولى كخيار افتراضي
+            var defaultUrl = 'https://live.kooran53.cfd/goolato3_3480/index.m3u8'; 
+            var defaultIndex = 0;
+
+            var savedUrl = localStorage.getItem('savedChannelUrl');
+            var savedIndex = localStorage.getItem('savedChannelIndex');
+
+            var activeUrl = (savedUrl !== null) ? savedUrl : defaultUrl;
+            var activeIndex = (savedIndex !== null) ? parseInt(savedIndex) : defaultIndex;
+
+            // إذا كانت القناة المحفوظة فارغة أو '#' لا نمرر رابط خاطئ للمشغل
+            var initialSource = (activeUrl && activeUrl !== '#') ? activeUrl : '';
+
+            var player = new Clappr.Player({
+                source: initialSource, 
+                parentId: '#clappr-player',
+                width: '100%',
+                height: '100%',
+                autoPlay: true,
+                mute: true, // تخطي كتم الصوت الإجباري من المتصفحات
+                preload: 'auto',
+                stretching: 'exactfit',    // إجبار الفيديو على التمدد الكامل لمطابقة أبعاد الحاوية
+                playback: {
+                    playInline: true,
+                    recycleVideo: true,
+                    hlsMinimumjsversion: '0.12.0',
+                    hlsjsConfig: {
+                        enableWorker: true,
+                        lowLatencyMode: true,
+                        maxBufferLength: 12,
+                        liveBackBufferLength: 0,
+                        manifestLoadingMaxRetry: 10,
+                        levelLoadingMaxRetry: 10
+                    }
+                }
+            });
+
+            // دالة آمنة لحقن تراكبات التنبيه والصوت والشعار لضمان عدم ضياعها أثناء التبديل ودعمها بملء الشاشة
+            function injectOverlays() {
+                if (player && player.core && player.core.el) {
+                    var clapprContainer = player.core.el; 
+                    
+                    var logo = document.getElementById('custom-logo');
+                    var unmute = document.getElementById('unmute-overlay');
+                    var offline = document.getElementById('offline-overlay');
+                    
+                    // حقن اللوجو المستقل والتراكبات كأبناء مباشرين لحاوية Clappr التي تتمدد بملء الشاشة
+                    if (logo && logo.parentElement !== clapprContainer) {
+                        clapprContainer.appendChild(logo);
+                    }
+                    if (unmute && unmute.parentElement !== clapprContainer) {
+                        clapprContainer.appendChild(unmute);
+                    }
+                    if (offline && offline.parentElement !== clapprContainer) {
+                        clapprContainer.appendChild(offline);
+                    }
+                }
+            }
+
+            // عندما يصبح المشغل جاهزاً، نقوم بحقن التراكبات وتفعيل فحص الصوت
+            player.on(Clappr.Events.PLAYER_READY, function() {
+                injectOverlays();
+
+                // فحص حالة القناة الحالية بعد التحميل
+                if (!activeUrl || activeUrl === '#') {
+                    player.pause();
+                    document.getElementById('offline-overlay').style.display = 'flex';
+                    document.getElementById('unmute-overlay').style.display = 'none';
+                } else {
+                    player.unmute(); // محاولة تشغيل الصوت تلقائياً
+                    setTimeout(function() {
+                        var volumePlugin = player.getPlugin('volume');
+                        if (player.getVolume() === 0 || (volumePlugin && volumePlugin.$el.hasClass('muted'))) {
+                            document.getElementById('unmute-overlay').style.display = 'flex';
+                        }
+                    }, 600);
+                }
+            });
+
+            // عند التبديل بين السيرفرات، يتكفل هذا المستمع بإعادة لصق الأزرار واللوحات التنبيهية والشعار
+            player.on(Clappr.Events.CORE_CONTAINERS_CREATED, function() {
+                injectOverlays();
+            });
+
+            // بمجرد انطلاق البث بنجاح، نتأكد من إخفاء لوحة التنبيه التلقائي
+            player.on(Clappr.Events.PLAYER_PLAY, function() {
+                document.getElementById('offline-overlay').style.display = 'none';
+            });
+
+            /* ==========================================================================
+               نظام الإنعاش الذاتي وحجب الخطأ (Self-Healing Loop)
+               ========================================================================== */
+            player.on(Clappr.Events.PLAYER_ERROR, function(error) {
+                console.log('حدث تذبذب في السيرفر، جاري تفعيل نظام الإنعاش التلقائي...');
+                
+                var offlineOverlay = document.getElementById('offline-overlay');
+                
+                offlineOverlay.querySelector('.offline-title').innerText = "جاري إعادة الاتصال بالبث...";
+                offlineOverlay.querySelector('.offline-subtitle').innerText = "يبدو أن خادم البث يعاني من ضغط شديد حالياً. المشغل يعيد الاتصال بالبث تلقائياً بالخلفية، يرجى الانتظار لثوانٍ...";
+                offlineOverlay.style.display = 'flex';
+                
+                // إخفاء زر الصوت لمنع التداخل
+                document.getElementById('unmute-overlay').style.display = 'none';
+
+                // محاولة إعادة تشغيل وسحب السورس من السيرفر بالخلفية كل 5 ثوانٍ بصمت
+                setTimeout(function() {
+                    var currentSource = player.options.source;
+                    if (currentSource && currentSource !== '#') {
+                        player.load(currentSource);
+                        player.play();
+                    }
+                }, 5000); 
+            });
+
+            // مستشعر تفاعلي ذكي: بمجرد نقر الزائر في أي مكان بالصفحة يتم تفعيل الصوت فوراً
+            document.body.addEventListener('click', function() {
+                var unmuteOverlay = document.getElementById('unmute-overlay');
+                if (unmuteOverlay.style.display === 'flex') {
+                    unmutePlayer();
+                }
+            }, { once: true });
+
+            // وظيفة الضغط على الزر لتشغيل الصوت وإلغاء الكتم
+            function unmutePlayer() {
+                player.unmute();
+                player.setVolume(100);
+                document.getElementById('unmute-overlay').style.display = 'none';
+            }
+
+            // وظيفة التبديل السلس والسريع وتفعيل الصوت فور الضغط على القناة وحفظها في localStorage
+            function changeSource(url, element) {
+                var offlineOverlay = document.getElementById('offline-overlay');
+                var unmuteOverlay = document.getElementById('unmute-overlay');
+
+                // حفظ بيانات القناة الحالية
+                localStorage.setItem('savedChannelUrl', url);
+                var links = document.querySelectorAll('.tablinks');
+                var index = Array.from(links).indexOf(element);
+                localStorage.setItem('savedChannelIndex', index);
+
+                // تغيير اللون النشط للزر المختار
+                links.forEach(function(link) { link.classList.remove('active'); });
+                element.classList.add('active');
+
+                // فحص إذا كان البث متوقف أو غير مضاف حالياً
+                if (!url || url === '#' || url === '' || url.includes('offline')) {
+                    player.pause();
+                    offlineOverlay.style.display = 'flex'; 
+                    unmuteOverlay.style.display = 'none'; 
+                } else {
+                    offlineOverlay.style.display = 'none'; 
+                    
+                    player.load(url); // جلب البث الجديد بشكل فوري بـ Clappr
+                    player.play();
+                    
+                    player.unmute(); 
+                    player.setVolume(100);
+                    document.getElementById('unmute-overlay').style.display = 'none';
+                }
+            }
+
+            // تفعيل التظليل البرمجي للزر النشط بمجرد تحميل هيكل الصفحة DOM
+            document.addEventListener("DOMContentLoaded", function() {
+                var links = document.querySelectorAll('.tablinks');
+                links.forEach(function(link) { link.classList.remove('active'); });
+                if (links[activeIndex]) {
+                    links[activeIndex].classList.add('active');
+                }
+            });
+        </script>
+    </body>
+</html>
