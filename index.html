@@ -66,26 +66,6 @@
                 height: 100%;
             }
 
-            /* إجبار الفيديو على التمدد الكامل لمنع وظهور الهوامش السوداء في جميع أوضاع المتصفح وملء الشاشة */
-            video {
-                object-fit: fill !important;
-            }
-            .clappr-player video {
-                object-fit: fill !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-            .clappr-player:fullscreen video {
-                object-fit: fill !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-            .clappr-player:-webkit-full-screen video {
-                object-fit: fill !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-
             /* زر التحديث */
             .embed-btn {
                 position: absolute; top: 12px; left: 12px; z-index: 99999999 !important; background: rgba(15, 15, 15, 0.85);
@@ -101,7 +81,7 @@
                 object-fit: fill !important; 
             }
 
-            /* 🎯 تنسيق اللوجو الأصلي المعتمد لديك بالكامل دون أي تعديل في الشاشة المصغرة 🎯 */
+            /* 🎯 تم إرجاع الكود الأصلي والمثالي الخاص بك للوجو بالكامل دون أدنى تغيير 🎯 */
             .custom-video-logo {
                 position: absolute !important;
                 top: 0.1% !important;            /* الارتفاع المثالي الذي اعتمدته */
@@ -112,9 +92,6 @@
                 object-fit: fill !important;     
                 pointer-events: none !important;
                 background: transparent !important; 
-                margin: 0 !important;
-                padding: 0 !important;
-                transition: right 0.1s ease-in-out; /* حركة ناعمة عند التحول لوضع ملء الشاشة */
             }
 
             /* زر تفعيل الصوت التفاعلي المطور للتغلب على حماية المتصفحات */
@@ -211,12 +188,12 @@
         <ul class="albaplayer_name">
             <li>
                 <!-- تم تصحيح الرابط الإملائي هنا ليطابق السيرفر الفعلي ويعمل بنجاح -->
-                <a class="tablinks" onclick="changeSource('https://live.kooran53.cfd/goolato3_45580/index.m3u8', this)">
+                <a class="tablinks" onclick="changeSource('https://live.kooran53.cfd/goolato3_480/index.m3u8', this)">
                     Channel 1
                 </a>
             </li>
             <li>
-                <a class="tablinks" onclick="changeSource('https://live.kooran53.cfd/goolato3_480/index.m3u8', this)">
+                <a class="tablinks" onclick="changeSource('https://2cup.s3.us-east-2.amazonaws.com/max2/max2_720p/index.m3u8', this)">
                     Channel 2
                 </a>
             </li>
@@ -265,8 +242,8 @@
         </div>
 
         <script>
-            // 🎯 تم تصحيح الرابط الافتراضي بإزالة الرقم الزائد (3480 إلى 480) لكي يبدأ البث فوراً 🎯
-            var defaultUrl = 'https://live.kooran53.cfd/goolato3_42380/index.m3u8'; 
+            // تم تصحيح الرابط الافتراضي ليعمل بسلاسة من البداية
+            var defaultUrl = 'https://live.kooran53.cfd/goolato3_480/index.m3u8'; 
             var defaultIndex = 0;
 
             var savedUrl = localStorage.getItem('savedChannelUrl');
@@ -278,7 +255,7 @@
             // إذا كانت القناة المحفوظة فارغة أو '#' لا نمرر رابط خاطئ للمشغل
             var initialSource = (activeUrl && activeUrl !== '#') ? activeUrl : '';
 
-            // 🎯 استخدام متغير مستقل لتتبع القناة المشغلة حالياً لمنع تجميد بقية القنوات عند الانهيار 🎯
+            // استخدام متغير مستقل لتتبع القناة المشغلة حالياً لمنع تجميد بقية القنوات عند الانهيار
             var currentPlayingUrl = activeUrl;
 
             var player = new Clappr.Player({
@@ -289,7 +266,6 @@
                 autoPlay: true,
                 mute: true, // تخطي كتم الصوت الإجباري من المتصفحات
                 preload: 'auto',
-                stretching: 'exactfit',    // إجبار الفيديو على التمدد الكامل لمطابقة أبعاد الحاوية
                 playback: {
                     playInline: true,
                     recycleVideo: true,
@@ -347,20 +323,6 @@
                 }
             });
 
-            // 🎯 مستمع تفاعلي وحاسم لتبديل وضع ملء الشاشة وتغيير إزاحة اللوجو تلقائياً 🎯
-            player.on(Clappr.Events.CORE_FULLSCREEN, function(isCurrentlyFullscreen) {
-                var logo = document.getElementById('custom-logo');
-                if (logo) {
-                    if (isCurrentlyFullscreen) {
-                        // عند الدخول في وضع ملء الشاشة: نقوم بدفع اللوجو لليسار بنسبة 4.5% لتغطية اللوجو الداخلي
-                        logo.style.setProperty('right', '4.5%', 'important');
-                    } else {
-                        // عند العودة للوضع المصغر: يُعاد فوراً لوضعه الطبيعي المفضل لديك بنسبة 2.1%
-                        logo.style.setProperty('right', '2.1%', 'important');
-                    }
-                }
-            });
-
             // عند التبديل بين السيرفرات، يتكفل هذا المستمع بإعادة لصق الأزرار واللوحات التنبيهية والشعار
             player.on(Clappr.Events.CORE_CONTAINERS_CREATED, function() {
                 injectOverlays();
@@ -386,7 +348,7 @@
                 // إخفاء زر الصوت لمنع التداخل
                 document.getElementById('unmute-overlay').style.display = 'none';
 
-                // 🎯 استخدام المتغير العالمي الجديد لضمان إنعاش القناة النشطة حالياً فقط 🎯
+                // استخدام المتغير العالمي الجديد لضمان إنعاش القناة النشطة حالياً فقط
                 setTimeout(function() {
                     if (currentPlayingUrl && currentPlayingUrl !== '#') {
                         player.load(currentPlayingUrl);
@@ -415,7 +377,7 @@
                 var offlineOverlay = document.getElementById('offline-overlay');
                 var unmuteOverlay = document.getElementById('unmute-overlay');
 
-                // 🎯 تحديث رابط التشغيل النشط فوراً لتوجيه نظام الإنعاش للقناة الجديدة 🎯
+                // تحديث رابط التشغيل النشط فوراً لتوجيه نظام الإنعاش للقناة الجديدة
                 currentPlayingUrl = url;
 
                 localStorage.setItem('savedChannelUrl', url);
