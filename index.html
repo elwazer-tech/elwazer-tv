@@ -247,9 +247,6 @@
                 cursor: pointer;
                 transition: all 0.25s ease;
                 white-space: nowrap;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
             }
             .date-tab-btn:hover {
                 background: rgba(255, 255, 255, 0.08);
@@ -417,7 +414,7 @@
 
             <!-- جدول مباريات اليوم المباشر -->
             <div class="section-title">
-                <!-- 🎯 تم حذف الجملة المحددة بالكامل من الهيدر لتصفية العرض 🎯 -->
+                <!-- 🎯 تم حذف الجملة المحددة بالكامل من الهيدر لتصفية الواجهة 🎯 -->
                 <span>📅 جدول مباريات اليوم</span>
                 <button class="player-control-btn" onclick="loadMatchesFromYSscores(false)" style="padding: 4px 10px; font-size: 10px;">
                     🔄 تحديث جدول المباريات
@@ -476,13 +473,11 @@
             
             // 🎯 معالج السحب الحصري والمتجاوز للحظر لموقع YSscores 🎯
             async function loadMatchesFromYSscores(isSilent) {
-                var statusBox = document.getElementById('scrape-status');
-                
                 // حساب التاريخ برمجياً بناءً على اختيار المستخدم (أمس، اليوم، غداً)
                 var dateString = getOffsetDateString(activeDateOffset);
                 
-                // 🎯 تعديل مسار السحب الحتمي ليتصل بـ en/matches لتفعيل فلترة الأيام بدقة 100% 🎯
-                var targetUrl = `https://www.ysscores.com/en/matches?date=${dateString}`;
+                // 🎯 تصحيح رابط الطلب ليتصل بـ الصفحة الرئيسية المباشرة en/ مع معاملات التاريخ ?date بدقة 🎯
+                var targetUrl = `https://www.ysscores.com/en/?date=${dateString}`;
                 
                 // قائمة السيرفرات الوسيطة (Proxies) المفتوحة والمتاحة لتخطي الحماية
                 var proxies = [
@@ -493,11 +488,6 @@
 
                 var htmlContent = "";
                 var success = false;
-
-                if (!isSilent && statusBox) {
-                    statusBox.innerHTML = `🔄 جاري محاولة جلب مباريات تاريخ ${getFormattedDate(activeDateOffset)}...`;
-                    statusBox.style.color = "var(--text-muted)";
-                }
 
                 for (var i = 0; i < proxies.length; i++) {
                     try {
@@ -522,17 +512,8 @@
                 }
 
                 if (!success) {
-                    if (!isSilent && statusBox) {
-                        statusBox.innerHTML = "❌ تعذر جلب المباريات حالياً من YSscores بسبب حماية خوادمهم (Cloudflare). يرجى إعادة المحاولة.";
-                        statusBox.style.color = "#ff3b30";
-                    }
                     renderMatches([]); 
                     return;
-                }
-
-                if (!isSilent && statusBox) {
-                    statusBox.innerHTML = `✅ تم تحديث جدول مباريات تاريخ ${getFormattedDate(activeDateOffset)} حياً ومباشرة بنجاح!`;
-                    statusBox.style.color = "#00ff88";
                 }
 
                 try {
@@ -771,7 +752,7 @@
                 if (list.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            📡 لا توجد مباريات حية معروضة حالياً من المصدر لهذا اليوم، أو أن خوادم YSscores محجوبة مؤقتاً.
+                            📡 لا توجد مباريات معروضة حالياً من المصدر لهذا اليوم، أو أن خوادم YSscores محجوبة مؤقتاً.
                             <button class="player-control-btn" onclick="loadMatchesFromYSscores(false)" style="margin-top: 15px; background: var(--primary-gradient);">🔄 إعادة المحاولة والتحميل</button>
                         </div>
                     `;
