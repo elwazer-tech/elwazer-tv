@@ -54,19 +54,6 @@
                 padding: 15px;
             }
 
-            /* شريط حالة جلب البيانات الحية */
-            .scrape-status {
-                background: rgba(255,255,255,0.03);
-                border: 1px solid var(--border-color);
-                padding: 10px 12px;
-                border-radius: 8px;
-                font-size: 12px;
-                text-align: center;
-                margin-bottom: 15px;
-                color: var(--text-muted);
-                font-weight: bold;
-            }
-
             /* قسم المشغل المغلق افتراضياً ويفتح عند اختيار مباراة */
             .live-section {
                 display: none; 
@@ -241,7 +228,7 @@
             }
             .offline-overlay svg { width: 55px; height: 55px; fill: #ff3b30; margin-bottom: 15px; }
 
-            /* 🎯 تنسيق شريط تبديل أيام المباريات (أمس، اليوم، غداً) 🎯 */
+            /* 🎯 تنسيق شريط تبديل أيام المباريات المطور 🎯 */
             .date-tabs-container {
                 display: flex;
                 gap: 8px;
@@ -378,11 +365,6 @@
         </header>
 
         <div class="container">
-
-            <!-- شريط حالة السحب الحية -->
-            <div class="scrape-status" id="scrape-status">
-                🔄 جاري محاولة الاتصال بـ YSscores...
-            </div>
             
             <!-- 🎯 قسم مشغل البث التفاعلي 🎯 -->
             <div id="live-section" class="live-section">
@@ -440,7 +422,7 @@
                 </button>
             </div>
 
-            <!-- 🎯 أزرار تبديل الأيام (أمس، اليوم، غداً) 🎯 -->
+            <!-- 🎯 أزرار تبديل الأيام (أمس، اليوم، غداً) مع إظهار التواريخ حية بجانبها 🎯 -->
             <div class="date-tabs-container">
                 <button class="date-tab-btn" id="date-btn-yesterday" onclick="changeDateOffset(-1, this)">⬅️ مباريات الأمس</button>
                 <button class="date-tab-btn active" id="date-btn-today" onclick="changeDateOffset(0, this)">📅 مباريات اليوم</button>
@@ -458,7 +440,17 @@
             var currentPlayingUrl = "";
             var activeDateOffset = 0; // 0 لليوم، -1 للأمس، 1 للغد
 
-            // دالة لحساب التاريخ المقابل لـ Offset بدقة ونقلها لـ YSscores
+            // دالة لحساب وتنسيق تواريخ الأيام الثلاثة بالصيغة العربية (DD-MM-YYYY)
+            function getFormattedDate(offset) {
+                var d = new Date();
+                d.setDate(d.getDate() + offset);
+                var yyyy = d.getFullYear();
+                var mm = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return `${dd}-${mm}-${yyyy}`;
+            }
+
+            // دالة لحساب التاريخ المقابل لـ Offset بدقة ونقلها لـ YSscores بالصيغة البرمجية القياسية
             function getOffsetDateString(offset) {
                 var d = new Date();
                 d.setDate(d.getDate() + offset);
@@ -486,7 +478,9 @@
                 
                 // حساب التاريخ برمجياً بناءً على اختيار المستخدم (أمس، اليوم، غداً)
                 var dateString = getOffsetDateString(activeDateOffset);
-                var targetUrl = `https://www.ysscores.com/en/index?date=${dateString}`;
+                
+                // 🎯 تعديل مسار السحب الحتمي ليتصل بـ en/matches لتفعيل فلترة الأيام بدقة 100% 🎯
+                var targetUrl = `https://www.ysscores.com/en/matches?date=${dateString}`;
                 
                 // قائمة السيرفرات الوسيطة (Proxies) المفتوحة والمتاحة لتخطي الحماية
                 var proxies = [
@@ -498,8 +492,8 @@
                 var htmlContent = "";
                 var success = false;
 
-                if (!isSilent) {
-                    statusBox.innerHTML = `🔄 جاري محاولة الاتصال بـ YSscores للتاريخ ${dateString}...`;
+                if (!isSilent && statusBox) {
+                    statusBox.innerHTML = `🔄 جاري محاولة جلب مباريات تاريخ ${getFormattedDate(activeDateOffset)}...`;
                     statusBox.style.color = "var(--text-muted)";
                 }
 
@@ -526,7 +520,7 @@
                 }
 
                 if (!success) {
-                    if (!isSilent) {
+                    if (!isSilent && statusBox) {
                         statusBox.innerHTML = "❌ تعذر جلب المباريات حالياً من YSscores بسبب حماية خوادمهم (Cloudflare). يرجى إعادة المحاولة.";
                         statusBox.style.color = "#ff3b30";
                         renderMatches([]); 
@@ -636,7 +630,7 @@
                                     } else if (parentB.parentElement) {
                                         var txtGP_B = parentB.parentElement.textContent.replace(/\s+/g, ' ').replace(/\d+:\d+/g, '').replace(/[\d]/g, '').trim();
                                         if (txtGP_B && txtGP_B.length > 1) {
-                                            nameB = txtGP_B; // 🎯 تم إصلاح الـ Typo القديم لتظهر أسماء الفرق بشكل صحيح تماماً 🎯
+                                            nameB = txtGP_B; // 🎯 تم تصحيح الـ Typo هنا بنجاح ليقرأ اسم الفريق الثاني بدقة 100% 🎯
                                         }
                                     }
                                 }
@@ -729,22 +723,22 @@
                     }
 
                     if (matchesList.length === 0) {
-                        if (!isSilent) {
-                            statusBox.innerHTML = `⚠️ تم الاتصال بـ YSscores بنجاح للتاريخ ${dateString}، ولكن لا توجد أي مباريات مدرجة فيه حالياً.`;
+                        if (!isSilent && statusBox) {
+                            statusBox.innerHTML = `⚠️ تم الاتصال بـ YSscores بنجاح للتاريخ ${getFormattedDate(activeDateOffset)}، ولكن لا توجد أي مباريات مدرجة فيه حالياً.`;
                             statusBox.style.color = "#ffb300";
                             renderMatches([]);
                         }
                         return;
                     }
 
-                    if (!isSilent) {
-                        statusBox.innerHTML = `✅ تم تحديث جدول مباريات تاريخ ${dateString} حياً ومباشرة بنجاح!`;
+                    if (!isSilent && statusBox) {
+                        statusBox.innerHTML = `✅ تم تحديث جدول مباريات تاريخ ${getFormattedDate(activeDateOffset)} حياً ومباشرة بنجاح!`;
                         statusBox.style.color = "#00ff88";
                     }
                     renderMatches(matchesList);
 
                 } catch (err) {
-                    if (!isSilent) {
+                    if (!isSilent && statusBox) {
                         statusBox.innerHTML = "❌ خطأ برمجي أثناء قراءة بيانات الجدول: " + err.message;
                         statusBox.style.color = "#ff3b30";
                         renderMatches([]);
@@ -1019,6 +1013,11 @@
 
             // انطلاق جلب المباريات حياً عند التحميل أول مرة
             document.addEventListener("DOMContentLoaded", function() {
+                // وضع التواريخ الحية بجوار أزرار التبديل الثلاثة [2]
+                document.getElementById('date-btn-yesterday').innerHTML = `⬅️ الأمس (${getFormattedDate(-1)})`;
+                document.getElementById('date-btn-today').innerHTML = `📅 اليوم (${getFormattedDate(0)})`;
+                document.getElementById('date-btn-tomorrow').innerHTML = `مباريات الغد ➡️ (${getFormattedDate(1)})`;
+
                 loadMatchesFromYSscores(false);
             });
 
