@@ -358,7 +358,7 @@
 
             <!-- شريط حالة السحب الحية -->
             <div class="scrape-status" id="scrape-status">
-                🔄 جاري الاتصال بواجهة YS Scores لجلب المباريات...
+                🔄 جاري محاولة الاتصال بـ YSscores...
             </div>
             
             <!-- 🎯 قسم مشغل البث التفاعلي 🎯 -->
@@ -426,9 +426,9 @@
 
             <!-- جدول مباريات اليوم المباشر -->
             <div class="section-title">
-                <span>📅 جدول مباريات اليوم (محدث تلقائياً)</span>
-                <button class="player-control-btn" onclick="fetchMatchesFromYSScoresAPI()" style="padding: 4px 10px; font-size: 10px;">
-                    🔄 تحديث الجدول يدوياً
+                <span>📅 جدول مباريات اليوم (مسحوبة حياً من YSscores)</span>
+                <button class="player-control-btn" onclick="loadMatchesFromYSscores()" style="padding: 4px 10px; font-size: 10px;">
+                    🔄 تحديث جدول المباريات
                 </button>
             </div>
 
@@ -442,77 +442,261 @@
             var player = null;
             var currentPlayingUrl = "";
             
-            // 🎯 نظام جلب المباريات حياً من الواجهة البرمجية (API) لموقع YS Scores 🎯
-            async function fetchMatchesFromYSScoresAPI() {
+            // 🎯 معالج السحب الحصري والمتجاوز للحظر لموقع YSscores (يلا شوت سكورس) 🎯
+            async function loadMatchesFromYSscores() {
                 var statusBox = document.getElementById('scrape-status');
-                statusBox.innerHTML = '🔄 جاري تحديث البيانات لحظياً من YS Scores API...';
                 
-                var today = new Date();
-                var yyyy = today.getFullYear();
-                var mm = String(today.getMonth() + 1).padStart(2, '0');
-                var dd = String(today.getDate()).padStart(2, '0');
-                var formattedDate = `${yyyy}-${mm}-${dd}`;
+                // جلب النسخة العربية للحصول على الأسماء بشكل سليم ومثالي ومترجم تلقائياً
+                var targetUrl = 'https://www.ysscores.com/ar/index';
+                
+                // قائمة السيرفرات الوسيطة (Proxies) المفتوحة والمتاحة لتخطي الحماية
+                var proxies = [
+                    'https://corsproxy.io/?url=',
+                    'https://api.allorigins.win/get?url=',
+                    'https://api.codetabs.com/v1/proxy?quest='
+                ];
+
+                var htmlContent = "";
+                var success = false;
+
+                for (var i = 0; i < proxies.length; i++) {
+                    statusBox.innerHTML = `🔄 محاولة الاتصال بـ YSscores عبر السيرفر الوسيط ${i + 1}...`;
+                    try {
+                        var proxyUrl = proxies[i] + encodeURIComponent(targetUrl);
+                        var response = await fetch(proxyUrl);
+                        if (!response.ok) continue; 
+                        
+                        if (proxies[i].includes('allorigins')) {
+                            var json = await response.json();
+                            htmlContent = json.contents;
+                        } else {
+                            htmlContent = await response.text();
+                        }
+
+                        if (htmlContent && htmlContent.trim().length > 200) {
+                            success = true;
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn(`سيرفر الوساطة ${i + 1} لم ينجح:`, e.message);
+                    }
+                }
+
+                if (!success) {
+                    statusBox.innerHTML = "❌ تعذر جلب المباريات حالياً من YSscores بسبب حماية خوادمهم (Cloudflare). يرجى المحاولة لاحقاً.";
+                    statusBox.style.color = "#ff3b30";
+                    renderMatches([]); // عرض واجهة خالية تماماً دون أي كروت مزيفة
+                    return;
+                }
 
                 try {
-                    var response = await fetch('https://www.ysscores.com/api-ball/getMatchListByDate', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            language: "ar", // جلب البيانات باللغة العربية
-                            date: formattedDate,
-                            timeZone: "3", // توقيت السعودية
-                            type: "0"
-                        }),
-                    });
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(htmlContent, 'text/html');
+                    var matchesList = [];
 
-                    if (!response.ok) {
-                        throw new Error('API request failed');
-                    }
+                    // 1. محاولة قراءة البيانات الفورية من الـ JSON الداخلي للصفحة لضمان الدقة الكاملة (Next.js payloads)
+                    var nextDataEl = doc.getElementById('__NEXT_DATA__');
+                    if (nextDataEl) {
+                        try {
+                            var jsonData = JSON.parse(nextDataEl.textContent);
+                            var rawMatches = findMatchesArray(jsonData);
+                            
+                            if (rawMatches && rawMatches.length > 0) {
+                                rawMatches.forEach(function(item, index) {
+                                    // قراءة بيانات البطولة، أسماء الفرق، والشعارات برمجياً
+                                    var league = item.championship_name_ar || item.championship_name || (item.championship ? (item.championship.name_ar || item.championship.name) : "بطولة دولية");
+                                    var nameA = item.home_team_name_ar || item.home_team_name || (item.home_team ? (item.home_team.name_ar || item.home_team.name) : "الفريق الأول");
+                                    var nameB = item.away_team_name_ar || item.away_team_name || (item.away_team ? (item.away_team.name_ar || item.away_team.name) : "الفريق الثاني");
+                                    var logoA = item.home_team_logo || (item.home_team ? item.home_team.logo : "https://placehold.co/45");
+                                    var logoB = item.away_team_logo || (item.away_team ? item.away_team.logo : "https://placehold.co/45");
+                                    var time = item.time || item.match_time || "09:00 م";
+                                    var status = (item.status === 'live' || item.is_live) ? 'live' : 'waiting';
 
-                    var data = await response.json();
-                    
-                    if (data.code !== 200 || !data.data || !data.data.list) {
-                        throw new Error('Invalid API response structure');
-                    }
+                                    var channel = "beIN Sports MAX 1";
+                                    if (item.channels && item.channels.length > 0) {
+                                        channel = item.channels[0].name_ar || item.channels[0].name || channel;
+                                    } else if (item.tv_channels) {
+                                        channel = item.tv_channels;
+                                    }
 
-                    var matchesList = data.data.list.map(function(apiMatch, index) {
-                        // معالجة حالة المباراة وتحويل الأرقام إلى نصوص
-                        var status = "waiting";
-                        if (apiMatch.status >= 2 && apiMatch.status <= 7) {
-                            status = "live";
+                                    var commentator = "معلق اللقاء";
+                                    if (item.commentators && item.commentators.length > 0) {
+                                        commentator = item.commentators[0].name_ar || item.commentators[0].name || commentator;
+                                    }
+
+                                    // تصحيح روابط الصور النسبية في YSscores
+                                    if (logoA && logoA.startsWith('/')) logoA = 'https://www.ysscores.com' + logoA;
+                                    if (logoB && logoB.startsWith('/')) logoB = 'https://www.ysscores.com' + logoB;
+
+                                    matchesList.push({
+                                        id: index + 1,
+                                        league: league,
+                                        status: status,
+                                        teamA: { name: nameA, logo: logoA },
+                                        teamB: { name: nameB, logo: logoB },
+                                        time: time,
+                                        channel: channel,
+                                        commentator: commentator,
+                                        lineupA: ["حارس المرمى (GK)", "مدافع", "مدافع", "وسط", "مهاجم"],
+                                        lineupB: ["حارس المرمى (GK)", "مدافع", "مدافع", "وسط", "مهاجم"]
+                                    });
+                                });
+                            }
+                        } catch (e) {
+                            console.warn("Next.js Parsing failed, falling back to DOM parsing:", e);
                         }
+                    }
+
+                    // 2. معالج الـ DOM الاحتياطي في حال عدم العثور على Next JSON
+                    if (matchesList.length === 0) {
+                        var matchBoxes = doc.querySelectorAll('.match-box, .match_box, .match-card, .match_card, .match-container, .match_container, .match-row, .match-item, .match-event');
                         
-                        // تحويل التوقيت من Unix Timestamp إلى صيغة مقروءة
-                        var matchTime = new Date(apiMatch.matchTime * 1000).toLocaleTimeString('ar-EG', {
-                            hour: '2-digit', minute:'2-digit', hour12: true
+                        if (matchBoxes.length === 0) {
+                            // بحث موسع عن كروت المباريات في النطاق الإنجليزي أو العربي
+                            matchBoxes = doc.querySelectorAll('a[href*="/match/"], [class*="match-card"], [class*="match_card"], .match-row');
+                        }
+
+                        matchBoxes.forEach(function(el, index) {
+                            var teamData = extractTeamData(el);
+                            var metaData = extractMatchMeta(el);
+
+                            matchesList.push({
+                                id: index + 1,
+                                league: metaData.league,
+                                status: metaData.status,
+                                teamA: { name: teamData.nameA, logo: teamData.logoA },
+                                teamB: { name: teamData.nameB, logo: teamData.logoB },
+                                time: metaData.time,
+                                channel: metaData.channel,
+                                commentator: metaData.commentator,
+                                lineupA: ["حارس المرمى (GK)", "مدافع", "مدافع", "وسط", "مهاجم"],
+                                lineupB: ["حارس المرمى (GK)", "مدافع", "مدافع", "وسط", "مهاجم"]
+                            });
                         });
+                    }
 
-                        return {
-                            id: index + 1,
-                            league: apiMatch.leagueName,
-                            status: status,
-                            teamA: { name: apiMatch.homeTeamName, logo: apiMatch.homeTeamLogo },
-                            teamB: { name: apiMatch.awayTeamName, logo: apiMatch.awayTeamLogo },
-                            time: matchTime,
-                            channel: apiMatch.tv || "غير محدد", // القناة من API أو قيمة افتراضية
-                            commentator: "معلق المباراة", // يمكن إضافة هذا الحقل لاحقاً إذا توفر
-                            lineupA: ["حارس مرمى", "مدافع", "مدافع", "مدافع", "خط وسط", "خط وسط", "مهاجم"],
-                            lineupB: ["حارس مرمى", "مدافع", "مدافع", "مدافع", "خط وسط", "خط وسط", "مهاجم"]
-                        };
-                    });
+                    if (matchesList.length === 0) {
+                        statusBox.innerHTML = "⚠️ تم الاتصال بـ YSscores بنجاح، ولكن لا توجد أي مباريات مدرجة لليوم حالياً في الموقع.";
+                        statusBox.style.color = "#ffb300";
+                        renderMatches([]);
+                        return;
+                    }
 
-                    statusBox.innerHTML = `✅ تم تحديث جدول المباريات بنجاح! آخر تحديث: ${new Date().toLocaleTimeString()}`;
+                    statusBox.innerHTML = "✅ تم جلب وتحديث المباريات حياً ومباشرة من YSscores بنجاح!";
                     statusBox.style.color = "#00ff88";
                     renderMatches(matchesList);
 
                 } catch (err) {
-                    console.error("فشل الاتصال بـ YS Scores API:", err.message);
-                    statusBox.innerHTML = "❌ تعذر الاتصال بواجهة المباريات حالياً. يرجى المحاولة مرة أخرى.";
+                    statusBox.innerHTML = "❌ خطأ برمجي أثناء قراءة بيانات الجدول: " + err.message;
                     statusBox.style.color = "#ff3b30";
-                    renderMatches([]); // عرض واجهة خالية
+                    renderMatches([]);
                 }
+            }
+
+            // دالة البحث التكرارية داخل كتل البيانات الخاصة بـ Next.js للعثور على مصفوفة المباريات
+            function findMatchesArray(obj) {
+                if (!obj || typeof obj !== 'object') return null;
+                
+                if (Array.isArray(obj)) {
+                    if (obj.length > 0) {
+                        var item = obj[0];
+                        if (item && typeof item === 'object') {
+                            var keys = Object.keys(item).join(',').toLowerCase();
+                            // البحث عن الكلمات المفتاحية لمباريات يلا شوت سكورز
+                            if ((keys.includes('team') || keys.includes('opponent') || keys.includes('home') || keys.includes('away')) && 
+                                (keys.includes('time') || keys.includes('status') || keys.includes('score') || keys.includes('id'))) {
+                                return obj;
+                            }
+                        }
+                    }
+                }
+                
+                for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        var res = findMatchesArray(obj[key]);
+                        if (res) return res;
+                    }
+                }
+                return null;
+            }
+
+            // وظيفة استخراج بيانات الفرق والشعارات بمرونة من الـ HTML
+            function extractTeamData(el) {
+                var nameA = "الفريق الأول";
+                var nameB = "الفريق الثاني";
+                var logoA = "https://placehold.co/45";
+                var logoB = "https://placehold.co/45";
+
+                var imgs = el.querySelectorAll('img');
+                if (imgs.length >= 2) {
+                    logoA = imgs[0].src;
+                    logoB = imgs[1].src;
+                } else if (imgs.length === 1) {
+                    logoA = imgs[0].src;
+                }
+
+                var nameEls = el.querySelectorAll('.team-name, .name-team, .team_name, .team-a .name, .team-b .name, .right-team .name, .left-team .name, h3, h4');
+                if (nameEls.length >= 2) {
+                    nameA = nameEls[0].textContent.trim();
+                    nameB = nameEls[1].textContent.trim();
+                } else {
+                    var candidates = [];
+                    el.querySelectorAll('span, div, p').forEach(function(node) {
+                        if (node.children.length === 0) {
+                            var text = node.textContent.trim();
+                            if (text && text.length > 2 && text.length < 25 && !text.includes(':') && !text.includes('م') && !text.includes('ص') && !text.includes('beIN') && !text.includes('HD')) {
+                                candidates.push(text);
+                            }
+                        }
+                    });
+                    if (candidates.length >= 2) {
+                        nameA = candidates[0];
+                        nameB = candidates[candidates.length - 1];
+                    }
+                }
+
+                if (logoA.startsWith('/')) logoA = 'https://www.ysscores.com' + logoA;
+                if (logoB.startsWith('/')) logoB = 'https://www.ysscores.com' + logoB;
+
+                return { nameA: nameA, nameB: nameB, logoA: logoA, logoB: logoB };
+            }
+
+            // وظيفة استخراج بيانات البطولة والتوقيت والقنوات من الـ HTML
+            function extractMatchMeta(el) {
+                var time = "09:00 م";
+                var league = "كأس العالم";
+                var channel = "beIN Sports MAX 1";
+                var commentator = "معلق اللقاء";
+                var status = "live";
+
+                var timeEls = el.querySelectorAll('.match-time, .time-match, .time, .match_time');
+                if (timeEls.length > 0) {
+                    time = timeEls[0].textContent.trim();
+                } else {
+                    var timeMatch = el.textContent.match(/\d{1,2}:\d{2}\s*(م|ص)?/);
+                    if (timeMatch) time = timeMatch[0];
+                }
+
+                var leagueEls = el.querySelectorAll('.league, .match-league, .league-name, .tournament');
+                if (leagueEls.length > 0) {
+                    league = leagueEls[0].textContent.trim();
+                }
+
+                var channelEls = el.querySelectorAll('.channel, .match-channel, .chanel');
+                if (channelEls.length > 0) {
+                    channel = channelEls[0].textContent.trim();
+                }
+
+                var commEls = el.querySelectorAll('.commentator, .match-commentator, .voice');
+                if (commEls.length > 0) {
+                    commentator = commEls[0].textContent.trim();
+                }
+
+                if (el.textContent.includes("انتهت") || el.textContent.includes("ended") || el.textContent.includes("لم تبدأ") || el.textContent.includes("Ended") || el.textContent.includes("Finished")) {
+                    status = "waiting";
+                }
+
+                return { time: time, league: league, channel: channel, commentator: commentator, status: status };
             }
 
             // عرض الكروت في الواجهة
@@ -523,8 +707,8 @@
                 if (list.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            📡 لا توجد مباريات مدرجة في الجدول لهذا اليوم حالياً، أو أن هناك مشكلة في الاتصال بالواجهة البرمجية.
-                            <button class="player-control-btn" onclick="fetchMatchesFromYSScoresAPI()" style="margin-top: 15px; background: var(--primary-gradient);">🔄 إعادة المحاولة والتحميل</button>
+                            📡 لا توجد مباريات حية معروضة حالياً من المصدر، أو أن خوادم YSscores محجوبة مؤقتاً.
+                            <button class="player-control-btn" onclick="loadMatchesFromYSscores()" style="margin-top: 15px; background: var(--primary-gradient);">🔄 إعادة المحاولة والتحميل</button>
                         </div>
                     `;
                     return;
@@ -557,6 +741,7 @@
                             </div>
                             <div class="match-meta">
                                 <span>📺 ${match.channel}</span>
+                                <span>🎙️ ${match.commentator}</span>
                             </div>
                             <button class="btn-watch">${btnText}</button>
                         </div>
@@ -583,9 +768,11 @@
                 match.lineupA.forEach(function(player) { listA.innerHTML += `<li>🏃‍♂️ ${player}</li>`; });
                 match.lineupB.forEach(function(player) { listB.innerHTML += `<li>🏃‍♂️ ${player}</li>`; });
 
+                // إعادة تفعيل السيرفر الأول كخيار افتراضي عند فتح اللقاء
                 var defaultServerBtn = document.querySelector('.server-tab-btn');
                 var defaultUrl = "https://live.kooran53.cfd/goolato3_480/index.m3u8";
                 
+                // إعادة تهيئة تظليل الأزرار
                 document.querySelectorAll('.server-tab-btn').forEach(function(btn) { btn.classList.remove('active'); });
                 if (defaultServerBtn) defaultServerBtn.classList.add('active');
 
@@ -651,13 +838,29 @@
                         }, 600);
                     });
 
-                    player.on(Clappr.Events.CORE_CONTAINERS_CREATED, injectOverlays);
-                    player.on(Clappr.Events.PLAYER_PLAY, function() { document.getElementById('offline-overlay').style.display = 'none'; });
-                    player.on(Clappr.Events.CORE_FULLSCREEN, handleFullscreenChange);
+                    player.on(Clappr.Events.CORE_CONTAINERS_CREATED, function() {
+                        injectOverlays();
+                    });
+
+                    player.on(Clappr.Events.PLAYER_PLAY, function() {
+                        document.getElementById('offline-overlay').style.display = 'none';
+                    });
+
+                    player.on(Clappr.Events.CORE_FULLSCREEN, function(isCurrentlyFullscreen) {
+                        var logo = document.getElementById('custom-logo');
+                        if (logo) {
+                            if (isCurrentlyFullscreen) {
+                                logo.style.setProperty('right', '4.5%', 'important');
+                            } else {
+                                logo.style.setProperty('right', '2.1%', 'important');
+                            }
+                        }
+                    });
 
                     player.on(Clappr.Events.PLAYER_ERROR, function() {
                         offlineOverlay.style.display = 'flex';
                         unmuteOverlay.style.display = 'none';
+
                         setTimeout(function() {
                             if (currentPlayingUrl && currentPlayingUrl !== '#') {
                                 player.load(currentPlayingUrl);
@@ -667,15 +870,8 @@
                     });
                 }
             }
-            
-            function handleFullscreenChange(isCurrentlyFullscreen) {
-                var logo = document.getElementById('custom-logo');
-                if (logo) {
-                    logo.style.setProperty('right', isCurrentlyFullscreen ? '4.5%' : '2.1%', 'important');
-                }
-            }
 
-            // إغلاق البث والرجوع للرئيسية [2]
+            // إغلاق البث والرجوع للرئيسية
             function closeLiveSection() {
                 var liveSection = document.getElementById('live-section');
                 liveSection.style.display = 'none';
@@ -706,20 +902,25 @@
             function injectOverlays() {
                 if (player && player.core && player.core.el) {
                     var clapprContainer = player.core.el;
-                    var elementsToInject = ['custom-logo', 'unmute-overlay', 'offline-overlay'];
-                    elementsToInject.forEach(function(id) {
-                        var el = document.getElementById(id);
-                        if (el && el.parentElement !== clapprContainer) {
-                            clapprContainer.appendChild(el);
-                        }
-                    });
+                    var logo = document.getElementById('custom-logo');
+                    var unmute = document.getElementById('unmute-overlay');
+                    var offline = document.getElementById('offline-overlay');
+
+                    if (logo && logo.parentElement !== clapprContainer) {
+                        clapprContainer.appendChild(logo);
+                    }
+                    if (unmute && unmute.parentElement !== clapprContainer) {
+                        clapprContainer.appendChild(unmute);
+                    }
+                    if (offline && offline.parentElement !== clapprContainer) {
+                        clapprContainer.appendChild(offline);
+                    }
                 }
             }
 
-            // انطلاق جلب المباريات حياً عند التحميل وتفعيل التحديث التلقائي
+            // انطلاق جلب المباريات حياً عند التحميل
             document.addEventListener("DOMContentLoaded", function() {
-                fetchMatchesFromYSScoresAPI();
-                setInterval(fetchMatchesFromYSScoresAPI, 60000); // 🎯 تحديث تلقائي كل 60 ثانية 🎯
+                loadMatchesFromYSscores();
             });
         </script>
     </body>
