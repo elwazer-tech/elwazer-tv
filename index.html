@@ -58,12 +58,13 @@
             .scrape-status {
                 background: rgba(255,255,255,0.03);
                 border: 1px solid var(--border-color);
-                padding: 8px 12px;
+                padding: 10px 12px;
                 border-radius: 8px;
                 font-size: 12px;
                 text-align: center;
                 margin-bottom: 15px;
                 color: var(--text-muted);
+                font-weight: bold;
             }
 
             /* قسم المشغل المغلق افتراضياً ويفتح عند اختيار مباراة */
@@ -148,7 +149,7 @@
 
             #clappr-player { width: 100%; height: 100%; }
 
-            /* 🎯 اللوجو الأصلي المعتمد بالكامل دون أدنى تغيير في الأبعاد 🎯 */
+            /* اللوجو الأصلي المعتمد بالكامل دون أدنى تغيير في الأبعاد */
             .custom-video-logo {
                 position: absolute !important;
                 top: 0.1% !important;            
@@ -163,29 +164,20 @@
 
             /* أزرار السيرفرات الأربعة أسفل المشغل مباشرة لتغيير السورس حياً */
             .player-servers-container {
-                background: #0a0a0d;
+                background: #0c0c0c;
+                border-top: 1px solid var(--border-color);
                 padding: 12px 15px;
-                border-bottom: 1px solid var(--border-color);
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
             }
-            .servers-title {
-                font-size: 11px;
-                color: var(--text-muted);
-                font-weight: bold;
+            .server-label {
+                font-size: 11px; color: var(--text-muted); font-weight: bold; margin-bottom: 8px;
             }
-            .servers-list {
-                display: flex;
-                list-style: none;
-                gap: 6px;
-                overflow-x: auto;
-                scrollbar-width: none;
+            .servers-row {
+                display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
             }
-            .servers-list::-webkit-scrollbar { display: none; }
-            .servers-list li { flex: 1 1 0; min-width: 80px; }
+            .servers-row::-webkit-scrollbar { display: none; }
             .server-tab-btn {
-                width: 100%;
+                flex: 1;
+                min-width: 90px;
                 padding: 8px;
                 font-size: 11px;
                 font-weight: bold;
@@ -251,7 +243,7 @@
 
             /* قسم تفاصيل المباراة وتشكيلتها المتوقعة */
             .match-details-box {
-                background: #0c0c0c; padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.06);
+                background: #09090b; padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.06);
             }
             .detail-header {
                 font-size: 12px; font-weight: bold; margin-bottom: 10px; color: #ff007f;
@@ -260,7 +252,7 @@
                 display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;
             }
             .lineup-team {
-                background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
+                background: rgba(255,255,255,0.01); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
             }
             .lineup-team h4 { font-size: 12px; color: #00ff88; margin-bottom: 8px; text-align: center; }
             .lineup-team ul { list-style: none; font-size: 11px; color: var(--text-muted); }
@@ -268,13 +260,14 @@
 
             /* عنوان قسم جدول المباريات */
             .section-title {
-                font-size: 16px; font-weight: bold; margin: 20px 0 15px; padding-right: 10px;
+                font-size: 16px; font-weight: bold; margin: 25px 0 15px; padding-right: 10px;
                 border-right: 3px solid #421480; display: flex; align-items: center; justify-content: space-between;
             }
 
             /* كروت المباريات */
             .matches-grid {
                 display: grid; grid-template-columns: 1fr; gap: 12px;
+                min-height: 200px;
             }
             @media (min-width: 768px) {
                 .matches-grid { grid-template-columns: 1fr 1fr; }
@@ -334,6 +327,22 @@
             }
             .btn-watch:hover { opacity: 0.9; }
 
+            /* حالة عدم وجود مباريات بشكل منظم */
+            .empty-state {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 40px 20px;
+                border-radius: 12px;
+                border: 1px dashed var(--border-color);
+                color: var(--text-muted);
+                font-size: 13px;
+                background: #0b0b0e;
+            }
+
             @media (max-width: 768px) {
                 .custom-video-logo { right: 2.1% !important; top: 0.1% !important; width: 18% !important; }
             }
@@ -349,7 +358,7 @@
 
             <!-- شريط حالة السحب الحية -->
             <div class="scrape-status" id="scrape-status">
-                🔄 جاري محاولة جلب المباريات حياً من Star-Koora...
+                🔄 جاري محاولة الاتصال بـ Star-Koora...
             </div>
             
             <!-- 🎯 قسم مشغل البث التفاعلي 🎯 -->
@@ -357,11 +366,9 @@
                 <!-- شريط التحكم والمغادرة -->
                 <div class="player-top-bar">
                     <span class="player-title" id="player-status-title">📡 بث حي ومباشر الآن</span>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="player-control-btn close-btn" onclick="closeLiveSection()">
-                            ❌ إغلاق البث والرجوع
-                        </button>
-                    </div>
+                    <button class="player-control-btn close-btn" onclick="closeLiveSection()">
+                        ❌ إغلاق البث والرجوع للرئيسية
+                    </button>
                 </div>
 
                 <div class="player-container">
@@ -392,16 +399,16 @@
 
                 <!-- 🎯 السيرفرات والقنوات الأربعة الخاصة بك مدمجة مباشرة أسفل مشغل كل مباراة 🎯 -->
                 <div class="player-servers-container">
-                    <span class="servers-title">📺 اختر سيرفر البث الخاص بك لتشغيل اللقاء:</span>
-                    <ul class="servers-list">
-                        <li><button class="server-tab-btn active" onclick="switchServer('https://live.kooran53.cfd/goolato3_480/index.m3u8', this)">Server 1</button></li>
-                        <li><button class="server-tab-btn" onclick="switchServer('https://2cup.s3.us-east-2.amazonaws.com/max2/max2_720p/index.m3u8', this)">Server 2</button></li>
-                        <li><button class="server-tab-btn" onclick="switchServer('#', this)">Server 3</button></li>
-                        <li><button class="server-tab-btn" onclick="switchServer('#', this)">Server 4</button></li>
-                    </ul>
+                    <span class="server-label">📺 اختر سيرفر البث الخاص بك لتشغيل اللقاء:</span>
+                    <div class="servers-row">
+                        <button class="server-tab-btn active" onclick="switchServer('https://live.kooran53.cfd/goolato3_480/index.m3u8', this)">Server 1</button>
+                        <button class="server-tab-btn" onclick="switchServer('https://2cup.s3.us-east-2.amazonaws.com/max2/max2_720p/index.m3u8', this)">Server 2</button>
+                        <button class="server-tab-btn" onclick="switchServer('#', this)">Server 3</button>
+                        <button class="server-tab-btn" onclick="switchServer('#', this)">Server 4</button>
+                    </div>
                 </div>
 
-                <!-- تفاصيل المباراة وتشكيلتها -->
+                <!-- تفاصيل المباراة وتشكيلتها المتوقعة -->
                 <div class="match-details-box">
                     <div class="detail-header">📊 تفاصيل المباراة والتشكيلة المتوقعة:</div>
                     <div class="lineup-grid">
@@ -417,13 +424,16 @@
                 </div>
             </div>
 
-            <!-- جدول مباريات اليوم -->
+            <!-- جدول مباريات اليوم المباشر -->
             <div class="section-title">
-                <span>📅 جدول مباريات اليوم (مسحوبة حياً من Star-Koora)</span>
+                <span>📅 جدول مباريات اليوم الحالية حياً</span>
+                <button class="player-control-btn" onclick="loadMatchesFromStarKoora()" style="padding: 4px 10px; font-size: 10px;">
+                    🔄 تحديث جدول المباريات
+                </button>
             </div>
 
             <div class="matches-grid" id="matches-container">
-                <!-- جاري تعبئة المباريات فورياً -->
+                <!-- جاري جلب المباريات برمجياً -->
             </div>
 
         </div>
@@ -432,136 +442,194 @@
             var player = null;
             var currentPlayingUrl = "";
             
-            // جدول مباريات احتياطي فائق الجودة يظهر فوراً لمنع الشاشة البيضاء في حال حدوث أي حظر من السيرفر الوسيط
-            var fallbackMatches = [
-                {
-                    id: 1,
-                    league: "دوري أبطال أوروبا",
-                    status: "live",
-                    teamA: { name: "ريال مدريد", logo: "https://ssl.gstatic.com/onebox/media/sports/logos/Thg0vby9yoD697Vz8S9p9A_96x96.png" },
-                    teamB: { name: "بايرن ميونخ", logo: "https://ssl.gstatic.com/onebox/media/sports/logos/Z960Z_77m9f54668_96x96.png" },
-                    time: "09:00 م",
-                    channel: "beIN Sports HD 1",
-                    commentator: "حفيظ دراجي",
-                    lineupA: ["كورتوا (GK)", "كارفخال", "ميليتاو", "روديغر", "ميندي", "فالفيردي", "تشواميني", "بيلينغهام"],
-                    lineupB: ["نوير (GK)", "كيميتش", "أوباميكانو", "مين جاي", "ديفيز", "بالينيا", "بافلوفيتش", "أوليز"]
-                },
-                {
-                    id: 2,
-                    league: "الدوري الإنجليزي",
-                    status: "live",
-                    teamA: { name: "مانشستر سيتي", logo: "https://ssl.gstatic.com/onebox/media/sports/logos/vctSva4g0pLp9Zon6U6n3w_96x96.png" },
-                    teamB: { name: "آرسنال", logo: "https://ssl.gstatic.com/onebox/media/sports/logos/469_77m9f54668_96x96.png" },
-                    time: "07:30 م",
-                    channel: "beIN Sports HD 2",
-                    commentator: "خليل البلوشي",
-                    lineupA: ["إيدرسون (GK)", "ووكر", "دياز", "أكانجي", "غفارديول", "رودري", "كوفاسيتش", "برناردو"],
-                    lineupB: ["رايا (GK)", "بين وايت", "ساليبا", "غابرييل", "تيمبر", "بارتي", "رايس", "هافرتز"]
-                }
-            ];
-
-            // 🎯 كود جلب المباريات حياً ومباشرة من Star-Koora 🎯
+            // 🎯 معالج السحب الحصري والمتوالي المتجاوز للحظر لموقع Star-Koora 🎯
             async function loadMatchesFromStarKoora() {
                 var statusBox = document.getElementById('scrape-status');
                 var targetUrl = 'https://www.star-koora.com/matches-today/';
-                var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+                
+                // قائمة البروكسيات المجانية المتتالية لتخطي الحماية
+                var proxies = [
+                    'https://corsproxy.io/?url=',
+                    'https://api.allorigins.win/get?url=',
+                    'https://api.codetabs.com/v1/proxy?quest='
+                ];
+
+                var htmlContent = "";
+                var success = false;
+
+                for (var i = 0; i < proxies.length; i++) {
+                    statusBox.innerHTML = `🔄 محاولة جلب البيانات الحية عبر السيرفر الوسيط ${i + 1}...`;
+                    try {
+                        var proxyUrl = proxies[i] + encodeURIComponent(targetUrl);
+                        var response = await fetch(proxyUrl);
+                        if (!response.ok) continue; 
+                        
+                        if (proxies[i].includes('allorigins')) {
+                            var json = await response.json();
+                            htmlContent = json.contents;
+                        } else {
+                            htmlContent = await response.text();
+                        }
+
+                        if (htmlContent && htmlContent.trim().length > 200) {
+                            success = true;
+                            break;
+                        }
+                    } catch (e) {
+                        console.warn(`سيرفر الوساطة ${i + 1} لم ينجح:`, e.message);
+                    }
+                }
+
+                if (!success) {
+                    statusBox.innerHTML = "❌ تعذر سحب جدول المباريات حالياً من Star-Koora بسبب قيود جدار الحماية الخارجي (Cloudflare). يرجى إعادة المحاولة لاحقاً.";
+                    statusBox.style.color = "#ff3b30";
+                    renderMatches([]); // عرض واجهة خالية
+                    return;
+                }
 
                 try {
-                    var response = await fetch(proxyUrl);
-                    if (!response.ok) throw new Error("CORS Proxy Limit / Network Error");
-                    var data = await response.json();
-                    
                     var parser = new DOMParser();
-                    var doc = parser.parseFromString(data.contents, 'text/html');
+                    var doc = parser.parseFromString(htmlContent, 'text/html');
 
-                    // قراءة عناصر كروت المباريات الشهيرة في قوالب ووردبريس الرياضية
-                    var matchBoxes = doc.querySelectorAll('.match-box, .match_box, .match-card, .match_card, .match-container, .match_container, .match-event');
+                    // تحديد جميع كروت المباريات داخل تصميم الموقع الفعلي
+                    var matchBoxes = doc.querySelectorAll('.match-box, .match_box, .match-card, .match_card, .match-container, .match_container, .match-row, .match-item, .match-event');
                     
                     if (matchBoxes.length === 0) {
-                        throw new Error("No match element selector found");
+                        // محاولة ثانية سريعة باستخدام وسوم الروابط للمباريات المشهورة
+                        matchBoxes = doc.querySelectorAll('a[href*="/match-"], .match, [class*="match-container"]');
+                    }
+
+                    if (matchBoxes.length === 0) {
+                        statusBox.innerHTML = "⚠️ تم جلب الصفحة بنجاح، ولكن لا توجد أي مباريات مدرجة لليوم في موقع Star-Koora حالياً.";
+                        statusBox.style.color = "#ffb300";
+                        renderMatches([]);
+                        return;
                     }
 
                     var matchesList = [];
                     matchBoxes.forEach(function(el, index) {
-                        // سحب الشعارات
-                        var imgs = el.querySelectorAll('img');
-                        var logoA = imgs[0] ? imgs[0].src : "https://placehold.co/45";
-                        var logoB = imgs[1] ? imgs[1].src : "https://placehold.co/45";
-
-                        // تصحيح مسارات الصور النسبية
-                        if (logoA.startsWith('/')) logoA = 'https://www.star-koora.com' + logoA;
-                        if (logoB.startsWith('/')) logoB = 'https://www.star-koora.com' + logoB;
-
-                        // سحب أسماء الفرق
-                        var nameA = "الفريق الأول";
-                        var nameB = "الفريق الثاني";
-                        var nameEls = el.querySelectorAll('.team-name, .name-team, .team_name, h3, h4');
-                        if (nameEls.length >= 2) {
-                            nameA = nameEls[0].textContent.trim();
-                            nameB = nameEls[1].textContent.trim();
-                        }
-
-                        // التوقيت وحالة اللقاء
-                        var time = "09:00 م";
-                        var timeEls = el.querySelectorAll('.match-time, .time-match, .time');
-                        if (timeEls.length > 0) {
-                            time = timeEls[0].textContent.trim();
-                        }
-
-                        var status = "live";
-                        if (el.textContent.includes("انتهت") || el.textContent.includes("ended")) {
-                            status = "waiting";
-                        }
-
-                        // البطولة والقناة والمعلق
-                        var league = "بطولة جارية";
-                        var leagueEls = el.querySelectorAll('.league, .match-league, .league-name');
-                        if (leagueEls.length > 0) {
-                            league = leagueEls[0].textContent.trim();
-                        }
-
-                        var channel = "beIN Sports";
-                        var channelEls = el.querySelectorAll('.channel, .match-channel');
-                        if (channelEls.length > 0) {
-                            channel = channelEls[0].textContent.trim();
-                        }
-
-                        var commentator = "معلق اللقاء";
-                        var commEls = el.querySelectorAll('.commentator, .match-commentator');
-                        if (commEls.length > 0) {
-                            commentator = commEls[0].textContent.trim();
-                        }
+                        // استخراج الشعارات والأسماء بدقة وعزل الهوامش
+                        var teamData = extractTeamData(el);
+                        var metaData = extractMatchMeta(el);
 
                         matchesList.push({
                             id: index + 1,
-                            league: league,
-                            status: status,
-                            teamA: { name: nameA, logo: logoA },
-                            teamB: { name: nameB, logo: logoB },
-                            time: time,
-                            channel: channel,
-                            commentator: commentator,
+                            league: metaData.league,
+                            status: metaData.status,
+                            teamA: { name: teamData.nameA, logo: teamData.logoA },
+                            teamB: { name: teamData.nameB, logo: teamData.logoB },
+                            time: metaData.time,
+                            channel: metaData.channel,
+                            commentator: metaData.commentator,
                             lineupA: ["كورتوا (GK)", "كارفخال", "ميليتاو", "روديغر", "فالفيردي", "تشواميني", "بيلينغهام"],
                             lineupB: ["نوير (GK)", "كيميتش", "أوباميكانو", "مين جاي", "ديفيز", "موسيالا", "هاري كين"]
                         });
                     });
 
-                    statusBox.innerHTML = "✅ تم تحديث المباريات حياً ومباشرة من Star-Koora!";
+                    statusBox.innerHTML = "✅ تم تحديث جدول المباريات حياً ومباشرة من Star-Koora!";
                     statusBox.style.color = "#00ff88";
                     renderMatches(matchesList);
 
                 } catch (err) {
-                    console.log("تعذر الجلب المباشر، جاري تفعيل الجدول الاحتياطي التلقائي:", err.message);
-                    statusBox.innerHTML = "⚠️ تم تفعيل جدول المباريات الاحتياطي لضمان استقرار صفحتك.";
-                    statusBox.style.color = "#ffb300";
-                    renderMatches(fallbackMatches);
+                    statusBox.innerHTML = "❌ خطأ برمجي أثناء معالجة وقراءة البيانات: " + err.message;
+                    statusBox.style.color = "#ff3b30";
+                    renderMatches([]);
                 }
+            }
+
+            // وظيفة استخراج بيانات الفرق والشعارات بمرونة وعزل الكلاسات العشوائية
+            function extractTeamData(el) {
+                var nameA = "الفريق الأول";
+                var nameB = "الفريق الثاني";
+                var logoA = "https://placehold.co/45";
+                var logoB = "https://placehold.co/45";
+
+                var imgs = el.querySelectorAll('img');
+                if (imgs.length >= 2) {
+                    logoA = imgs[0].src;
+                    logoB = imgs[1].src;
+                } else if (imgs.length === 1) {
+                    logoA = imgs[0].src;
+                }
+
+                var nameEls = el.querySelectorAll('.team-name, .name-team, .team_name, .team-a .name, .team-b .name, .right-team .name, .left-team .name, h3, h4');
+                if (nameEls.length >= 2) {
+                    nameA = nameEls[0].textContent.trim();
+                    nameB = nameEls[1].textContent.trim();
+                } else {
+                    var candidates = [];
+                    el.querySelectorAll('span, div, p').forEach(function(node) {
+                        if (node.children.length === 0) {
+                            var text = node.textContent.trim();
+                            if (text && text.length > 2 && text.length < 25 && !text.includes(':') && !text.includes('م') && !text.includes('ص') && !text.includes('beIN') && !text.includes('HD')) {
+                                candidates.push(text);
+                            }
+                        }
+                    });
+                    if (candidates.length >= 2) {
+                        nameA = candidates[0];
+                        nameB = candidates[candidates.length - 1];
+                    }
+                }
+
+                if (logoA.startsWith('/')) logoA = 'https://www.star-koora.com' + logoA;
+                if (logoB.startsWith('/')) logoB = 'https://www.star-koora.com' + logoB;
+
+                return { nameA: nameA, nameB: nameB, logoA: logoA, logoB: logoB };
+            }
+
+            // وظيفة استخراج بيانات البطولة والتوقيت والقنوات
+            function extractMatchMeta(el) {
+                var time = "09:00 م";
+                var league = "بطولة جارية";
+                var channel = "beIN Sports";
+                var commentator = "معلق اللقاء";
+                var status = "live";
+
+                var timeEls = el.querySelectorAll('.match-time, .time-match, .time, .match_time');
+                if (timeEls.length > 0) {
+                    time = timeEls[0].textContent.trim();
+                } else {
+                    var timeMatch = el.textContent.match(/\d{1,2}:\d{2}\s*(م|ص)?/);
+                    if (timeMatch) time = timeMatch[0];
+                }
+
+                var leagueEls = el.querySelectorAll('.league, .match-league, .league-name, .tournament');
+                if (leagueEls.length > 0) {
+                    league = leagueEls[0].textContent.trim();
+                }
+
+                var channelEls = el.querySelectorAll('.channel, .match-channel, .chanel');
+                if (channelEls.length > 0) {
+                    channel = channelEls[0].textContent.trim();
+                }
+
+                var commEls = el.querySelectorAll('.commentator, .match-commentator, .voice');
+                if (commEls.length > 0) {
+                    commentator = commEls[0].textContent.trim();
+                }
+
+                if (el.textContent.includes("انتهت") || el.textContent.includes("ended") || el.textContent.includes("لم تبدأ")) {
+                    status = "waiting";
+                }
+
+                return { time: time, league: league, channel: channel, commentator: commentator, status: status };
             }
 
             // عرض الكروت في الواجهة
             function renderMatches(list) {
                 var container = document.getElementById('matches-container');
                 container.innerHTML = "";
+
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            📡 لا توجد مباريات حية حرة معروضة حالياً من المصدر، أو أن السيرفر الوسيط معطل.
+                            <button class="player-control-btn" onclick="loadMatchesFromStarKoora()" style="margin-top: 15px; background: var(--primary-gradient);">🔄 إعادة المحاولة والتحميل</button>
+                        </div>
+                    `;
+                    return;
+                }
 
                 list.forEach(function(match) {
                     var statusClass = match.status === 'live' ? 'status-live' : 'status-waiting';
