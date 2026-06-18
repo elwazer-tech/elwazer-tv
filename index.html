@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <meta name="robots" content="noindex,nofollow"/>
         <meta property="og:site_name" content="Elwazer Sports">
-        <title>الوزير سبورت - Elwazer Sports</title>
+        <title>الوزير سبورت - Elwazer Sports | جدول مباريات اليوم والبث المباشر</title>
         
         <!-- استدعاء مكتبة المشغل العالمي Clappr Player -->
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
@@ -228,7 +228,7 @@
             }
             .offline-overlay svg { width: 55px; height: 55px; fill: #ff3b30; margin-bottom: 15px; }
 
-            /* 🎯 تنسيق شريط تبديل أيام المباريات المطور والمتباعد بشكل مريح للعين 🎯 */
+            /* 🎯 تنسيق شريط تبديل أيام المباريات المطور 🎯 */
             .date-tabs-container {
                 display: flex;
                 gap: 12px;
@@ -247,6 +247,9 @@
                 cursor: pointer;
                 transition: all 0.25s ease;
                 white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
             }
             .date-tab-btn:hover {
                 background: rgba(255, 255, 255, 0.08);
@@ -414,14 +417,14 @@
 
             <!-- جدول مباريات اليوم المباشر -->
             <div class="section-title">
-                <!-- 🎯 تم حذف الجملة المحددة بالكامل من الهيدر لتصفية الواجهة 🎯 -->
+                <!-- تم مسح الجملة الإضافية تماماً بناءً على طلبك وتصفية الهيدر -->
                 <span>📅 جدول مباريات اليوم</span>
                 <button class="player-control-btn" onclick="loadMatchesFromYSscores(false)" style="padding: 4px 10px; font-size: 10px;">
                     🔄 تحديث جدول المباريات
                 </button>
             </div>
 
-            <!-- 🎯 أزرار تبديل الأيام (أمس، اليوم، غداً) مع إظهار التواريخ حية بجانبها 🎯 -->
+            <!-- أزرار تبديل الأيام (أمس، اليوم، غداً) مع إظهار التواريخ حية بجانبها -->
             <div class="date-tabs-container">
                 <button class="date-tab-btn" id="date-btn-yesterday" onclick="changeDateOffset(-1, this)">⬅️ مباريات الأمس</button>
                 <button class="date-tab-btn active" id="date-btn-today" onclick="changeDateOffset(0, this)">📅 مباريات اليوم</button>
@@ -437,7 +440,7 @@
         <script>
             var player = null;
             var currentPlayingUrl = "";
-            var activeDateOffset = 0; // 0 لليوم، -1 للأمس, 1 للغد
+            var activeDateOffset = 0; // 0 لليوم، -1 للأمس، 1 للغد
 
             // دالة لحساب وتنسيق تواريخ الأيام الثلاثة بالصيغة العربية (DD-MM-YYYY)
             function getFormattedDate(offset) {
@@ -476,7 +479,7 @@
                 // حساب التاريخ برمجياً بناءً على اختيار المستخدم (أمس، اليوم، غداً)
                 var dateString = getOffsetDateString(activeDateOffset);
                 
-                // 🎯 تصحيح رابط الطلب ليتصل بـ الصفحة الرئيسية المباشرة en/ مع معاملات التاريخ ?date بدقة 🎯
+                // 🎯 تصحيح مسار الطلب ليتصل بـ الصفحة الرئيسية المباشرة en/ مع معاملات التاريخ ?date بدقة تامة 🎯
                 var targetUrl = `https://www.ysscores.com/en/?date=${dateString}`;
                 
                 // قائمة السيرفرات الوسيطة (Proxies) المفتوحة والمتاحة لتخطي الحماية
@@ -752,7 +755,7 @@
                 if (list.length === 0) {
                     container.innerHTML = `
                         <div class="empty-state">
-                            📡 لا توجد مباريات معروضة حالياً من المصدر لهذا اليوم، أو أن خوادم YSscores محجوبة مؤقتاً.
+                            📡 لا توجد مباريات حية معروضة حالياً من المصدر لهذا اليوم، أو أن خوادم YSscores محجوبة مؤقتاً.
                             <button class="player-control-btn" onclick="loadMatchesFromYSscores(false)" style="margin-top: 15px; background: var(--primary-gradient);">🔄 إعادة المحاولة والتحميل</button>
                         </div>
                     `;
