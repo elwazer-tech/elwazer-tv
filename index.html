@@ -242,7 +242,6 @@
                🎯 مصفوفة القنوات (تعديل القنوات وتغيير الروابط والأسماء يتم هنا فقط) 🎯
                ========================================================================== */
             var channels = [
-                // تم وضع رابط القناة الثابتة أولاً لتعمل الصفحة فوراً بنجاح، ووضع البث المتخفي كخيار لاحق لتجربته بمرونة
                 { name: "Channel 1", url: "https://s3.us-east-2.amazonaws.com/cdnh123/hls/0/stream_1280x720_3300k.m3u8" },
                 { name: "Channel 2", url: "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8" },
                 { name: "Channel 3", url: "https://s3.eu-north-1.amazonaws.com/196.ccdd3333/hls/0/stream.m3u8" },
@@ -427,4 +426,50 @@
                 }
             }, { once: true });
 
-            // وظيفة الضغط على الزر لتشغيل الصوت وإلغاء ا
+            // وظيفة الضغط على الزر لتشغيل الصوت وإلغاء الكتم
+            function unmutePlayer() {
+                player.unmute();
+                player.setVolume(100);
+                document.getElementById('unmute-overlay').style.display = 'none';
+            }
+
+            // وظيفة التبديل السلس والسريع وتفعيل الصوت فور الضغط على القناة وحفظها في localStorage
+            function changeSource(url, element, index) {
+                var offlineOverlay = document.getElementById('offline-overlay');
+                var unmuteOverlay = document.getElementById('unmute-overlay');
+
+                // تحديث رابط التشغيل النشط فوراً لتوجيه نظام الإنعاش للقناة الجديدة وحمايتها
+                currentPlayingUrl = url;
+
+                localStorage.setItem('savedChannelUrl', url);
+                localStorage.setItem('savedChannelIndex', index);
+
+                // تغيير اللون النشط للزر المختار
+                var links = document.querySelectorAll('.tablinks');
+                links.forEach(function(link) { link.classList.remove('active'); });
+                element.classList.add('active');
+
+                // فحص إذا كان البث متوقف أو غير مضاف حالياً
+                if (!url || url === '#' || url === '' || url.includes('offline')) {
+                    player.pause();
+                    offlineOverlay.style.display = 'flex'; 
+                    unmuteOverlay.style.display = 'none'; 
+                } else {
+                    offlineOverlay.style.display = 'none'; 
+                    
+                    player.load(url); // جلب البث الجديد بشكل فوري بـ Clappr
+                    player.play();
+                    
+                    player.unmute(); 
+                    player.setVolume(100);
+                    document.getElementById('unmute-overlay').style.display = 'none';
+                }
+            }
+
+            // انطلاق بناء قائمة القنوات بمجرد تحميل هيكل الصفحة DOM
+            document.addEventListener("DOMContentLoaded", function() {
+                renderChannelsList();
+            });
+        </script>
+    </body>
+</html>
