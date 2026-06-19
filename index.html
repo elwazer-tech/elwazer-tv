@@ -107,12 +107,12 @@
             border-radius: 3px;
         }
 
-        /* ===== بطاقة القناة - تمدد مرن وتلقائي حسب طول اسم الفرق ودون قطع ===== */
+        /* ===== بطاقة القناة - تمدد مرن وتلقائي حسب طول اسم الفرق ودون قطع 🎯 ===== */
         .channel-card {
             flex-shrink: 0;
-            width: max-content;             /* تمدد تلقائي حسب طول النصوص المكتوبة */
-            min-width: 230px;               /* حد أدنى للعرض لحفظ التنسيق */
-            max-width: 320px;               /* حد أقصى لمنع تمدد الكرت بشكل مبالغ فيه */
+            width: max-content;             /* تمدد تلقائي حسب طول اسم الفرق */
+            min-width: 240px;               /* حد أدنى للعرض لمنع الصغر الشديد */
+            max-width: 320px;               /* حد أقصى لمنع التمدد المفرط */
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -171,7 +171,7 @@
         .ch-teams-inline {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 8px;
         }
         .ch-team-side {
@@ -185,7 +185,7 @@
             font-size: 12px;
             font-weight: 700;
             color: #fff;
-            white-space: nowrap; /* إبقاء الاسم كاملاً دون قطع */
+            white-space: nowrap;           /* إبقاء اسم الفريق كاملاً في سطر واحد دون قطع 🎯 */
         }
         .ch-vs-mid {
             font-size: 10px;
@@ -193,7 +193,7 @@
             color: rgba(255,255,255,0.3);
             letter-spacing: 1px;
             flex-shrink: 0;
-            padding: 0 2px;
+            padding: 0 4px;
         }
 
         /* النتيجة */
@@ -240,7 +240,7 @@
             align-items: center;
             justify-content: center;
             padding: 10px;
-            overflow: hidden;                /* لمنع خروج المشغل عن النطاق */
+            overflow: hidden;                /* منع خروج المشغل بره مساحته المحددة */
         }
         .player-wrapper {
             position: relative;
@@ -558,7 +558,7 @@ function renderChannels() {
             '<div class="ch-footer">' +
                 '<div class="ch-footer-row time-row">' +
                     '<span>&#9201;</span><span>' + time + '</span>' +
-                } +
+                '</div>' +
                 '<div class="ch-footer-row">' +
                     '<span>&#127942;</span><span>' + grp + '</span>' +
                 '</div>' +
