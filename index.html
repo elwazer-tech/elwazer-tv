@@ -1,475 +1,725 @@
 <!DOCTYPE html>
-<html lang="ar">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width,initial-scale=1">
-        <meta name="robots" content="noindex,nofollow"/>
-        <meta property="og:site_name" content="Elwazer Sports">
-        <title>Elwazer Sports - Live Match</title>
-        
-        <!-- استدعاء مكتبة المشغل العالمي Clappr Player فائق الاستقرار في البث المباشر -->
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-        
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box }
-            html,body { height: 100%; width: 100%; background: #000; overflow: hidden; font-family: sans-serif }
-            body { display: flex; flex-direction: column }
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex,nofollow"/>
+    <title>Elwazer Sports - Live Match</title>
+    <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <style>
+        :root {
+            --primary: #421480;
+            --primary-dark: #2e0d5e;
+            --accent: #00ff88;
+            --bg: #070708;
+            --surface: #0f0f13;
+            --surface2: #16161c;
+            --border: rgba(255,255,255,0.06);
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.55);
+        }
 
-            /* شريط القنوات العلوي */
-            .albaplayer_name {
-                display: flex; list-style: none; background: #0a0a0a; padding: 8px 10px; gap: 6px;
-                border-bottom: 1px solid rgba(255,255,255,.06); overflow-x: auto; scrollbar-width: none;
-                flex-shrink: 0;
-            }
-            .albaplayer_name::-webkit-scrollbar { display: none }
-            .albaplayer_name li { flex: 1 1 0; min-width: 0; }
-            .albaplayer_name a {
-                display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.04);
-                border: 1px solid rgba(255,255,255,.06); font: 600 13px -apple-system,sans-serif; cursor: pointer;
-                padding: 9px 14px; height: 38px; color: rgba(255,255,255,.6); text-decoration: none; border-radius: 10px;
-                transition: all .25s ease; white-space: nowrap; width: 100%; position: relative;
-            }
-            .albaplayer_name a:hover { background: rgba(255,255,255,.08); color: #fff; }
-            .albaplayer_name a.active {
-                background: linear-gradient(135deg,#2e0d5e 0%,#421480 100%); color: #fff;
-                border: 1px solid rgba(50,15,100,.5); font-weight: 700; box-shadow: 0 2px 12px rgba(46,13,94,.3);
-            }
+        * { margin:0; padding:0; box-sizing:border-box }
+        html, body {
+            height: 100%; width: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-            /* حاوية المشغل الخارجية */
-            .player-container { 
-                flex: 1; 
-                position: relative; 
-                width: 100%; 
-                min-height: 0; 
-                background: #000; 
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 10px;
-            }
+        /* ===== HEADER ===== */
+        .header {
+            flex-shrink: 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .header-logo {
+            font-size: 15px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ff007f, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
 
-            /* الحاوية الذكية التي تمنع ظهور أي هوامش سوداء داخل المشغل وتثبت العناصر */
-            .player-wrapper {
-                position: relative;
-                width: 100%;
-                max-width: 120vh; 
-                aspect-ratio: 16 / 9;
-                background: #000;
-                border-radius: 8px;
-                overflow: hidden;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            }
+        /* بطاقة المباراة الحالية في الهيدر */
+        .match-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 14px;
+            flex: 1;
+            max-width: 480px;
+            overflow: hidden;
+        }
+        .match-badge .live-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+            animation: blink 1.4s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.2; } }
+        .match-badge .teams {
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .match-badge .match-time {
+            font-size: 11px;
+            color: var(--accent);
+            white-space: nowrap;
+            margin-right: auto;
+        }
+        .match-badge .match-league {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
 
-            /* تهيئة مساحة عرض Clappr */
-            #clappr-player {
-                width: 100%;
-                height: 100%;
-            }
+        /* ===== CHANNEL TABS ===== */
+        .channels-bar {
+            flex-shrink: 0;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 10px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .channels-bar::-webkit-scrollbar { display: none; }
 
-            /* إجبار الفيديو على التمدد الكامل لمنع وظهور الهوامش السوداء في جميع أوضاع المتصفح وملء الشاشة */
-            video {
-                object-fit: fill !important;
-            }
-            .clappr-player video {
-                object-fit: fill !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-            .clappr-player:fullscreen video {
-                object-fit: fill !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-            .clappr-player:-webkit-full-screen video {
-                object-fit: fill !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
+        .channel-card {
+            flex-shrink: 0;
+            min-width: 130px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            position: relative;
+            text-align: center;
+        }
+        .channel-card:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,255,255,0.12);
+        }
+        .channel-card.active {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            border-color: rgba(100,40,200,0.5);
+            box-shadow: 0 2px 14px rgba(66,20,128,0.35);
+        }
+        .channel-card .ch-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .channel-card .ch-teams {
+            font-size: 10px;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .channel-card .ch-time {
+            font-size: 10px;
+            color: var(--accent);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .channel-card .ch-status {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+        .ch-status.live {
+            background: rgba(0,255,136,0.15);
+            color: var(--accent);
+        }
+        .ch-status.soon {
+            background: rgba(255,200,0,0.12);
+            color: #ffcc00;
+        }
 
-            /* زر التحديث */
-            .embed-btn {
-                position: absolute; top: 12px; left: 12px; z-index: 99999999 !important; background: rgba(15, 15, 15, 0.85);
-                border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 6px 12px;
-                border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px;
-                transition: background 0.2s;
-            }
-            .embed-btn:hover { background: rgba(30, 30, 30, 0.9); }
-            .embed-btn svg { width: 14px; height: 14px; fill: currentColor }
+        /* ===== PLAYER AREA ===== */
+        .player-area {
+            flex: 1;
+            min-height: 0;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            position: relative;
+        }
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 120vh;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+        #clappr-player { width:100%; height:100%; }
+        video { object-fit: fill !important; width:100% !important; height:100% !important; }
 
-            /* ربط الحجم بأبعاد الفيديو الفعلي */
-            .video-js .vjs-tech {
-                object-fit: fill !important; 
-            }
+        /* رابط تحديث */
+        .refresh-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 9999999;
+            background: rgba(10,10,10,0.8);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            padding: 5px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(6px);
+            transition: background 0.2s;
+        }
+        .refresh-btn:hover { background: rgba(66,20,128,0.7); }
+        .refresh-btn svg { width:13px; height:13px; fill:currentColor; }
 
-            /* 🎯 اللوجو المعتمد بمقاييسك الأصلية والدقيقة بالكامل دون أي تعديل في الوضع المصغر 🎯 */
-            .custom-video-logo {
-                position: absolute !important;
-                top: 0.1% !important;            /* الارتفاع المثالي الذي اعتمدته */
-                right: 2.1% !important;          /* الاتجاه الجانبي المثالي الذي اعتمدته */
-                z-index: 999999 !important;      /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
-                width: 18% !important;           
-                aspect-ratio: 1.45 / 1 !important; 
-                object-fit: fill !important;     
-                pointer-events: none !important;
-                background: transparent !important; 
-                margin: 0 !important;
-                padding: 0 !important;
-                transition: right 0.1s ease-in-out; /* حركة مريحة للعين عند تبديل الأبعاد بملء الشاشة */
-            }
+        /* شعار */
+        .custom-video-logo {
+            position: absolute !important;
+            top: 0.1% !important;
+            right: 2.1% !important;
+            z-index: 999999 !important;
+            width: 18% !important;
+            aspect-ratio: 1.45/1 !important;
+            object-fit: fill !important;
+            pointer-events: none !important;
+            background: transparent !important;
+        }
 
-            /* زر تفعيل الصوت التفاعلي المطور للتغلب على حماية المتصفحات */
-            .unmute-overlay {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                z-index: 9999999 !important; /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
-                background: rgba(10, 10, 10, 0.85);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                color: #fff;
-                padding: 12px 24px;
-                border-radius: 30px;
-                font-size: 14px;
-                font-weight: bold;
-                display: none; 
-                align-items: center;
-                gap: 10px;
-                cursor: pointer;
-                backdrop-filter: blur(8px);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-                animation: pulse 2s infinite;
-            }
-            .unmute-overlay:hover {
-                background: rgba(46, 13, 94, 0.9);
-                border-color: #00ff88;
-                transform: translate(-50%, -50%) scale(1.05);
-            }
-            .unmute-overlay svg { width: 20px; height: 20px; fill: currentColor; }
+        /* overlay الصوت */
+        .unmute-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            z-index: 9999999;
+            background: rgba(10,10,10,0.88);
+            border: 1px solid rgba(0,255,136,0.3);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            animation: pulse 2s infinite;
+        }
+        .unmute-overlay svg { width:20px; height:20px; fill:currentColor; }
+        @keyframes pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(0,255,136,0.35); }
+            70%  { box-shadow: 0 0 0 10px rgba(0,255,136,0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+        }
 
-            /* لوحة التنبيه الزجاجية الأنيقة في حال كان البث متوقفاً */
-            .offline-overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: 9999998 !important; /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
-                background: rgba(10, 10, 10, 0.92);
-                display: none; 
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: #fff;
-                text-align: center;
-                padding: 20px;
-                backdrop-filter: blur(10px);
-            }
-            .offline-overlay svg {
-                width: 55px;
-                height: 55px;
-                fill: #ff3b30; 
-                margin-bottom: 15px;
-            }
-            .offline-title {
-                font-size: 18px;
-                font-weight: bold;
-                margin-bottom: 8px;
-                color: #fff;
-            }
-            .offline-subtitle {
-                font-size: 13px;
-                color: rgba(255, 255, 255, 0.6);
-                max-width: 320px;
-                line-height: 1.5;
-            }
+        /* overlay إيقاف */
+        .offline-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 9999998;
+            background: rgba(7,7,8,0.94);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+        }
+        .offline-overlay .off-icon {
+            width: 52px; height: 52px;
+            background: rgba(255,59,48,0.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .offline-overlay .off-icon svg { width:28px; height:28px; fill:#ff3b30; }
+        .offline-overlay h3 { font-size:16px; margin-bottom:6px; }
+        .offline-overlay p  { font-size:12px; color:var(--text-muted); max-width:280px; line-height:1.6; }
 
-            @keyframes pulse {
-                0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-                70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-            }
+        /* ===== BOTTOM INFO BAR ===== */
+        .info-bar {
+            flex-shrink: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 5px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .info-bar .score-now {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+        .info-bar .update-time {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
 
-            @media (max-width: 768px) {
-                .custom-video-logo { 
-                    right: 2.1% !important; 
-                    top: 0.1% !important; 
-                    width: 18% !important; 
-                }
-            }
-        </style>
-    </head>
-    <body>
-        
-        <!-- أزرار التنقل بين القنوات (يتم توليدها تلقائياً من مصفوفة channels بالأسفل) -->
-        <ul class="albaplayer_name" id="channels-list">
-            <!-- يتم حقن الأزرار هنا برمجياً لضمان السرعة الفائقة وتفادي التكرار -->
-        </ul>
+        @media (max-width:600px) {
+            .header-logo { font-size:13px; }
+            .match-badge  { display:none; }
+            .channel-card { min-width:110px; }
+        }
+    </style>
+</head>
+<body>
 
-        <div class="player-container">
-            
-            <!-- الحاوية الذكية التي تحافظ على التناسق التام وبأبعاد 16:9 حقيقية ومغلقة -->
-            <div class="player-wrapper">
-                
-                <!-- زر تحديث المشغل -->
-                <button class="embed-btn" onclick="window.location.reload();">
-                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-                    تحديث المشغل
-                </button>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-logo">⚽ Elwazer Sports</div>
+        <div class="match-badge" id="header-match-badge">
+            <div class="live-dot"></div>
+            <div class="teams" id="badge-teams">جاري التحميل...</div>
+            <div class="match-time" id="badge-time"></div>
+            <div class="match-league" id="badge-league"></div>
+        </div>
+    </div>
 
-                <!-- هنا يتم بناء مشغل Clappr تلقائياً دون الحاجة لوسم video تقليدي -->
-                <div id="clappr-player"></div>
+    <!-- CHANNELS BAR -->
+    <div class="channels-bar" id="channels-bar"></div>
 
-                <!-- 🎯 تم استعادة وسم الصورة المستقل الخاص بك ليعود كما كان في مشغلك القديم 🎯 -->
-                <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
+    <!-- PLAYER -->
+    <div class="player-area">
+        <div class="player-wrapper">
+            <button class="refresh-btn" onclick="location.reload()">
+                <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                تحديث
+            </button>
 
-                <div id="offline-overlay" class="offline-overlay">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                    <div class="offline-title">البث متوقف مؤقتاً</div>
-                    <div class="offline-subtitle">هذه القناة غير مضافة حالياً أو أن البث متوقف مؤقتاً. يرجى تجربة السيرفرات الأخرى.</div>
-                </div>
+            <div id="clappr-player"></div>
+            <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="">
 
-                <div id="unmute-overlay" class="unmute-overlay" onclick="unmutePlayer()">
-                    <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0 3.28-2.16 6.07-5.14 7.03c1.92-.61 3.44-2.13 4.05-4.05C18.42 13.93 19 12.82 19 12zm-8.81 7.19L5.35 14H2v-4h3.35l4.84-5.19C10.74 4.26 11.5 4.61 11.5 5.3v13.4c0 .69-.76 1.04-1.31.49z"/></svg>
-                    إلغاء الكتم وتفعيل الصوت
-                </div>
-
+            <div id="offline-overlay" class="offline-overlay">
+                <div class="off-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+                <h3>البث متوقف مؤقتاً</h3>
+                <p>يرجى تجربة قناة أخرى أو الانتظار قليلاً</p>
             </div>
 
+            <div id="unmute-overlay" class="unmute-overlay" onclick="unmutePlayer()">
+                <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0 3.28-2.16 6.07-5.14 7.03c1.92-.61 3.44-2.13 4.05-4.05C18.42 13.93 19 12.82 19 12zm-8.81 7.19L5.35 14H2v-4h3.35l4.84-5.19C10.74 4.26 11.5 4.61 11.5 5.3v13.4c0 .69-.76 1.04-1.31.49z"/></svg>
+                اضغط لتفعيل الصوت
+            </div>
         </div>
+    </div>
 
-        <script>
-            /* ==========================================================================
-               🎯 مصفوفة القنوات (تعديل القنوات وتغيير الروابط والأسماء يتم هنا فقط) 🎯
-               ========================================================================== */
-            var channels = [
-                { name: "Channel 1", url: "https://s3.us-east-2.amazonaws.com/cdnh123/hls/0/stream_1280x720_3300k.m3u8" },
-                { name: "Channel 2", url: "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8" },
-                { name: "Channel 3", url: "https://s3.eu-north-1.amazonaws.com/196.ccdd3333/hls/0/stream.m3u8" },
-                { name: "Channel 4", url: "https://2.simoplay.com/secure-hls/1781826402/fDFzv5hvKIfnC93jNGFXKw/ivedvqo3ltm.m3u8" },
-                { name: "البث المتخفي (JSON)", url: "https://chatgmt2.xyz/wp-includes/ajax/data.json" }
-            ];
+    <!-- BOTTOM INFO BAR -->
+    <div class="info-bar">
+        <span id="info-match-name" style="color:#fff;font-weight:600;">—</span>
+        <span class="score-now" id="info-score"></span>
+        <span class="update-time" id="info-update"></span>
+    </div>
 
-            var player = null;
-            var currentPlayingUrl = "";
+<script>
+// ============================================================
+// 🎯 بيانات كأس العالم 2026 — اليوم الجمعة 19 يونيو (توقيت الرياض GMT+3)
+// تُحدَّث يدوياً كل يوم أو عبر API مستقبلاً
+// ============================================================
+var WC_MATCHES_TODAY = [
+    {
+        id: 1,
+        teamA: "الولايات المتحدة",
+        teamB: "أستراليا",
+        flagA: "🇺🇸", flagB: "🇦🇺",
+        group: "المجموعة D",
+        kickoff: "22:00",      // توقيت الرياض
+        kickoffUTC: "19:00",
+        venue: "Lumen Field, Seattle",
+        status: "live",        // waiting | live | ended
+        scoreA: "", scoreB: "",
+        minute: ""
+    },
+    {
+        id: 2,
+        teamA: "اسكتلندا",
+        teamB: "المغرب",
+        flagA: "🏴󠁧󠁢󠁳󠁣󠁴󠁿", flagB: "🇲🇦",
+        group: "المجموعة C",
+        kickoff: "01:00",
+        kickoffUTC: "22:00",
+        venue: "Gillette Stadium, Boston",
+        status: "waiting",
+        scoreA: "", scoreB: "",
+        minute: ""
+    },
+    {
+        id: 3,
+        teamA: "البرازيل",
+        teamB: "هايتي",
+        flagA: "🇧🇷", flagB: "🇭🇹",
+        group: "المجموعة C",
+        kickoff: "03:30",
+        kickoffUTC: "00:30",
+        venue: "Lincoln Financial Field, Philadelphia",
+        status: "waiting",
+        scoreA: "", scoreB: "",
+        minute: ""
+    },
+    {
+        id: 4,
+        teamA: "تركيا",
+        teamB: "باراغواي",
+        flagA: "🇹🇷", flagB: "🇵🇾",
+        group: "المجموعة D",
+        kickoff: "05:00",
+        kickoffUTC: "02:00",
+        venue: "Levi's Stadium, Santa Clara",
+        status: "waiting",
+        scoreA: "", scoreB: "",
+        minute: ""
+    }
+];
 
-            // استعادة القناة الأخيرة من الذاكرة أو تشغيل القناة الأولى كخيار افتراضي
-            var defaultUrl = channels[0].url; 
-            var defaultIndex = 0;
+// ============================================================
+// 🎯 القنوات — كل قناة مربوطة بـ matchId للمباراة المقابلة
+// ============================================================
+var channels = [
+    {
+        name: "Server 1",
+        url: "https://s3.us-east-2.amazonaws.com/cdnh123/hls/0/stream_1280x720_3300k.m3u8",
+        matchId: 1
+    },
+    {
+        name: "Server 2",
+        url: "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8",
+        matchId: 1
+    },
+    {
+        name: "Server 3",
+        url: "https://s3.eu-north-1.amazonaws.com/196.ccdd3333/hls/0/stream.m3u8",
+        matchId: 2
+    },
+    {
+        name: "Server 4",
+        url: "https://2.simoplay.com/secure-hls/1781826402/fDFzv5hvKIfnC93jNGFXKw/ivedvqo3ltm.m3u8",
+        matchId: 3
+    }
+];
 
-            var savedUrl = localStorage.getItem('savedChannelUrl');
-            var savedIndex = localStorage.getItem('savedChannelIndex');
+// ============================================================
+// متغيرات التشغيل
+// ============================================================
+var player = null;
+var currentUrl = "";
+var activeIndex = 0;
 
-            var activeUrl = (savedUrl !== null) ? savedUrl : defaultUrl;
-            var activeIndex = (savedIndex !== null) ? parseInt(savedIndex) : defaultIndex;
+// ============================================================
+// بناء شريط القنوات
+// ============================================================
+function renderChannels() {
+    var bar = document.getElementById('channels-bar');
+    bar.innerHTML = '';
 
-            // في حال كان الفهرس المحفوظ خارج حدود القنوات الحالية
-            if (activeIndex >= channels.length) {
-                activeUrl = defaultUrl;
-                activeIndex = defaultIndex;
+    channels.forEach(function(ch, i) {
+        var match = getMatch(ch.matchId);
+        var card = document.createElement('div');
+        card.className = 'channel-card' + (i === activeIndex ? ' active' : '');
+        card.onclick = function() { selectChannel(i); };
+
+        var statusLabel = '';
+        var statusClass = '';
+        if (match) {
+            if (match.status === 'live') {
+                statusLabel = '● LIVE';
+                statusClass = 'live';
+            } else if (match.status === 'waiting') {
+                statusLabel = '⏰ قريباً';
+                statusClass = 'soon';
             }
+        }
 
-            var initialSource = (activeUrl && activeUrl !== '#') ? activeUrl : '';
-            currentPlayingUrl = activeUrl;
+        var teamsHtml = match
+            ? (match.flagA + ' ' + match.teamA + ' <span style="color:rgba(255,255,255,0.35)">vs</span> ' + match.flagB + ' ' + match.teamB)
+            : '—';
 
-            // توليد قائمة الأزرار العلوية ديناميكياً بناءً على مصفوفة القنوات
-            function renderChannelsList() {
-                var listContainer = document.getElementById('channels-list');
-                listContainer.innerHTML = "";
-                
-                channels.forEach(function(chan, index) {
-                    var li = document.createElement('li');
-                    var a = document.createElement('a');
-                    a.className = "tablinks";
-                    if (index === activeIndex) {
-                        a.classList.add('active');
-                    }
-                    a.innerText = chan.name;
-                    a.onclick = function() {
-                        changeSource(chan.url, this, index);
-                    };
-                    li.appendChild(a);
-                    listContainer.appendChild(li);
-                });
+        var timeHtml = match
+            ? ('⏱ ' + match.kickoff + ' بتوقيت الرياض')
+            : '';
+
+        card.innerHTML =
+            (statusLabel ? '<span class="ch-status ' + statusClass + '">' + statusLabel + '</span>' : '') +
+            '<div class="ch-name">' + esc(ch.name) + '</div>' +
+            '<div class="ch-teams">' + teamsHtml + '</div>' +
+            '<div class="ch-time">' + timeHtml + '</div>';
+
+        bar.appendChild(card);
+    });
+}
+
+// ============================================================
+// تحديث بطاقة المباراة في الهيدر وشريط المعلومات
+// ============================================================
+function updateMatchUI(ch) {
+    var match = getMatch(ch.matchId);
+    if (!match) return;
+
+    var teamsStr = match.flagA + ' ' + match.teamA + '  vs  ' + match.flagB + ' ' + match.teamB;
+    document.getElementById('badge-teams').textContent = teamsStr;
+    document.getElementById('badge-time').textContent = '⏱ ' + match.kickoff;
+    document.getElementById('badge-league').textContent = match.group + ' | كأس العالم 2026';
+    document.getElementById('info-match-name').textContent = teamsStr;
+
+    var scoreEl = document.getElementById('info-score');
+    if (match.status === 'live' && match.scoreA !== '' && match.scoreB !== '') {
+        scoreEl.textContent = match.scoreA + ' — ' + match.scoreB;
+    } else if (match.status === 'ended') {
+        scoreEl.textContent = match.scoreA + ' — ' + match.scoreB + ' (انتهت)';
+    } else {
+        scoreEl.textContent = '';
+    }
+
+    document.getElementById('info-update').textContent =
+        'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA');
+}
+
+// ============================================================
+// اختيار قناة وتشغيلها
+// ============================================================
+function selectChannel(idx) {
+    activeIndex = idx;
+    renderChannels();
+    updateMatchUI(channels[idx]);
+    loadStream(channels[idx].url);
+}
+
+// ============================================================
+// Clappr — تحميل البث
+// ============================================================
+function loadStream(url) {
+    currentUrl = url;
+    var offEl  = document.getElementById('offline-overlay');
+    var unmEl  = document.getElementById('unmute-overlay');
+
+    if (player) { try { player.destroy(); } catch(e){} player = null; }
+
+    if (!url || url === '#') {
+        offEl.style.display = 'flex';
+        unmEl.style.display = 'none';
+        return;
+    }
+
+    offEl.style.display = 'none';
+
+    player = new Clappr.Player({
+        source: url,
+        parentId: '#clappr-player',
+        width: '100%', height: '100%',
+        autoPlay: true, mute: true,
+        preload: 'auto',
+        playback: {
+            playInline: true, recycleVideo: true,
+            hlsjsConfig: {
+                enableWorker: true, lowLatencyMode: true,
+                maxBufferLength: 12, liveBackBufferLength: 0,
+                manifestLoadingMaxRetry: 10, levelLoadingMaxRetry: 10
             }
+        }
+    });
 
-            // تهيئة وتجهيز مشغل Clappr
-            player = new Clappr.Player({
-                source: initialSource, 
-                parentId: '#clappr-player',
-                width: '100%',
-                height: '100%',
-                autoPlay: true,
-                mute: true, // تخطي كتم الصوت الإجباري من المتصفحات
-                preload: 'auto',
-                playback: {
-                    playInline: true,
-                    recycleVideo: true,
-                    hlsMinimumjsversion: '0.12.0',
-                    hlsjsConfig: {
-                        enableWorker: true,
-                        lowLatencyMode: true,
-                        maxBufferLength: 12,
-                        liveBackBufferLength: 0,
-                        manifestLoadingMaxRetry: 10,
-                        levelLoadingMaxRetry: 10
-                    }
+    player.on(Clappr.Events.PLAYER_READY, function() {
+        injectOverlays();
+        player.unmute();
+        setTimeout(function() {
+            if (player && player.getVolume() === 0)
+                document.getElementById('unmute-overlay').style.display = 'flex';
+        }, 700);
+    });
+
+    player.on(Clappr.Events.CORE_CONTAINERS_CREATED, injectOverlays);
+
+    player.on(Clappr.Events.PLAYER_PLAY, function() {
+        document.getElementById('offline-overlay').style.display = 'none';
+    });
+
+    player.on(Clappr.Events.PLAYER_ERROR, function() {
+        document.getElementById('offline-overlay').style.display = 'flex';
+        document.getElementById('unmute-overlay').style.display = 'none';
+        setTimeout(function() {
+            if (currentUrl && currentUrl !== '#' && player) {
+                player.load(currentUrl); player.play();
+            }
+        }, 5000);
+    });
+
+    player.on(Clappr.Events.CORE_FULLSCREEN, function(full) {
+        var logo = document.getElementById('custom-logo');
+        if (logo) logo.style.setProperty('right', full ? '4.5%' : '2.1%', 'important');
+        injectOverlays();
+    });
+}
+
+// ============================================================
+// دوال مساعدة
+// ============================================================
+function injectOverlays() {
+    if (!player || !player.core || !player.core.el) return;
+    var c = player.core.el;
+    ['custom-logo','unmute-overlay','offline-overlay'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.parentElement !== c) c.appendChild(el);
+    });
+}
+
+function unmutePlayer() {
+    if (player) { player.unmute(); player.setVolume(100); }
+    document.getElementById('unmute-overlay').style.display = 'none';
+}
+
+document.body.addEventListener('click', function() {
+    if (document.getElementById('unmute-overlay').style.display === 'flex') unmutePlayer();
+}, { once: true });
+
+function getMatch(id) {
+    for (var i = 0; i < WC_MATCHES_TODAY.length; i++)
+        if (WC_MATCHES_TODAY[i].id === id) return WC_MATCHES_TODAY[i];
+    return null;
+}
+
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================================
+// 🔄 سحب النتائج الحية من YSscores كل 60 ثانية
+// ============================================================
+async function fetchLiveScores() {
+    var proxies = [
+        'https://api.allorigins.win/raw?url=',
+        'https://thingproxy.freeboard.io/fetch/',
+        'https://api.codetabs.com/v1/proxy?quest='
+    ];
+
+    var targetUrl = 'https://www.ysscores.com/en/today_matches';
+
+    for (var p = 0; p < proxies.length; p++) {
+        try {
+            var ctrl = new AbortController();
+            var tid = setTimeout(function(){ ctrl.abort(); }, 10000);
+            var resp = await fetch(proxies[p] + encodeURIComponent(targetUrl), { signal: ctrl.signal });
+            clearTimeout(tid);
+            if (!resp.ok) continue;
+            var html = await resp.text();
+            if (!html || html.length < 500) continue;
+
+            // استخرج النتائج من HTML
+            parseAndUpdateScores(html);
+            break;
+        } catch(e) {
+            console.warn('proxy', p, 'failed:', e.message);
+        }
+    }
+}
+
+function parseAndUpdateScores(html) {
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(html, 'text/html');
+
+    // بحث عن روابط المباريات
+    var links = doc.querySelectorAll('a[href*="/match/"]');
+    links.forEach(function(link) {
+        var text = link.textContent || '';
+
+        // تطابق الفرق مع قائمتنا
+        WC_MATCHES_TODAY.forEach(function(match) {
+            var nameA_en = getEnglishName(match.teamA);
+            var nameB_en = getEnglishName(match.teamB);
+            if (!nameA_en || !nameB_en) return;
+
+            var textL = text.toLowerCase();
+            if (textL.includes(nameA_en.toLowerCase()) && textL.includes(nameB_en.toLowerCase())) {
+                // استخراج النتيجة
+                var scoreMatch = text.match(/(\d+)\s*[-*]\s*(\d+)/);
+                if (scoreMatch) {
+                    match.scoreA = scoreMatch[1];
+                    match.scoreB = scoreMatch[2];
                 }
-            });
-
-            // دالة آمنة لحقن تراكبات التنبيه والصوت والشعار لضمان عدم ضياعها وبقائها في وضع ملء الشاشة
-            function injectOverlays() {
-                if (player && player.core && player.core.el) {
-                    var clapprContainer = player.core.el; 
-                    
-                    var logo = document.getElementById('custom-logo');
-                    var unmute = document.getElementById('unmute-overlay');
-                    var offline = document.getElementById('offline-overlay');
-                    
-                    if (logo && logo.parentElement !== clapprContainer) {
-                        clapprContainer.appendChild(logo);
-                    }
-                    if (unmute && unmute.parentElement !== clapprContainer) {
-                        clapprContainer.appendChild(unmute);
-                    }
-                    if (offline && offline.parentElement !== clapprContainer) {
-                        clapprContainer.appendChild(offline);
-                    }
+                // تحديد الحالة
+                if (/live|playing|\d+['′]/i.test(text)) {
+                    match.status = 'live';
+                    var minM = text.match(/(\d+)['′]/);
+                    if (minM) match.minute = minM[1];
+                } else if (/ended|finished|\bft\b/i.test(text)) {
+                    match.status = 'ended';
                 }
             }
+        });
+    });
 
-            // عندما يصبح المشغل جاهزاً، نقوم بحقن التراكبات وتفعيل فحص الصوت
-            player.on(Clappr.Events.PLAYER_READY, function() {
-                injectOverlays();
+    // تحديث الواجهة
+    renderChannels();
+    updateMatchUI(channels[activeIndex]);
+    document.getElementById('info-update').textContent =
+        'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA');
+}
 
-                // فحص حالة القناة الحالية بعد التحميل
-                if (!activeUrl || activeUrl === '#') {
-                    player.pause();
-                    document.getElementById('offline-overlay').style.display = 'flex';
-                    document.getElementById('unmute-overlay').style.display = 'none';
-                } else {
-                    player.unmute(); // محاولة تشغيل الصوت تلقائياً
-                    setTimeout(function() {
-                        var volumePlugin = player.getPlugin('volume');
-                        if (player.getVolume() === 0 || (volumePlugin && volumePlugin.$el.hasClass('muted'))) {
-                            document.getElementById('unmute-overlay').style.display = 'flex';
-                        }
-                    }, 600);
-                }
-            });
+// ترجمة الأسماء العربية لإنجليزية للمطابقة
+var nameMap = {
+    'الولايات المتحدة': 'united states',
+    'أستراليا': 'australia',
+    'اسكتلندا': 'scotland',
+    'المغرب': 'morocco',
+    'البرازيل': 'brazil',
+    'هايتي': 'haiti',
+    'تركيا': 'turkey',
+    'باراغواي': 'paraguay'
+};
+function getEnglishName(ar) { return nameMap[ar] || null; }
 
-            // عند التبديل بين السيرفرات، يتكفل هذا المستمع بإعادة لصق الأزرار واللوحات التنبيهية والشعار
-            player.on(Clappr.Events.CORE_CONTAINERS_CREATED, function() {
-                injectOverlays();
-            });
+// ============================================================
+// تشغيل
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    renderChannels();
+    updateMatchUI(channels[0]);
+    loadStream(channels[0].url);
 
-            // بمجرد انطلاق البث بنجاح، نتأكد من إخفاء لوحة التنبيه التلقائي
-            player.on(Clappr.Events.PLAYER_PLAY, function() {
-                document.getElementById('offline-overlay').style.display = 'none';
-            });
-
-            /* ==========================================================================
-               🎯 مستشعر تكبير المتصفح الأصلي لحل مشكلة اللوجو نهائياً بملء الشاشة 🎯
-               ========================================================================== */
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
-
-            function handleFullscreenChange() {
-                var isFullscreen = document.fullscreenElement || 
-                                   document.webkitFullscreenElement || 
-                                   document.mozFullScreenElement || 
-                                   document.msFullscreenElement;
-                
-                // إعادة حقن تراكبات اللوجو والصوت فوراً للتأكد من بقائها حية داخل الحاوية المكبرة
-                injectOverlays();
-                
-                var logo = document.getElementById('custom-logo');
-                if (logo) {
-                    if (isFullscreen) {
-                        logo.style.setProperty('right', '4.5%', 'important');
-                    } else {
-                        logo.style.setProperty('right', '2.1%', 'important');
-                    }
-                }
-            }
-
-            /* ==========================================================================
-               نظام الإنعاش الذاتي وحجب الخطأ (Self-Healing Loop) لضمان عدم تجميد القنوات
-               ========================================================================== */
-            player.on(Clappr.Events.PLAYER_ERROR, function(error) {
-                console.log('حدث تذبذب في السيرفر، جاري تفعيل نظام الإنعاش التلقائي...');
-                
-                var offlineOverlay = document.getElementById('offline-overlay');
-                
-                offlineOverlay.querySelector('.offline-title').innerText = "جاري إعادة الاتصال بالبث...";
-                offlineOverlay.querySelector('.offline-subtitle').innerText = "يبدو أن خادم البث يعاني من ضغط شديد حالياً. المشغل يعيد الاتصال بالبث تلقائياً بالخلفية، يرجى الانتظار لثوانٍ...";
-                offlineOverlay.style.display = 'flex';
-                
-                // إخفاء زر الصوت لمنع التداخل
-                document.getElementById('unmute-overlay').style.display = 'none';
-
-                // استخدام المتغير العالمي لإنعاش القناة النشطة حالياً فقط وعزل بقية القنوات
-                setTimeout(function() {
-                    if (currentPlayingUrl && currentPlayingUrl !== '#') {
-                        player.load(currentPlayingUrl);
-                        player.play();
-                    }
-                }, 5000); 
-            });
-
-            // مستشعر تفاعلي ذكي: بمجرد نقر الزائر في أي مكان بالصفحة يتم تفعيل الصوت فوراً
-            document.body.addEventListener('click', function() {
-                var unmuteOverlay = document.getElementById('unmute-overlay');
-                if (unmuteOverlay.style.display === 'flex') {
-                    unmutePlayer();
-                }
-            }, { once: true });
-
-            // وظيفة الضغط على الزر لتشغيل الصوت وإلغاء الكتم
-            function unmutePlayer() {
-                player.unmute();
-                player.setVolume(100);
-                document.getElementById('unmute-overlay').style.display = 'none';
-            }
-
-            // وظيفة التبديل السلس والسريع وتفعيل الصوت فور الضغط على القناة وحفظها في localStorage
-            function changeSource(url, element, index) {
-                var offlineOverlay = document.getElementById('offline-overlay');
-                var unmuteOverlay = document.getElementById('unmute-overlay');
-
-                // تحديث رابط التشغيل النشط فوراً لتوجيه نظام الإنعاش للقناة الجديدة وحمايتها
-                currentPlayingUrl = url;
-
-                localStorage.setItem('savedChannelUrl', url);
-                localStorage.setItem('savedChannelIndex', index);
-
-                // تغيير اللون النشط للزر المختار
-                var links = document.querySelectorAll('.tablinks');
-                links.forEach(function(link) { link.classList.remove('active'); });
-                element.classList.add('active');
-
-                // فحص إذا كان البث متوقف أو غير مضاف حالياً
-                if (!url || url === '#' || url === '' || url.includes('offline')) {
-                    player.pause();
-                    offlineOverlay.style.display = 'flex'; 
-                    unmuteOverlay.style.display = 'none'; 
-                } else {
-                    offlineOverlay.style.display = 'none'; 
-                    
-                    player.load(url); // جلب البث الجديد بشكل فوري بـ Clappr
-                    player.play();
-                    
-                    player.unmute(); 
-                    player.setVolume(100);
-                    document.getElementById('unmute-overlay').style.display = 'none';
-                }
-            }
-
-            // انطلاق بناء قائمة القنوات بمجرد تحميل هيكل الصفحة DOM
-            document.addEventListener("DOMContentLoaded", function() {
-                renderChannelsList();
-            });
-        </script>
-    </body>
+    // جلب النتائج الحية فور التحميل وكل دقيقة
+    fetchLiveScores();
+    setInterval(fetchLiveScores, 60000);
+});
+</script>
+</body>
 </html>
