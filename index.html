@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SportsFlix — بث مباشر</title>
+<!-- استدعاء مشغل Clappr الاحترافي -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -11,29 +13,11 @@
   --border:#1e2330;--border2:#2a3048;
   --red:#e63946;--red-glow:rgba(230,57,70,0.2);
   --gold:#f4a72a;--green:#2ecc71;--blue:#3a7bd5;
-  --text:#dde3f0;--text2:#7a8499;--text3:#3d4560;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
-
-/* LOGIN */
-#page-login{display:none;align-items:center;justify-content:center;min-height:100vh;background:var(--void);position:relative;overflow:hidden;}
-#page-login.active{display:flex;}
-.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 20% 50%,rgba(230,57,70,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 80% 30%,rgba(58,123,213,.06) 0%,transparent 60%);}
-.login-box{position:relative;z-index:2;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:44px 40px;width:380px;box-shadow:0 32px 80px rgba(0,0,0,.6);}
-.login-logo{text-align:center;margin-bottom:32px;}
-.login-logo .brand{font-size:28px;font-weight:800;letter-spacing:-.5px;}
-.login-logo .brand span{color:var(--red);}
-.login-logo p{color:var(--text2);font-size:13px;margin-top:6px;}
-.form-group{margin-bottom:16px;}
-.form-group label{display:block;font-size:13px;color:var(--text2);margin-bottom:7px;font-weight:500;}
-.form-group input{width:100%;background:var(--base);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:15px;outline:none;transition:border .2s;}
-.form-group input:focus{border-color:var(--red);}
-.btn-login{width:100%;background:var(--red);border:none;border-radius:10px;padding:13px;color:#fff;font-family:'Tajawal',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s;box-shadow:0 4px 20px var(--red-glow);}
-.btn-login:hover{background:#ff4757;transform:translateY(-1px);}
-.login-error{background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);border-radius:8px;padding:10px 14px;color:var(--red);font-size:13px;margin-top:12px;display:none;text-align:center;}
 
 /* NAVBAR */
 #navbar{background:rgba(7,8,9,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 28px;height:62px;gap:20px;}
@@ -175,7 +159,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   border: none !important;
 }
 
-/* FLOATING LOGO (تصميم لوجو عائم رائع) */
+/* FLOATING LOGO */
 .custom-video-logo {
   position: absolute !important;
   top: 3% !important;
@@ -234,31 +218,10 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 <div id="app-loading">
   <div class="app-brand">Sport<span>Flix</span></div>
   <div class="spinner-big" style="width:36px;height:36px;border-width:2px;margin:0;"></div>
-  <p style="color:var(--text2);font-size:14px;" id="loading-msg">جاري التحقق من الاشتراك...</p>
+  <p style="color:var(--text2);font-size:14px;" id="loading-msg">جاري تحميل المنصة...</p>
 </div>
 
 <div id="toast"></div>
-
-<!-- LOGIN -->
-<div id="page-login" class="page">
-  <div class="login-bg"></div>
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="brand">Sport<span>Flix</span></div>
-      <p>ادخل بياناتك للوصول للبث المباشر</p>
-    </div>
-    <div class="form-group">
-      <label>اسم المستخدم</label>
-      <input type="text" id="inp-user" placeholder="username" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>كلمة المرور</label>
-      <input type="password" id="inp-pass" placeholder="••••••••">
-    </div>
-    <button class="btn-login" onclick="doLogin()">دخول</button>
-    <div class="login-error" id="login-error">اسم المستخدم أو كلمة المرور غلط</div>
-  </div>
-</div>
 
 <!-- MAIN -->
 <div id="page-main" class="page">
@@ -270,9 +233,10 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
     </div>
     <div class="nav-live-dot"><div class="live-dot"></div>LIVE</div>
     <div class="nav-user">
-      <div class="nav-avatar" id="nav-avatar">?</div>
-      <span class="nav-username" id="nav-username">—</span>
-      <button class="btn-logout" onclick="doLogout()">خروج</button>
+      <div class="nav-avatar" id="nav-avatar">م</div>
+      <span class="nav-username" id="nav-username">المشرف</span>
+      <!-- زر إعادة تحميل بدلاً من الخروج -->
+      <button class="btn-logout" onclick="location.reload()">🔄 تحديث</button>
     </div>
   </nav>
 
@@ -346,10 +310,22 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 //  CONFIG — عدّل هنا فقط
 // ══════════════════════════════════════════════════════
 const CONFIG = {
-  users: [
-    { username:'admin',  password:'admin123', name:'المشرف'   },
-    { username:'user1',  password:'pass1234', name:'مشترك 1'  },
-    { username:'demo',   password:'demo',     name:'تجريبي'   },
+  // أفلام — ضع روابطك هنا
+  movies: [
+    { 
+      title:'فيلم فاميلي بيزنس 2026', 
+      year:'2026', 
+      quality:'HD', 
+      emoji:'https://a.asd.ink/wp-content/uploads/2026/06/cEIPRBe6THaUNXWYUBSW2dtqlC4-scaled-367x550.webp', 
+      url:'https://8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq.vood78.xyz/hls/cxcun54cyhcsvb3x6v3csbvkvb7saxqmt4rpchsm4kp76iwh375ivzsjw3ha/index-v1-a1.m3u8', 
+      isEmbed: false, 
+      genre:'كوميدي' 
+    },
+    { title:'فيلم 2', year:'2023', quality:'4K', emoji:'🎭', url:'', genre:'دراما'      },
+    { title:'فيلم 3', year:'2024', quality:'HD', emoji:'🚀', url:'', genre:'خيال علمي'  },
+    { title:'فيلم 4', year:'2023', quality:'HD', emoji:'😂', url:'', genre:'كوميديا'    },
+    { title:'فيلم 5', year:'2024', quality:'4K', emoji:'👊', url:'', genre:'أكشن'       },
+    { title:'فيلم 6', year:'2022', quality:'HD', emoji:'💀', url:'', genre:'رعب'        },
   ],
 
   // قنوات البث — ضع روابطك هنا
@@ -365,25 +341,6 @@ const CONFIG = {
     { id:'mbc',    name:'MBC Sport',       url:'', logo:'🎯' },
   ],
 
-  // أفلام — ضع روابطك هنا
-  movies: [
-    { 
-      title:'فيلم فاميلي بيزنس 2026', 
-      year:'2026', 
-      quality:'HD', 
-      emoji:'https://a.asd.ink/wp-content/uploads/2026/06/cEIPRBe6THaUNXWYUBSW2dtqlC4-scaled-367x550.webp', 
-      // تم تبديل الرابط المباشر للفيلم برابط البث m3u8 السريع كالمشغل المفضل لديك
-      url:'https://8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq.vood78.xyz/hls/cxcun54cyhcsvb3x6v3csbvkvb7saxqmt4rpchsm4kp76iwh375ivzsjw3ha/index-v1-a1.m3u8', 
-      isEmbed: false, 
-      genre:'كوميدي' 
-    },
-    { title:'فيلم 2', year:'2023', quality:'4K', emoji:'🎭', url:'', genre:'دراما'      },
-    { title:'فيلم 3', year:'2024', quality:'HD', emoji:'🚀', url:'', genre:'خيال علمي'  },
-    { title:'فيلم 4', year:'2023', quality:'HD', emoji:'😂', url:'', genre:'كوميديا'    },
-    { title:'فيلم 5', year:'2024', quality:'4K', emoji:'👊', url:'', genre:'أكشن'       },
-    { title:'فيلم 6', year:'2022', quality:'HD', emoji:'💀', url:'', genre:'رعب'        },
-  ],
-
   // CORS proxy — بيحل مشكلة جلب بيانات ssirtv
   proxy: 'https://corsproxy.io/?url=',
 
@@ -394,8 +351,7 @@ const CONFIG = {
   },
 
   // ==================================================
-  //  روابط المباريات — أنت بتحددها وبتغيرها يدوياً
-  //  المفتاح = "فريق1 vs فريق2" بنفس الأسماء في الكارت
+  //  روابط المباريات — يمكنك تحديدها يدوياً
   // ==================================================
   matchLinks: {
      'كندا vs سويسرا':  'https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8',
@@ -405,7 +361,6 @@ const CONFIG = {
 // ══════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════
-let currentUser = null;
 let currentStreamUrl = '';
 let hlsInstance = null;
 let currentMatches = [];
@@ -414,70 +369,19 @@ const HLSJS_URL = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
 let hlsLoaded = false;
 
 // ══════════════════════════════════════════════════════
-//  DYNAMIC HLS LOADER
-// ══════════════════════════════════════════════════════
-function loadHlsJS() {
-  return new Promise((res, rej) => {
-    if (hlsLoaded || typeof Hls !== 'undefined') { hlsLoaded = true; res(); return; }
-    const s = document.createElement('script');
-    s.src = HLSJS_URL;
-    s.onload = () => { hlsLoaded = true; res(); };
-    s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
-
-// ══════════════════════════════════════════════════════
-//  INIT
+//  INIT (تحميل فوري للمباريات والأفلام معاً)
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', async () => {
-  const saved = sessionStorage.getItem('sf_user');
-  if (saved) {
-    currentUser = JSON.parse(saved);
-    await initMain();
-  } else {
-    showPage('login');
-  }
+  await initMain();
   document.getElementById('app-loading').style.display = 'none';
 });
 
 async function initMain() {
-  document.getElementById('nav-username').textContent = currentUser.name;
-  document.getElementById('nav-avatar').textContent   = currentUser.name[0];
   showPage('main');
   buildDayTabs();
-  await loadMatches('today');
-  buildMovies();
+  buildMovies(); // بناء قائمة الأفلام فوراً
+  await loadMatches('today'); // جلب جدول المباريات بالتزامن
 }
-
-// ══════════════════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════════════════
-function doLogin() {
-  const u = document.getElementById('inp-user').value.trim().toLowerCase();
-  const p = document.getElementById('inp-pass').value;
-  const found = CONFIG.users.find(x => x.username.toLowerCase() === u && x.password === p);
-  if (found) {
-    currentUser = found;
-    sessionStorage.setItem('sf_user', JSON.stringify(found));
-    document.getElementById('login-error').style.display = 'none';
-    initMain();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('inp-pass').value = '';
-  }
-}
-
-function doLogout() {
-  sessionStorage.removeItem('sf_user');
-  currentUser = null;
-  showPage('login');
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('page-login').classList.contains('active')) doLogin();
-  if (e.key === 'Escape') closePlayer();
-});
 
 // ══════════════════════════════════════════════════════
 //  PAGES / TABS
@@ -556,8 +460,9 @@ function parseMatches(html) {
   const doc = parser.parseFromString(html, 'text/html');
   const matches = [];
 
+  // تم إصلاح خطأ القوس النحوي هنا بدقة 🎯
   const allImgs = [...doc.querySelectorAll('img')].filter(img => {
-    const src = img.src || img.getAttribute('src'] || '';
+    const src = img.src || img.getAttribute('src') || '';
     return src.includes('wp-content/uploads') && !src.includes('thumb') && !src.includes('logo');
   });
 
@@ -657,11 +562,12 @@ function renderMatches(matches) {
       ? `<div class="vs-score">${m.homeScore} - ${m.awayScore}</div>`
       : `<div class="vs-dash">VS</div>`;
 
+    // تم إضافة referrerpolicy لمنع حجب شعارات الفرق بسبب حماية السيرفرات الخارجية 🎯
     const homeLogo = m.homeLogo
-      ? `<img src="${m.homeLogo}" alt="${m.home}" onerror="this.style.display='none'">`
+      ? `<img src="${m.homeLogo}" alt="${m.home}" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
       : '🏠';
     const awayLogo = m.awayLogo
-      ? `<img src="${m.awayLogo}" alt="${m.away}" onerror="this.style.display='none'">`
+      ? `<img src="${m.awayLogo}" alt="${m.away}" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
       : '🚌';
 
     const matchKey1 = m.home + ' vs ' + m.away;
@@ -788,8 +694,10 @@ function buildMovies() {
   const grid = document.getElementById('movies-grid');
   grid.innerHTML = CONFIG.movies.map((m, i) => {
     const isUrl = m.emoji.startsWith('http') || m.emoji.includes('/') || m.emoji.includes('.');
+    
+    // تم إضافة referrerpolicy="no-referrer" لتخطي حظر Hotlink لسيرفرات الأفلام الخارجية وصور البوسترات 🎯
     const posterHtml = isUrl 
-      ? `<img src="${m.emoji}" alt="${m.title}">` 
+      ? `<img src="${m.emoji}" alt="${m.title}" referrerpolicy="no-referrer">` 
       : `<span>${m.emoji}</span>`;
 
     return `
@@ -879,7 +787,7 @@ async function playUrl(url, label, isEmbed = false) {
     return;
   }
 
-  // استدعاء وتجهيز مكتبة Hls لوضع الاستجابة الفائقة والكمون المنخفض
+  // تشغيل روابط m3u8 (HLS) بسرعة فائقة مع تحميل المكتبة ديناميكياً
   try {
     await loadHlsJS();
   } catch {
