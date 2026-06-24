@@ -1,0 +1,26 @@
+{
+  "matchLinks": {
+    "البرازيل vs اسكتلندا": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8",
+    "هايتي vs المغرب": "https://sh.clouata.space/wooorle2_720/index.m3u8"
+  },
+  "movies": [
+    {
+      "title": "فيلم فاميلي بيزنس",
+      "year": "2026",
+      "quality": "HD",
+      "emoji": "https://assets.voxcinemas.com/posters/P_HO00012993_1773228351581.jpg",
+      "url": "https://tmp-cdn1-vaq.cdnz.quest/hls2/01/00234/7f7u7b5vcerq_n/index-v1-a1.m3u8?t=w-QlyuvaRS8HdP_YN_5SzYQyJ2jqq_TajmRUaV_pJdk&s=1782333877&e=43200&v=1245526&i=0.3&sp=0",
+      "isEmbed": false,
+      "genre": "كوميدي"
+    },
+    {
+      "title": "فيلم الكلام على ايه",
+      "year": "2026",
+      "quality": "تصوير سينما",
+      "emoji": "https://media0103.elcinema.com/uploads/_315x420_cb2afb51a2df394d5b604818b92d024840b360f88d6c144cafa0911e051f7582.jpg",
+      "url": "https://aflam-store2-lhr.cdnz.quest/yh5chbvip7ikjnl75zakr7zyx4pi32kecjsbmsa7xbk3n4wmflxp2xf53gra/v.mp4",
+      "isEmbed": false,
+      "genre": "كوميدي"
+    }
+  ]
+}
