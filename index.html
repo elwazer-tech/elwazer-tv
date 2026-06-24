@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV</title>
+<title>Elwazer TV — بث مباشر</title>
 
 <!-- استدعاء ملف الـ manifest لدعم تثبيت الموقع كتطبيق PWA 🎯 -->
 <link rel="manifest" href="manifest.json">
@@ -183,7 +183,7 @@ video::media-controls-fullscreen-button {
   background: transparent !important;
 }
 
-/* ضمان بقاء اللوجو عائماً ومرئياً ومرفوعاً لأعلى حافة أثناء وضع ملء الشاشة المخصص بزاويته الدقيقة على الكمبيوتر 🎯 */
+/* ضمان بقاء اللوجو عائماً ومرئياً ومرفوعاً لأعلى حافة أثناء وضع تكبير ملء الشاشة المخصص بزاويته الدقيقة على الكمبيوتر 🎯 */
 #player-wrapper:fullscreen .custom-video-logo,
 #player-wrapper:-webkit-full-screen .custom-video-logo {
   right: 2.1% !important;
@@ -287,7 +287,7 @@ video::media-controls-fullscreen-button {
 @media (max-height: 540px) {
   #player-wrapper:fullscreen .custom-video-logo,
   #player-wrapper:-webkit-full-screen .custom-video-logo {
-    top: -4% !important; /* 👈 تم تعديل الارتفاع إلى -6.5% خصيصاً في تطبيق الهاتف وتجاوز أبعاد الـ WebView بدقة متناهية */
+    top: -4% !important; /* 👈 تم تعديل الارتفاع إلى -4% خصيصاً في تطبيق الهاتف وتجاوز أبعاد الـ WebView بدقة متناهية */
     right: 2.1% !important;
     width: 18% !important;
   }
@@ -531,7 +531,7 @@ function selectDay(key, btn) {
 // ══════════════════════════════════════════════════════
 async function loadMatches(dayKey) {
   const container = document.getElementById('matches-container');
-  container.innerHTML = `<div class="loading-state"><div class="spinner-big"></div><p>jاري تحميل المباريات...</p></div>`;
+  container.innerHTML = `<div class="loading-state"><div class="spinner-big"></div><p>جاري تحميل المباريات...</p></div>`;
   document.getElementById('matches-badge').textContent = '...';
 
   const srcUrl = CONFIG.sources[dayKey];
@@ -816,9 +816,11 @@ function buildMovies() {
   grid.innerHTML = CONFIG.movies.map((m, i) => {
     const isUrl = m.emoji.startsWith('http') || m.emoji.includes('/') || m.emoji.includes('.');
     
-    // تم إضافة referrerpolicy="no-referrer" لتخطي حظر Hotlink لسيرفرات الأفلام الخارجية وصور البوسترات 🎯
+    // سحب صورة الشعار للموبايل وتطبيق الويب فيو عبر بروكسي جوجل المتجاوب فائق السرعة لتخطي حظر السيرفرات الخارجية 🎯
+    const imageUrl = isUrl ? (`https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=604800&url=` + encodeURIComponent(m.emoji)) : m.emoji;
+    
     const posterHtml = isUrl 
-      ? `<img src="${m.emoji}" alt="${m.title}" referrerpolicy="no-referrer">` 
+      ? `<img src="${imageUrl}" alt="${m.title}" referrerpolicy="no-referrer">` 
       : `<span>${m.emoji}</span>`;
 
     return `
@@ -984,7 +986,7 @@ function setupHls(url, video, loading) {
   
   hlsInstance.on(Hls.Events.ERROR, (event, data) => {
     if (data.fatal) {
-      // محاولة استرداد البث في حال حدوث خطأ فادح آخر للبروكسي
+      // محاولة استرداد البث في حال حدوة خطأ فادح آخر للبروكسي
       if (data.details === 'manifestLoadError' && !hlsInstance.url.includes(CONFIG.proxy)) {
         console.log("CORS block detected! Re-trying HLS stream automatically via CORS Proxy...");
         setupHls(CONFIG.proxy + encodeURIComponent(url), video, loading);
