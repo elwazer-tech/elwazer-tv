@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV</title>
+<title>Elwazer TV بث</title>
 
 <!-- استدعاء ملف الـ manifest لدعم تثبيت الموقع كتطبيق PWA 🎯 -->
 <link rel="manifest" href="manifest.json">
@@ -173,7 +173,7 @@ video::media-controls-fullscreen-button {
 /* 🎯 اللوجو الأصلي والملائم للكمبيوتر والمتصفحات 🎯 */
 .custom-video-logo {
   position: absolute !important;
-  top: -1% !important;            /* الارتفاع المثالي للكمبيوتر */
+  top: -1% !important;            /* الارتفاع المثالي للكمبيوتر والويب العادي */
   right: 2.1% !important;          
   z-index: 999999 !important;      
   width: 18% !important;           
@@ -183,11 +183,11 @@ video::media-controls-fullscreen-button {
   background: transparent !important;
 }
 
-/* ضمان بقاء اللوجو عائماً ومرئياً ومرفوعاً لأعلى حافة أثناء وضع ملء الشاشة المخصص بزاويته الدقيقة 🎯 */
+/* ضمان بقاء اللوجو عائماً ومرئياً ومرفوعاً لأعلى حافة أثناء وضع ملء الشاشة المخصص بزاويته الدقيقة على الكمبيوتر 🎯 */
 #player-wrapper:fullscreen .custom-video-logo,
 #player-wrapper:-webkit-full-screen .custom-video-logo {
   right: 2.1% !important;
-  top: -1% !important;            /* 👈 تم تعديلها هنا ليرتفع اللوجو لأعلى حافة أثناء وضع التكبير والتكبير الكامل */
+  top: -1% !important;            
   width: 18% !important;
 }
 
@@ -252,9 +252,17 @@ video::media-controls-fullscreen-button {
   .nav-tab{font-size:13px;padding:6px 12px;}
   #tab-matches,#tab-movies{padding:12px;}
   
-  /* تعديل اللوجو العائم على شاشة الموبايل والهواتف ليرتفع لأعلى بنفس النسبة المريحة للعين */
+  /* 🎯 تعديل اللوجو العائم على شاشة الموبايل والهواتف ليرتفع لأعلى بنسبة مريحة ومتناسقة مع الويب العادي */
   .custom-video-logo {
-    top: -1% !important; /* قمنا بإضافتها وضبطها هنا لتطابق الموبايل بدقة 🎯 */
+    top: -1% !important; 
+    right: 2.1% !important;
+    width: 18% !important;
+  }
+
+  /* 🎯 عندما يدخل الموبايل في وضع التكبير وملء الشاشة، ندفع اللوجو لأعلى أكثر بكثير ليناسب أبعاد التطبيق والـ WebView بالتحديد */
+  #player-wrapper:fullscreen .custom-video-logo,
+  #player-wrapper:-webkit-full-screen .custom-video-logo {
+    top: -5.5% !important; /* 👈 زيادة القيمة السالبة هنا مخصصة للموبايل والتطبيق في وضع تكبير ملء الشاشة لمنع الهوامش */
     right: 2.1% !important;
     width: 18% !important;
   }
