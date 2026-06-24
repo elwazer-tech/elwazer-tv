@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV</title>
-<!-- استدعاء مشغل Clappr الاحترافي المفضل والمستقر لديك -->
-<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+<title>Elwazer TV — بث مباشر</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -29,7 +27,7 @@ body{
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
 
-/* NAVBAR (تعديل الهيدر ليصبح نظيفاً ومبسطاً بدون حسابات) */
+/* NAVBAR */
 #navbar{background:rgba(7,8,9,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 28px;height:62px;gap:20px;}
 .nav-brand{font-size:22px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
 .nav-brand span{color:var(--red);}
@@ -132,9 +130,20 @@ body{
   box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
 
-/* CLAPPR VIDEOS CONTAINER */
-#clappr-player { width: 100%; height: 100%; }
-#clappr-player video { object-fit: fill !important; width: 100% !important; height: 100% !important; }
+/* NATIVE VIDEO STYLING (العودة للمشغل المباشر السريع كـ StreamDNS) */
+#main-video {
+  width: 100%; height: 100%;
+  background: #000;
+  display: none;
+}
+
+/* إخفاء زر ملء الشاشة الافتراضي للمتصفح لتوجيه المستخدم للزر المخصص الذي يحافظ على اللوجو 🎯 */
+video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+video::media-controls-fullscreen-button {
+  display: none !important;
+}
 
 /* IFRAME & CUSTOM EMBED CONTAINER */
 #iframe-player {
@@ -161,12 +170,60 @@ body{
   z-index: 999999 !important;      /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
   width: 18% !important;           
   aspect-ratio: 1.45 / 1 !important; 
-  object-fit: fill !important;     
+  object-fit: contain !important;
   pointer-events: none !important;
-  background: transparent !important; 
+  background: transparent !important;
 }
 
-/* زر تفعيل الصوت التفاعلي المطور للتغلب على حماية المتصفحات */
+/* ضمان بقاء اللوجو عائماً ومرئياً أثناء وضع تكبير ملء الشاشة المخصص 🎯 */
+#player-wrapper:fullscreen .custom-video-logo,
+#player-wrapper:-webkit-full-screen .custom-video-logo {
+  right: 2.1% !important;
+  top: 0.1% !important;
+  width: 18% !important;
+}
+
+/* زر ملء الشاشة العائم المخصص (للحفاظ على الشعار مرئياً أثناء التكبير) 🎯 */
+#custom-fullscreen-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 999999;
+  background: rgba(10, 10, 10, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: all 0.15s ease;
+}
+#custom-fullscreen-btn:hover {
+  background: var(--red);
+  border-color: var(--red);
+  transform: scale(1.05);
+}
+#custom-fullscreen-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* زر التحديث */
+.embed-btn {
+  position: absolute; top: 12px; left: 12px; z-index: 99999999 !important; background: rgba(15, 15, 15, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 6px 12px;
+  border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px;
+  transition: background 0.2s;
+}
+.embed-btn:hover { background: rgba(30, 30, 30, 0.9); }
+.embed-btn svg { width: 14px; height: 14px; fill: currentColor }
+
+/* تفعيل الصوت التفاعلي المطور للتغلب على حماية المتصفحات */
 .unmute-overlay {
   position: absolute;
   top: 50%;
@@ -226,21 +283,23 @@ body{
   fill: #ff3b30; 
   margin-bottom: 15px;
 }
-.offline-overlay h3 { font-size:16px; margin-bottom:6px; }
-.offline-overlay p  { font-size:12px; color:var(--text2); max-width:280px; line-height:1.6; }
+.offline-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #fff;
+}
+.offline-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 320px;
+  line-height: 1.5;
+}
 
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
   100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
-}
-
-@media (max-width: 768px) {
-  .custom-video-logo { 
-      right: 2.1% !important; 
-      top: 0.1% !important; 
-      width: 18% !important; 
-  }
 }
 
 /* LOADING & ERROR SLIDES */
@@ -346,20 +405,33 @@ body{
   <div class="player-wrapper-outer">
     <div class="player-wrapper" id="player-wrapper">
       
-      <!-- حاوية مشغل Clappr المفضل لديك -->
-      <div id="clappr-player"></div>
+      <!-- 1. مشغل الفيديو المباشر السريع والخفيف (نفس آلية StreamDNS السلسة والسريعة والآمنة للتطبيق) -->
+      <video id="main-video" controls playsinline></video>
       
-      <!-- مشغل الآيفريم لروابط التضمين الخارجية -->
+      <!-- 2. مشغل الآيفريم لروابط التضمين الخارجية -->
       <iframe id="iframe-player" allowfullscreen></iframe>
       
-      <!-- حاوية مخصصة للأكواد البرمجية الكاملة (Iframe كامل أو Embed كامل) -->
+      <!-- 3. حاوية مخصصة للأكواد البرمجية الكاملة (Iframe كامل أو Embed كامل) -->
       <div id="custom-player-container"></div>
 
       <!-- اللوجو العائم فوق المشغلات والـ embed بالنسب المحددة لديك تماماً 🎯 -->
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
 
-      <!-- شاشة مؤشر التحميل التفاعلية -->
-      <div class="player-loading" id="player-loading" style="display: none;">
+      <!-- زر ملء الشاشة المخصص العائم للحفاظ على اللوجو العائم بنسبتك الدقيقة 🎯 -->
+      <button id="custom-fullscreen-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
+        <svg viewBox="0 0 24 24">
+          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+      </button>
+
+      <!-- زر تحديث المشغل يدويًا مدمج للمباريات والأفلام -->
+      <button class="embed-btn" onclick="reloadCurrentChannel()">
+        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+        تحديث المشغل
+      </button>
+
+      <!-- شاشة مؤشر التحميل التفاعلية الخفيفة والذكية -->
+      <div class="player-loading" id="player-loading" style="display: none; background: rgba(0, 0, 0, 0.8);">
         <div class="spinner-big"></div>
         <p>جاري تحميل البث...</p>
       </div>
@@ -371,7 +443,7 @@ body{
           <div class="offline-subtitle">هذه القناة لا تحتوي على بث نشط حالياً. يرجى تجربة القنوات الأخرى أو العودة لاحقاً.</div>
       </div>
 
-      <!-- شاشة تفعيل الصوت التفاعلية -->
+      <!-- شاشة تفعيل الصوت التفاعلية لتجاوز قيود كتم الصوت في المتصفحات والتطبيق -->
       <div id="unmute-overlay" class="unmute-overlay" onclick="unmutePlayer()">
           <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0 3.28-2.16 6.07-5.14 7.03c1.92-.61 3.44-2.13 4.05-4.05C18.42 13.93 19 12.82 19 12zm-8.81 7.19L5.35 14H2v-4h3.35l4.84-5.19C10.74 4.26 11.5 4.61 11.5 5.3v13.4c0 .69-.76 1.04-1.31.49z"/></svg>
           اضغط لتفعيل الصوت
@@ -439,8 +511,25 @@ const CONFIG = {
 //  STATE
 // ══════════════════════════════════════════════════════
 let currentStreamUrl = '';
-let clapprInstance = null;
+let hlsInstance = null;
 let currentMatches = [];
+
+const HLSJS_URL = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
+let hlsLoaded = false;
+
+// ══════════════════════════════════════════════════════
+//  DYNAMIC HLS LOADER
+// ══════════════════════════════════════════════════════
+function loadHlsJS() {
+  return new Promise((res, rej) => {
+    if (hlsLoaded || typeof Hls !== 'undefined') { hlsLoaded = true; res(); return; }
+    const s = document.createElement('script');
+    s.src = HLSJS_URL;
+    s.onload = () => { hlsLoaded = true; res(); };
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
 
 // ══════════════════════════════════════════════════════
 //  INIT (تحميل فوري ومزدوج للمباريات والأفلام عند الدخول)
@@ -817,11 +906,11 @@ function playMovie(i) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PLAYER (نظام تشغيل ذكي وخفيف فائق السرعة كـ Clappr المفضل لديك)
+//  PLAYER (نظام تشغيل ذكي وخفيف فائق السرعة مع بروكسي احتياطي تلقائي)
 // ══════════════════════════════════════════════════════
 async function playUrl(url, label, isEmbed = false) {
   currentStreamUrl = url;
-  const clapprContainer = document.getElementById('clappr-player');
+  const video    = document.getElementById('main-video');
   const iframe   = document.getElementById('iframe-player');
   const customContainer = document.getElementById('custom-player-container');
   const loading  = document.getElementById('player-loading');
@@ -834,17 +923,16 @@ async function playUrl(url, label, isEmbed = false) {
   offEl.style.display    = 'none';
   unmEl.style.display    = 'none';
   
-  // تفريغ أي بث سابق لتجنب التداخل وتدمير مشغل Clappr النشط بأمان
-  if (clapprInstance) {
-    try { clapprInstance.destroy(); } catch(e){}
-    clapprInstance = null;
-  }
+  // تفريغ أي بث سابق لتجنب التداخل
+  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+  video.pause();
+  video.src = '';
   iframe.src = '';
   customContainer.innerHTML = '';
 
   // إخفاء كافة المشغلات مؤقتاً
-  clapprContainer.style.display = 'none';
-  iframe.style.display  = 'none';
+  video.style.display  = 'none';
+  iframe.style.display = 'none';
   customContainer.style.display = 'none';
 
   const trimmed = url.trim();
@@ -853,7 +941,6 @@ async function playUrl(url, label, isEmbed = false) {
   if (trimmed.startsWith('<')) {
     customContainer.style.display = 'block';
     customContainer.innerHTML = trimmed;
-    injectOverlaysCustom(); // ترحيل اللوجو فوق التضمين المباشر
     loading.style.display = 'none';
     return;
   }
@@ -869,132 +956,102 @@ async function playUrl(url, label, isEmbed = false) {
     return;
   }
 
-  // 3. تشغيل ملفات الـ m3u8 و الـ mp4 الأساسية بالاعتماد الكلي على مشغل Clappr المفضل والمستقر للغاية 🎯
-  clapprContainer.style.display = 'block';
+  // 3. تشغيل ملفات الـ m3u8 و الـ mp4 الأساسية بسرعة فائقة كـ StreamDNS
+  video.style.display = 'block';
 
-  clapprInstance = new Clappr.Player({
-      source: url, 
-      parentId: '#clappr-player',
-      width: '100%',
-      height: '100%',
-      autoPlay: true,
-      mute: true, // تخطي كتم الصوت الإجباري من المتصفحات
-      preload: 'auto',
-      playback: {
-          playInline: true,
-          recycleVideo: true,
-          hlsMinimumjsversion: '0.12.0',
-          hlsjsConfig: {
-              enableWorker: true,
-              lowLatencyMode: true,
-              maxBufferLength: 12,
-              liveBackBufferLength: 0,
-              manifestLoadingMaxRetry: 10,
-              levelLoadingMaxRetry: 10,
-              // دمج نظام اعتراض وفك حظر CORS ديناميكياً بداخل Clappr لتشغيل أي سيرفر محمي 🎯
-              xhrSetup: function(xhr, targetUrl) {
-                if (!targetUrl.startsWith(CONFIG.proxy) && (targetUrl.includes('vood') || targetUrl.includes('boutique') || targetUrl.includes('asd.ink'))) {
-                  const proxiedUrl = CONFIG.proxy + encodeURIComponent(targetUrl);
-                  xhr.open('GET', proxiedUrl, true);
-                }
-              }
-          }
+  // تشغيل ملفات MP4 المباشرة بسرعة فائقة مباشرة دون Hls
+  if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
+    video.src = url;
+    video.play()
+      .then(() => { loading.style.display = 'none'; })
+      .catch(e => {
+        // تجربة البروكسي كخيار احتياطي لملفات mp4 المحمية 🎯
+        if (!video.src.includes(CONFIG.proxy)) {
+          video.src = CONFIG.proxy + encodeURIComponent(url);
+          video.play().catch(()=>{});
+        } else {
+          loading.style.display = 'none';
+          showPlayerError('خطأ في التشغيل: ' + e.message);
+        }
+      });
+    return;
+  }
+
+  // استدعاء وتجهيز مكتبة Hls لوضع الاستجابة الفائقة والكمون المنخفض
+  try {
+    await loadHlsJS();
+  } catch {
+    loading.style.display = 'none';
+    showPlayerError('فشل تحميل hls.js — تحقق من الإنترنت');
+    return;
+  }
+
+  const isHLS = url.includes('.m3u8') || url.includes('/hls/');
+
+  if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
+    // استدعاء دالة التشغيل التي تدعم التحويل الاحتياطي للبروكسي تلقائياً عند فشل الـ CORS 🎯
+    setupHls(url, video, loading);
+  } else if (isHLS && video.canPlayType('application/vnd.apple.mpegurl')) {
+    // تشغيل مباشر على متصفحات Safari مع دعم التخطي الاحتياطي للبروكسي تلقائياً 🎯
+    video.src = url;
+    video.play()
+      .then(() => { loading.style.display = 'none'; })
+      .catch(e => {
+        if (!video.src.includes(CONFIG.proxy)) {
+          video.src = CONFIG.proxy + encodeURIComponent(url);
+          video.play().catch(()=>{});
+        } else {
+          loading.style.display = 'none';
+          showPlayerError(e.message);
+        }
+      });
+  } else {
+    loading.style.display = 'none';
+    showPlayerError('المتصفح لا يدعم هذا البث — افتح الرابط في VLC');
+  }
+}
+
+// دالة إنشاء وتحميل مشغل Hls بشكل ذكي مع حلقة معالجة أخطاء الـ CORS التلقائية 🎯
+function setupHls(url, video, loading) {
+  if (hlsInstance) { hlsInstance.destroy(); }
+  
+  hlsInstance = new Hls({
+    enableWorker: true,
+    lowLatencyMode: true,
+    backBufferLength: 90,
+    // تم إضافة ميزة اعتراض الطلبات وحقن البروكسي ديناميكياً لتجاوز حظر الـ CORS على المقاطع التجزيئية .ts 🎯
+    xhrSetup: function(xhr, targetUrl) {
+      if (!targetUrl.startsWith(CONFIG.proxy) && (targetUrl.includes('vood') || targetUrl.includes('boutique') || targetUrl.includes('asd.ink'))) {
+        const proxiedUrl = CONFIG.proxy + encodeURIComponent(targetUrl);
+        xhr.open('GET', proxiedUrl, true);
       }
+    }
   });
-
-  clapprInstance.on(Clappr.Events.PLAYER_READY, function() {
-      loading.style.display = 'none';
-      injectOverlays(); // تفعيل لصق اللوجو العائم والتراكبات بداخل حاوية Clappr لضمان ظهوره بالكامل بملء الشاشة 🎯
-
-      if (!url || url === '#') {
-          clapprInstance.pause();
-          offEl.style.display = 'flex';
-          unmEl.style.display = 'none';
+  
+  hlsInstance.loadSource(url);
+  hlsInstance.attachMedia(video);
+  
+  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+    loading.style.display = 'none';
+    video.play().catch(()=>{});
+  });
+  
+  hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+    if (data.fatal) {
+      // محاولة استرداد البث في حال حدوث خطأ فادح آخر
+      if (data.details === 'manifestLoadError' && !hlsInstance.url.includes(CONFIG.proxy)) {
+        console.log("CORS block detected! Re-trying HLS stream automatically via CORS Proxy...");
+        setupHls(CONFIG.proxy + encodeURIComponent(url), video, loading);
       } else {
-          clapprInstance.unmute();
-          setTimeout(function() {
-              var volumePlugin = clapprInstance.getPlugin('volume');
-              if (clapprInstance.getVolume() === 0 || (volumePlugin && volumePlugin.$el.hasClass('muted'))) {
-                  unmEl.style.display = 'flex';
-              }
-          }, 600);
+        loading.style.display = 'none';
+        showPlayerError(`فشل البث: ${data.details}`);
       }
-  });
-
-  // إعادة التثبيت والحقن عند التبديل أو إعادة تجميع الحاوية
-  clapprInstance.on(Clappr.Events.CORE_CONTAINERS_CREATED, injectOverlays);
-
-  clapprInstance.on(Clappr.Events.PLAYER_PLAY, function() {
-      offEl.style.display = 'none';
-  });
-
-  // معالجة الأخطاء ونظام الإنعاش التلقائي لـ Clappr عند حدوث تذبذب بالسيرفرات 🎯
-  clapprInstance.on(Clappr.Events.PLAYER_ERROR, function(error) {
-      console.log('حدث تذبذب في السيرفر، جاري تفعيل نظام الإنعاش التلقائي...');
-      loading.style.display = 'none';
-      
-      offEl.querySelector('.offline-title').innerText = "جاري إعادة الاتصال بالبث...";
-      offEl.style.display = 'flex';
-      unmEl.style.display = 'none';
-
-      setTimeout(function() {
-          if (currentStreamUrl && currentStreamUrl !== '#' && clapprInstance) {
-              clapprInstance.load(currentStreamUrl);
-              clapprInstance.play();
-          }
-      }, 5000); 
-  });
-}
-
-// دالة آمنة لحقن اللوجو المستقل والطبقات بداخل حاوية Clappr التي تتمدد بملء الشاشة 🎯
-function injectOverlays() {
-    if (clapprInstance && clapprInstance.core && clapprInstance.core.el) {
-        var clapprContainer = clapprInstance.core.el; 
-        
-        var logo = document.getElementById('custom-logo');
-        var unmute = document.getElementById('unmute-overlay');
-        var offline = document.getElementById('offline-overlay');
-        var loading = document.getElementById('player-loading');
-        
-        if (logo && logo.parentElement !== clapprContainer) {
-            clapprContainer.appendChild(logo);
-        }
-        if (unmute && unmute.parentElement !== clapprContainer) {
-            clapprContainer.appendChild(unmute);
-        }
-        if (offline && offline.parentElement !== clapprContainer) {
-            clapprContainer.appendChild(offline);
-        }
-        if (loading && loading.parentElement !== clapprContainer) {
-            clapprContainer.appendChild(loading);
-        }
     }
+  });
 }
-
-// إعادة توجيه وتثبيت اللوجو داخل الإطار المساعد عند الخروج من Clappr
-function injectOverlaysCustom() {
-    const wrapper = document.getElementById('player-wrapper');
-    ['custom-logo','unmute-overlay','offline-overlay','player-loading'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el && el.parentElement !== wrapper) wrapper.appendChild(el);
-    });
-}
-
-// وظيفة إلغاء كتم الصوت التفاعلي للمتصفحات
-function unmutePlayer() {
-    if (clapprInstance) {
-        clapprInstance.unmute();
-        clapprInstance.setVolume(100);
-    }
-    document.getElementById('unmute-overlay').style.display = 'none';
-}
-
-document.body.addEventListener('click', function() {
-    if (document.getElementById('unmute-overlay').style.display === 'flex') unmutePlayer();
-}, { once: true });
 
 function showPlayerError(msg) {
-  document.getElementById('clappr-player').style.display = 'none';
+  document.getElementById('main-video').style.display = 'none';
   document.getElementById('iframe-player').style.display = 'none';
   document.getElementById('custom-player-container').style.display = 'none';
   document.getElementById('player-error-box').style.display = 'flex';
@@ -1002,18 +1059,15 @@ function showPlayerError(msg) {
 }
 
 function closePlayer() {
-  if (clapprInstance) {
-    try { clapprInstance.destroy(); } catch(e){}
-    clapprInstance = null;
-  }
+  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+  const v = document.getElementById('main-video');
   const iframe = document.getElementById('iframe-player');
   const customContainer = document.getElementById('custom-player-container');
   
+  v.pause(); v.src = ''; v.style.display = 'none';
   iframe.src = ''; iframe.style.display = 'none';
   customContainer.innerHTML = ''; customContainer.style.display = 'none';
   
-  document.getElementById('offline-overlay').style.display = 'none';
-  document.getElementById('unmute-overlay').style.display  = 'none';
   document.getElementById('player-error-box').style.display = 'none';
   document.getElementById('player-loading').style.display   = 'flex';
   showPage('main');
@@ -1028,6 +1082,21 @@ function openVLC() {
     }
   }
 }
+
+// ربط النقر المزدوج (Double Click) لتفعيل وتكبير المشغل بالكامل مع الحفاظ على اللوجو العائم 🎯
+function toggleFullscreen() {
+  const wrapper = document.getElementById('player-wrapper');
+  if (!document.fullscreenElement) {
+    wrapper.requestFullscreen().catch(err => {
+      console.log("Error going fullscreen: ", err);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.getElementById('main-video').addEventListener('dblclick', toggleFullscreen);
+document.getElementById('iframe-player').addEventListener('dblclick', toggleFullscreen);
 </script>
 </body>
 </html>
