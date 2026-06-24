@@ -1,0 +1,22 @@
+{
+  "name": "Elwazer TV",
+  "short_name": "Elwazer TV",
+  "description": "Elwazer TV للبث المباشر والأفلام",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#070809",
+  "theme_color": "#e63946",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
