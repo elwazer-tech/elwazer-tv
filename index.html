@@ -29,7 +29,7 @@ body{
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
 
-/* NAVBAR */
+/* NAVBAR (تعديل الهيدر ليصبح نظيفاً ومبسطاً بدون حسابات) */
 #navbar{background:rgba(7,8,9,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 28px;height:62px;gap:20px;}
 .nav-brand{font-size:22px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
 .nav-brand span{color:var(--red);}
@@ -226,18 +226,8 @@ body{
   fill: #ff3b30; 
   margin-bottom: 15px;
 }
-.offline-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #fff;
-}
-.offline-subtitle {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  max-width: 320px;
-  line-height: 1.5;
-}
+.offline-overlay h3 { font-size:16px; margin-bottom:6px; }
+.offline-overlay p  { font-size:12px; color:var(--text2); max-width:280px; line-height:1.6; }
 
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
@@ -876,7 +866,6 @@ async function playUrl(url, label, isEmbed = false) {
     iframe.onload = () => {
       loading.style.display = 'none';
     };
-    injectOverlaysCustom(); // ترحيل اللوجو فوق رابط التضمين
     return;
   }
 
