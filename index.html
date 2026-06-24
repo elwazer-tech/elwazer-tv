@@ -2,9 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SportsFlix — بث مباشر</title>
-<!-- استدعاء مشغل Clappr الاحترافي -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Elwazer TV</title>
+<!-- استدعاء مشغل Clappr الاحترافي احتياطياً للمكتبات -->
 <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
@@ -16,16 +16,25 @@
   --text:#dde3f0;--text2:#7a8499;--text3:#3d4560;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body{
+  font-family:'Tajawal',sans-serif;
+  background:var(--void);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
 
-/* NAVBAR (تعديل الهيدر ليصبح نظيفاً ومبسطاً بدون حسابات) */
+/* NAVBAR (تحديث الشعار والاسم الجديد بداخل الهيدر) */
 #navbar{background:rgba(7,8,9,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 28px;height:62px;gap:20px;}
 .nav-brand{font-size:22px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
 .nav-brand span{color:var(--red);}
 .nav-tabs{display:flex;gap:4px;flex:1;justify-content:flex-end;}
-.nav-tab{padding:7px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:transparent;font-family:'Tajawal',sans-serif;}
+.nav-tab{padding:7px 18px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:transparent;font-family:'Tajawal',sans-serif;}
 .nav-tab:hover{color:var(--text);background:var(--card);}
 .nav-tab.active{color:var(--text);background:var(--card2);}
 
@@ -76,11 +85,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .match-action{min-width:70px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
 .btn-watch{background:var(--red);color:#fff;border:none;border-radius:9px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;transition:all .15s;box-shadow:0 4px 14px var(--red-glow);}
 .btn-watch:hover{background:#ff4757;transform:scale(1.04);}
-
-/* LOADING / EMPTY */
-.loading-state,.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
-.spinner-big{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 /* MOVIES */
 #tab-movies{padding:28px;}
@@ -152,7 +156,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   border: none !important;
 }
 
-/* FLOATING LOGO */
+/* FLOATING LOGO (تصميم لوجو عائم رائع متجاوب) */
 .custom-video-logo {
   position: absolute !important;
   top: 3% !important;
@@ -164,6 +168,15 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   object-fit: contain !important;
   pointer-events: none !important;
   background: transparent !important;
+}
+
+/* ضمان بقاء اللوجو عائماً ومرئياً أثناء وضع تكبير ملء الشاشة 🎯 */
+#player-wrapper:fullscreen .custom-video-logo,
+#player-wrapper:-webkit-full-screen .custom-video-logo {
+  right: 3% !important;
+  top: 3% !important;
+  width: 12% !important;
+  max-width: 120px !important;
 }
 
 /* LOADING & ERROR SLIDES */
@@ -190,25 +203,32 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:12px 20px;font-size:14px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;}
 
+/* تحسينات وتعديلات خاصة بالهواتف و الـ WebViews ليظهر كتطبيق سينمائي حقيقي 🎯 */
 @media(max-width:640px){
-  #navbar{padding:0 14px;gap:12px;}
-  .nav-brand{font-size:18px;}
-  #tab-matches,#tab-movies{padding:16px;}
+  #navbar{padding:0 12px;gap:8px;}
+  .nav-brand{font-size:19px;}
+  .nav-tab{font-size:13px;padding:6px 12px;}
+  #tab-matches,#tab-movies{padding:12px;}
   .match-card{padding:12px 14px;gap:10px;}
   .team-logo{width:34px;height:34px;}
   .team-name{font-size:11px;}
   .vs-score{font-size:18px;}
   .match-action{min-width:70px;}
   .btn-watch{padding:6px 12px;font-size:12px;}
-  .movies-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
+  
+  /* تعديل التوزيع في الموبايل ليصبح عمودين متجاورين كالتطبيقات الرسمية لشاشات الهواتف 🎯 */
+  .movies-grid{
+    grid-template-columns:repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
 }
 </style>
 </head>
 <body>
 
-<!-- APP LOADING -->
+<!-- APP LOADING (تعديل شعار التحميل للعلامة التجارية الجديدة) -->
 <div id="app-loading">
-  <div class="app-brand">Sport<span>Flix</span></div>
+  <div class="app-brand">Elwazer <span>TV</span></div>
   <div class="spinner-big" style="width:36px;height:36px;border-width:2px;margin:0;"></div>
   <p style="color:var(--text2);font-size:14px;" id="loading-msg">جاري تحميل المنصة...</p>
 </div>
@@ -218,7 +238,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 <!-- MAIN -->
 <div id="page-main" class="page">
   <nav id="navbar">
-    <div class="nav-brand">Sport<span>Flix</span></div>
+    <!-- تعديل شعار الموقع في الهيدر للعلامة التجارية الجديدة -->
+    <div class="nav-brand">Elwazer <span>TV</span></div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('matches',this)">⚽ المباريات</button>
       <button class="nav-tab" onclick="switchTab('movies',this)">🎬 أفلام</button>
@@ -254,7 +275,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
       <div class="player-title" id="player-title">—</div>
       <div class="player-sub" id="player-sub">—</div>
     </div>
-    <div class="nav-live-dot"><div class="live-dot"></div>بث مباشر</div>
+    <!-- تم إضافة id هنا للتحكم بإخفاء وإظهار كلمة "بث مباشر" برمجياً حسب نوع المادة 🎯 -->
+    <div class="nav-live-dot" id="player-live-indicator"><div class="live-dot"></div>بث مباشر</div>
   </div>
   
   <div class="player-wrapper-outer">
@@ -302,7 +324,7 @@ const CONFIG = {
       year:'2026', 
       quality:'HD', 
       emoji:'https://a.asd.ink/wp-content/uploads/2026/06/cEIPRBe6THaUNXWYUBSW2dtqlC4-scaled-367x550.webp', 
-      url:'https://amoo.larhu.website/hls/vxzxgs6cqkqfycihmto7zuxgj6bpsbzdfzjy2najr2icmmmadcauc4s4z6wa/index-v1-a1.m3u8', 
+      url:'https://8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq.vood78.xyz/hls/cxcun54cyhcsvb3x6v3csbvkvb7saxqmt4rpchsm4kp76iwh375ivzsjw3ha/index-v1-a1.m3u8', 
       isEmbed: false, 
       genre:'كوميدي' 
     },
@@ -607,6 +629,10 @@ function openStream(encodedUrl, encodedTitle) {
   document.getElementById('player-title').textContent = title;
   document.getElementById('player-sub').textContent   = 'بث مباشر';
   document.getElementById('channel-strip').innerHTML  = '';
+  
+  // إظهار كلمة "بث مباشر" للمباريات والقنوات المباشرة 🎯
+  document.getElementById('player-live-indicator').style.display = 'flex';
+  
   showPage('player');
   playUrl(url, title);
 }
@@ -622,6 +648,10 @@ async function openMatchPage(encodedUrl, encodedTitle) {
     document.getElementById('player-title').textContent = title;
     document.getElementById('player-sub').textContent   = 'بث مباشر';
     document.getElementById('channel-strip').innerHTML  = buildChannelStrip();
+    
+    // إظهار كلمة "بث مباشر" للمباريات والقنوات المباشرة 🎯
+    document.getElementById('player-live-indicator').style.display = 'flex';
+    
     showPage('player');
     playUrl(url, title);
     return;
@@ -638,6 +668,10 @@ async function openMatchPage(encodedUrl, encodedTitle) {
     document.getElementById('player-title').textContent = title;
     document.getElementById('player-sub').textContent   = 'بث مباشر';
     document.getElementById('channel-strip').innerHTML  = buildChannelStrip();
+    
+    // إظهار كلمة "بث مباشر" للمباريات والقنوات المباشرة 🎯
+    document.getElementById('player-live-indicator').style.display = 'flex';
+    
     showPage('player');
 
     if (streamUrl) {
@@ -719,6 +753,10 @@ function playMovie(i) {
   document.getElementById('player-title').textContent = m.title;
   document.getElementById('player-sub').textContent   = m.quality + ' · ' + m.genre;
   document.getElementById('channel-strip').innerHTML  = '';
+  
+  // إخفاء كلمة "بث مباشر" للأفلام 🎯
+  document.getElementById('player-live-indicator').style.display = 'none';
+  
   showPage('player');
   playUrl(m.url, m.title, m.isEmbed);
 }
@@ -779,7 +817,6 @@ async function playUrl(url, label, isEmbed = false) {
     video.play()
       .then(() => { loading.style.display = 'none'; })
       .catch(e => {
-        // تجربة البروكسي كخيار احتياطي لملفات mp4 المحمية 🎯
         if (!video.src.includes(CONFIG.proxy)) {
           video.src = CONFIG.proxy + encodeURIComponent(url);
           video.play().catch(()=>{});
@@ -896,6 +933,21 @@ function openVLC() {
     }
   }
 }
+
+// ربط النقر المزدوج (Double Click) لتفعيل وتكبير المشغل بالكامل مع الحفاظ على اللوجو العائم 🎯
+function toggleFullscreen() {
+  const wrapper = document.getElementById('player-wrapper');
+  if (!document.fullscreenElement) {
+    wrapper.requestFullscreen().catch(err => {
+      console.log("Error going fullscreen: ", err);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.getElementById('main-video').addEventListener('dblclick', toggleFullscreen);
+document.getElementById('iframe-player').addEventListener('dblclick', toggleFullscreen);
 </script>
 </body>
 </html>
