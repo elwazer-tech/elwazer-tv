@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV — بث مباشر</title>
+<title>Elwazer TV</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -98,7 +98,7 @@ body{
 .movie-play{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--red);color:#fff;border:none;border-radius:7px;padding:7px;width:100%;margin-top:10px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;}
 .movie-play:hover{background:#ff4757;}
 
-/* PLAYER */
+/* PLAYER (المشغل الأصلي المدمج الديفولت الخفيف جداً) */
 #page-player{background:#000;min-height:100vh;display:none;flex-direction:column;}
 #page-player.active{display:flex;}
 .player-topbar{background:rgba(0,0,0,.9);backdrop-filter:blur(10px);border-bottom:1px solid #1a1a1a;padding:0 24px;height:54px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
@@ -130,176 +130,25 @@ body{
   box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
 
-/* NATIVE VIDEO STYLING (العودة للمشغل المباشر السريع كـ StreamDNS) */
+/* NATIVE VIDEO STYLING */
 #main-video {
   width: 100%; height: 100%;
   background: #000;
-  display: none;
+  display: block;
 }
 
-/* إخفاء زر ملء الشاشة الافتراضي للمتصفح لتوجيه المستخدم للزر المخصص الذي يحافظ على اللوجو 🎯 */
-video::-webkit-media-controls-fullscreen-button {
-  display: none !important;
-}
-video::media-controls-fullscreen-button {
-  display: none !important;
-}
-
-/* IFRAME & CUSTOM EMBED CONTAINER */
-#iframe-player {
-  width: 100%; height: 100%;
-  border: none; background: #000;
-  display: none;
-}
-#custom-player-container {
-  width: 100%; height: 100%;
-  background: #000;
-  display: none;
-}
-#custom-player-container iframe, 
-#custom-player-container embed {
-  width: 100% !important; height: 100% !important;
-  border: none !important;
-}
-
-/* 🎯 اللوجو الأصلي والمثالي المعتمد لديك بالأبعاد والنسب الدقيقة تماماً 🎯 */
+/* FLOATING LOGO */
 .custom-video-logo {
   position: absolute !important;
-  top: 0.1% !important;            /* الارتفاع المثالي الذي اعتمدته */
-  right: 2.1% !important;          /* الاتجاه الجانبي المثالي الذي اعتمدته */
-  z-index: 999999 !important;      /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
-  width: 18% !important;           
-  aspect-ratio: 1.45 / 1 !important; 
+  top: 3% !important;
+  right: 3% !important;
+  z-index: 99999 !important;
+  width: 14% !important;
+  max-width: 110px;
+  aspect-ratio: 1.45/1 !important;
   object-fit: contain !important;
   pointer-events: none !important;
   background: transparent !important;
-}
-
-/* ضمان بقاء اللوجو عائماً ومرئياً أثناء وضع تكبير ملء الشاشة المخصص 🎯 */
-#player-wrapper:fullscreen .custom-video-logo,
-#player-wrapper:-webkit-full-screen .custom-video-logo {
-  right: 2.1% !important;
-  top: 0.1% !important;
-  width: 18% !important;
-}
-
-/* زر ملء الشاشة العائم المخصص (للحفاظ على الشعار مرئياً أثناء التكبير) 🎯 */
-#custom-fullscreen-btn {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: 999999;
-  background: rgba(10, 10, 10, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: all 0.15s ease;
-}
-#custom-fullscreen-btn:hover {
-  background: var(--red);
-  border-color: var(--red);
-  transform: scale(1.05);
-}
-#custom-fullscreen-btn svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-
-/* زر التحديث */
-.embed-btn {
-  position: absolute; top: 12px; left: 12px; z-index: 99999999 !important; background: rgba(15, 15, 15, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 6px 12px;
-  border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 11px;
-  transition: background 0.2s;
-}
-.embed-btn:hover { background: rgba(30, 30, 30, 0.9); }
-.embed-btn svg { width: 14px; height: 14px; fill: currentColor }
-
-/* تفعيل الصوت التفاعلي المطور للتغلب على حماية المتصفحات */
-.unmute-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999999 !important; 
-  background: rgba(10, 10, 10, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: bold;
-  display: none; 
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  transition: all 0.2s ease;
-  animation: pulse 2s infinite;
-}
-.unmute-overlay:hover {
-  background: rgba(46, 13, 94, 0.9);
-  border-color: #00ff88;
-  transform: translate(-50%, -50%) scale(1.05);
-}
-.unmute-overlay svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
-}
-
-/* لوحة التنبيه الزجاجية الأنيقة في حال كان البث متوقفاً */
-.offline-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999998 !important; 
-  background: rgba(10, 10, 10, 0.92);
-  display: none; 
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-.offline-overlay svg {
-  width: 55px;
-  height: 55px;
-  fill: #ff3b30; 
-  margin-bottom: 15px;
-}
-.offline-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #fff;
-}
-.offline-subtitle {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  max-width: 320px;
-  line-height: 1.5;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
 }
 
 /* LOADING & ERROR SLIDES */
@@ -405,48 +254,23 @@ video::media-controls-fullscreen-button {
   <div class="player-wrapper-outer">
     <div class="player-wrapper" id="player-wrapper">
       
-      <!-- 1. مشغل الفيديو المباشر السريع والخفيف (نفس آلية StreamDNS السلسة والسريعة والآمنة للتطبيق) -->
+      <!-- المشغل الأصلي المدمج فائق السرعة والاستقرار لـ HTML5 (بدون Clappr لإنهاء أي بطء) 🎯 -->
       <video id="main-video" controls playsinline></video>
-      
-      <!-- 2. مشغل الآيفريم لروابط التضمين الخارجية -->
-      <iframe id="iframe-player" allowfullscreen></iframe>
-      
-      <!-- 3. حاوية مخصصة للأكواد البرمجية الكاملة (Iframe كامل أو Embed كامل) -->
-      <div id="custom-player-container"></div>
 
       <!-- اللوجو العائم فوق المشغلات والـ embed بالنسب المحددة لديك تماماً 🎯 -->
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
 
-      <!-- زر ملء الشاشة المخصص العائم للحفاظ على اللوجو العائم بنسبتك الدقيقة 🎯 -->
-      <button id="custom-fullscreen-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
-        <svg viewBox="0 0 24 24">
-          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-        </svg>
-      </button>
-
-      <!-- زر تحديث المشغل يدويًا مدمج للمباريات والأفلام -->
-      <button class="embed-btn" onclick="reloadCurrentChannel()">
-        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-        تحديث المشغل
-      </button>
-
       <!-- شاشة مؤشر التحميل التفاعلية الخفيفة والذكية -->
-      <div class="player-loading" id="player-loading" style="display: none; background: rgba(0, 0, 0, 0.8);">
+      <div class="player-loading" id="player-loading" style="display: none; background: rgba(0, 0, 0, 0.85);">
         <div class="spinner-big"></div>
         <p>جاري تحميل البث...</p>
       </div>
 
-      <!-- لوحة التنبيه الزجاجية الأنيقة للبث المتوقف -->
-      <div id="offline-overlay" class="offline-overlay">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-          <div class="offline-title">البث متوقف مؤقتاً</div>
-          <div class="offline-subtitle">هذه القناة لا تحتوي على بث نشط حالياً. يرجى تجربة القنوات الأخرى أو العودة لاحقاً.</div>
-      </div>
-
-      <!-- شاشة تفعيل الصوت التفاعلية لتجاوز قيود كتم الصوت في المتصفحات والتطبيق -->
-      <div id="unmute-overlay" class="unmute-overlay" onclick="unmutePlayer()">
-          <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0 3.28-2.16 6.07-5.14 7.03c1.92-.61 3.44-2.13 4.05-4.05C18.42 13.93 19 12.82 19 12zm-8.81 7.19L5.35 14H2v-4h3.35l4.84-5.19C10.74 4.26 11.5 4.61 11.5 5.3v13.4c0 .69-.76 1.04-1.31.49z"/></svg>
-          اضغط لتفعيل الصوت
+      <!-- شاشة خطأ التشغيل -->
+      <div class="player-error-box" id="player-error-box" style="display: none;">
+        <div class="err-icon">📡</div>
+        <p>تعذّر تحميل البث<br><span style="font-size:12px;color:#555" id="player-error-msg">جرّب فتح الرابط في VLC</span></p>
+        <button class="btn-vlc" onclick="openVLC()">🎬 فتح في VLC</button>
       </div>
 
     </div>
@@ -870,7 +694,7 @@ function buildMovies() {
     const isUrl = m.emoji.startsWith('http') || m.emoji.includes('/') || m.emoji.includes('.');
     
     // سحب صورة الشعار للموبايل وتطبيق الويب فيو عبر البروكسي ديناميكياً لتجاوز قيود وحظر السيرفرات الخارجية 🎯
-    const imageUrl = isUrl ? (CONFIG.proxy + encodeURIComponent(m.emoji)) : m.emoji;
+    const imageUrl = isUrl ? (`https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=604800&url=` + encodeURIComponent(m.emoji)) : m.emoji;
     
     const posterHtml = isUrl 
       ? `<img src="${imageUrl}" alt="${m.title}" referrerpolicy="no-referrer">` 
@@ -906,7 +730,7 @@ function playMovie(i) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PLAYER (نظام تشغيل ذكي وخفيف فائق السرعة مع بروكسي احتياطي تلقائي)
+//  PLAYER (العودة للمشغل المباشر الأصلي المستقر والسلس 100% كأول إصدار)
 // ══════════════════════════════════════════════════════
 async function playUrl(url, label, isEmbed = false) {
   currentStreamUrl = url;
@@ -915,18 +739,15 @@ async function playUrl(url, label, isEmbed = false) {
   const customContainer = document.getElementById('custom-player-container');
   const loading  = document.getElementById('player-loading');
   const errorBox = document.getElementById('player-error-box');
-  const offEl    = document.getElementById('offline-overlay');
-  const unmEl    = document.getElementById('unmute-overlay');
 
   loading.style.display  = 'flex';
   errorBox.style.display = 'none';
-  offEl.style.display    = 'none';
-  unmEl.style.display    = 'none';
   
   // تفريغ أي بث سابق لتجنب التداخل
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
   video.pause();
-  video.src = '';
+  video.removeAttribute('src');
+  video.load();
   iframe.src = '';
   customContainer.innerHTML = '';
 
@@ -956,7 +777,7 @@ async function playUrl(url, label, isEmbed = false) {
     return;
   }
 
-  // 3. تشغيل ملفات الـ m3u8 و الـ mp4 الأساسية بسرعة فائقة كـ StreamDNS
+  // 3. تشغيل ملفات الـ m3u8 و الـ mp4 الأساسية بسرعة فائقة كالمشغل الأصلي المدمج
   video.style.display = 'block';
 
   // تشغيل ملفات MP4 المباشرة بسرعة فائقة مباشرة دون Hls
@@ -1064,7 +885,7 @@ function closePlayer() {
   const iframe = document.getElementById('iframe-player');
   const customContainer = document.getElementById('custom-player-container');
   
-  v.pause(); v.src = ''; v.style.display = 'none';
+  v.pause(); v.removeAttribute('src'); v.load();
   iframe.src = ''; iframe.style.display = 'none';
   customContainer.innerHTML = ''; customContainer.style.display = 'none';
   
