@@ -385,7 +385,7 @@ async function loadMatches(dayKey) {
     const matches = parseMatches(html);
     currentMatches = matches;
     renderMatches(matches);
-    document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
+    document.getElementById('matches-badge').textContent = matches.length + ' مباريات';
   } catch(err) {
     console.error(err);
     container.innerHTML = `
