@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV بث</title>
+<title>Elwazer TV</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 <style>
@@ -696,14 +696,78 @@ function toast(msg) {
 // ══════════════════════════════════════════════════════
 //  PULL TO REFRESH
 // ══════════════════════════════════════════════════════
-let startY = 0, isPulling = false;
-window.addEventListener('touchstart', e => { if (window.scrollY===0) { startY=e.touches[0].pageY; isPulling=true; } }, { passive:true });
+// ══════════════════════════════════════════════════════
+//  PULL TO REFRESH — سحب للأسفل لتحديث النتائج فوراً
+// ══════════════════════════════════════════════════════
+let startY = 0, isPulling = false, pullTriggered = false;
+
+// مؤشر السحب المرئي
+const pullIndicator = document.createElement('div');
+pullIndicator.id = 'pull-indicator';
+pullIndicator.style.cssText = `
+  position: fixed; top: 62px; left: 50%; transform: translateX(-50%) translateY(-60px);
+  background: var(--card2); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 30px; padding: 8px 18px;
+  font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 600;
+  z-index: 200; transition: transform 0.25s ease; pointer-events: none;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+`;
+pullIndicator.innerHTML = '↓ اسحب للتحديث';
+document.body.appendChild(pullIndicator);
+
+window.addEventListener('touchstart', e => {
+  if (window.scrollY === 0 && document.getElementById('page-main').classList.contains('active')) {
+    startY       = e.touches[0].pageY;
+    isPulling    = true;
+    pullTriggered = false;
+  }
+}, { passive: true });
+
 window.addEventListener('touchmove', e => {
   if (!isPulling) return;
-  if (e.touches[0].pageY - startY > 90 && window.scrollY===0) { isPulling=false; triggerPullRefresh(); }
-}, { passive:true });
-window.addEventListener('touchend', () => { isPulling=false; });
-async function triggerPullRefresh() { toast('🔄 جاري التحديث...'); await initMain(); }
+  const diff = e.touches[0].pageY - startY;
+  if (diff > 10 && window.scrollY === 0) {
+    // إظهار المؤشر تدريجياً حسب مقدار السحب
+    const progress = Math.min(diff / 80, 1);
+    const translateY = -60 + (progress * 70);
+    pullIndicator.style.transform = `translateX(-50%) translateY(${translateY}px)`;
+    if (diff > 70) {
+      pullIndicator.innerHTML = '↑ ارفع للتحديث';
+      pullIndicator.style.background = 'var(--red)';
+      pullIndicator.style.borderColor = 'var(--red)';
+    } else {
+      pullIndicator.innerHTML = '↓ اسحب للتحديث';
+      pullIndicator.style.background = 'var(--card2)';
+      pullIndicator.style.borderColor = 'var(--border2)';
+    }
+    // تشغيل التحديث لما يوصل لـ 80px
+    if (diff > 80 && !pullTriggered) {
+      pullTriggered = true;
+      triggerPullRefresh();
+    }
+  }
+}, { passive: true });
+
+window.addEventListener('touchend', () => {
+  isPulling = false;
+  pullIndicator.style.transform = 'translateX(-50%) translateY(-60px)';
+  pullIndicator.style.background = 'var(--card2)';
+  pullIndicator.style.borderColor = 'var(--border2)';
+  pullIndicator.innerHTML = '↓ اسحب للتحديث';
+});
+async function triggerPullRefresh() {
+  // تحديث صامت وسريع — بدون spinner أو إعادة بناء كاملة
+  toast('🔄 جاري تحديث المباريات...');
+  try {
+    await fetchDynamicConfig();              // تحديث config.json (روابط جديدة)
+    await loadMatchesSilent(activeDay);     // تحديث النتائج والحالة والتوقيت
+    buildMovies();                          // تحديث قائمة الأفلام
+    toast('✅ تم التحديث');
+  } catch(e) {
+    toast('⚠️ فشل التحديث، تحقق من الإنترنت');
+  }
+}
 
 // ══════════════════════════════════════════════════════
 //  AUTO REFRESH — تحديث لحظي كل 60 ثانية للمباريات الجارية
