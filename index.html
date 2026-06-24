@@ -11,7 +11,6 @@
   --border:#1e2330;--border2:#2a3048;
   --red:#e63946;--red-glow:rgba(230,57,70,0.2);
   --gold:#f4a72a;--green:#2ecc71;--blue:#3a7bd5;
-  --text:#dde3f0;--text2:#7a8499;--text3:#3d4560;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
@@ -738,7 +737,7 @@ function playMovie(i) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PLAYER (نظام تشغيل ذكي وخفيف فائق السرعة كـ StreamDNS)
+//  PLAYER (نظام تشغيل ذكي وخفيف فائق السرعة مع بروكسي احتياطي تلقائي)
 // ══════════════════════════════════════════════════════
 async function playUrl(url, label, isEmbed = false) {
   currentStreamUrl = url;
@@ -793,8 +792,14 @@ async function playUrl(url, label, isEmbed = false) {
     video.play()
       .then(() => { loading.style.display = 'none'; })
       .catch(e => {
-        loading.style.display = 'none';
-        showPlayerError('خطأ في التشغيل: ' + e.message);
+        // تجربة البروكسي كخيار احتياطي لملفات mp4 المحمية 🎯
+        if (!video.src.includes(CONFIG.proxy)) {
+          video.src = CONFIG.proxy + encodeURIComponent(url);
+          video.play().catch(()=>{});
+        } else {
+          loading.style.display = 'none';
+          showPlayerError('خطأ في التشغيل: ' + e.message);
+        }
       });
     return;
   }
@@ -816,26 +821,43 @@ async function playUrl(url, label, isEmbed = false) {
       lowLatencyMode: true,
       backBufferLength: 90,
     });
+    
+    // محاولة التشغيل المباشر للرابط المباشر في البداية
     hlsInstance.loadSource(url);
     hlsInstance.attachMedia(video);
+    
     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
       loading.style.display = 'none';
       video.play().catch(()=>{});
     });
+    
+    // فخ الأخطاء الذكي: إذا واجه مشكلة CORS، سيتحول فوراً وبشكل تلقائي للبروكسي كبديل احتياطي (Fallback) 🎯
     hlsInstance.on(Hls.Events.ERROR, (event, data) => {
       if (data.fatal) {
-        loading.style.display = 'none';
-        showPlayerError(`فشل البث: ${data.details}`);
+        if (data.details === 'manifestLoadError' && !hlsInstance.url.includes(CONFIG.proxy)) {
+          console.log("CORS detected! Switching automatically to CORS proxy fallback...");
+          const proxiedUrl = CONFIG.proxy + encodeURIComponent(url);
+          hlsInstance.loadSource(proxiedUrl);
+        } else {
+          loading.style.display = 'none';
+          showPlayerError(`فشل البث: ${data.details}`);
+        }
       }
     });
+    
   } else if (isHLS && video.canPlayType('application/vnd.apple.mpegurl')) {
-    // تشغيل مباشر على متصفحات Safari أو الهواتف التي تدعم البث تلقائياً
+    // تشغيل مباشر على متصفحات Safari مع دعم التخطي الاحتياطي للبروكسي تلقائياً 🎯
     video.src = url;
     video.play()
       .then(() => { loading.style.display = 'none'; })
       .catch(e => {
-        loading.style.display = 'none';
-        showPlayerError(e.message);
+        if (!video.src.includes(CONFIG.proxy)) {
+          video.src = CONFIG.proxy + encodeURIComponent(url);
+          video.play().catch(()=>{});
+        } else {
+          loading.style.display = 'none';
+          showPlayerError(e.message);
+        }
       });
   } else {
     loading.style.display = 'none';
