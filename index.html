@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV</title>
+<title>Elwazer TV بث</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
 <style>
@@ -315,6 +315,7 @@ async function initMain() {
   buildDayTabs();
   buildMovies();
   await loadMatches(activeDay);
+  startAutoRefresh();
 }
 
 // ══════════════════════════════════════════════════════
@@ -392,44 +393,69 @@ function parseMatches(html) {
   const parser = new DOMParser();
   const doc    = parser.parseFromString(html, 'text/html');
   const matches = [];
-  const allImgs = [...doc.querySelectorAll('img')].filter(img => {
-    const src = img.src || img.getAttribute('src') || '';
-    return src.includes('wp-content/uploads') && !src.includes('thumb') && !src.includes('logo');
-  });
-  for (let i = 0; i + 1 < allImgs.length; i += 2) {
-    const img1 = allImgs[i], img2 = allImgs[i+1];
-    const home = img1.getAttribute('alt') || 'فريق 1';
-    const away = img2.getAttribute('alt') || 'فريق 2';
-    const container = findCommonContainer(img1, img2, doc);
-    if (!container) continue;
-    const text = container.textContent || '';
-    const timeMatch  = text.match(/\b(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?)\b/i);
-    const time       = timeMatch ? timeMatch[1] : '—';
-    const scoreMatch = text.match(/\b(\d+)-(\d+)\b/);
-    const homeScore  = scoreMatch ? scoreMatch[1] : null;
-    const awayScore  = scoreMatch ? scoreMatch[2] : null;
-    const isLive     = text.includes('جارية') || text.includes('مباشر') || text.includes('الآن');
-    const isEnded    = text.includes('انتهت') || text.includes('منتهية');
-    const notStarted = text.includes('لم تبدأ') || text.includes('لم يبدأ');
-    const links      = [...container.querySelectorAll('a[href]')];
-    const watchLink  = links.find(a => {
-      const h = a.getAttribute('href') || '';
-      return h.includes('ssirtv.com/matches/') || h.includes('hes-goals') || h.includes('korat');
-    });
-    const watchUrl = watchLink ? (watchLink.getAttribute('href') || '') : '';
-    matches.push({ home, away, homeLogo: img1.getAttribute('src')||'', awayLogo: img2.getAttribute('src')||'', time, homeScore, awayScore, isLive, isEnded, notStarted, watchUrl });
-  }
-  return matches;
-}
 
-function findCommonContainer(img1, img2, doc) {
-  let node = img1.parentElement;
-  for (let i = 0; i < 8; i++) {
-    if (!node) break;
-    if (node.contains(img2)) return node;
-    node = node.parentElement;
+  // الهيكل الحقيقي لـ ssirtv:
+  // كل مباراة = img(home) + نص(وقت + نتيجة + حالة) + img(away) + a(رابط المشاهدة)
+  // نجيب كل الصور من wp-content/uploads ونعالجها كأزواج
+  const allImgs = [...doc.querySelectorAll('img')].filter(img => {
+    const src = img.getAttribute('src') || '';
+    return src.includes('wp-content/uploads');
+  });
+
+  for (let i = 0; i + 1 < allImgs.length; i += 2) {
+    const imgHome = allImgs[i];
+    const imgAway = allImgs[i + 1];
+
+    const home = (imgHome.getAttribute('alt') || '').trim();
+    const away = (imgAway.getAttribute('alt') || '').trim();
+    if (!home || !away) continue;
+
+    // نلاقي الـ container المشترك للصورتين
+    let container = imgHome.parentElement;
+    for (let depth = 0; depth < 10; depth++) {
+      if (!container) break;
+      if (container.contains(imgAway)) break;
+      container = container.parentElement;
+    }
+    if (!container) continue;
+
+    const text = (container.textContent || '').replace(/\s+/g, ' ').trim();
+
+    // ── التوقيت: HH:MM (24 ساعة كما يظهر في الموقع) ──
+    const timeRx = text.match(/\b(\d{1,2}:\d{2})\b/);
+    const time   = timeRx ? timeRx[1] : '—';
+
+    // ── النتيجة: رقم-رقم بجوار الوقت مباشرة ──
+    // الموقع يكتب: "23:00 0-2" في نفس الجزء
+    const scoreRx   = text.match(/\b(\d+)-(\d+)\b/);
+    const homeScore = scoreRx ? scoreRx[1] : null;
+    const awayScore = scoreRx ? scoreRx[2] : null;
+
+    // ── الحالة: كلمات واضحة في نص الموقع ──
+    const isLive     = text.includes('مباشر') || text.includes('جارية') || text.includes('الآن') || text.includes('يلعب');
+    const isEnded    = text.includes('انتهت') || text.includes('منتهية') || text.includes('اكتملت');
+    const notStarted = text.includes('لم تبدأ') || text.includes('لم يبدأ') || text.includes('لم تبدأ بعد');
+
+    // ── رابط المشاهدة: أي رابط في الـ container ──
+    const allLinks  = [...container.querySelectorAll('a[href]')];
+    const watchLink = allLinks.find(a => {
+      const h = a.getAttribute('href') || '';
+      return h.includes('hes-goals') || h.includes('korat') ||
+             h.includes('ssirtv.com/matches/') || h.includes('.m3u8') || h.includes('.mp4');
+    });
+    const watchUrl = watchLink ? watchLink.getAttribute('href') : '';
+
+    matches.push({
+      home, away,
+      homeLogo: imgHome.getAttribute('src') || '',
+      awayLogo: imgAway.getAttribute('src') || '',
+      time, homeScore, awayScore,
+      isLive, isEnded, notStarted,
+      watchUrl
+    });
   }
-  return doc.body;
+
+  return matches;
 }
 
 // ══════════════════════════════════════════════════════
@@ -678,6 +704,42 @@ window.addEventListener('touchmove', e => {
 }, { passive:true });
 window.addEventListener('touchend', () => { isPulling=false; });
 async function triggerPullRefresh() { toast('🔄 جاري التحديث...'); await initMain(); }
+
+// ══════════════════════════════════════════════════════
+//  AUTO REFRESH — تحديث لحظي كل 60 ثانية للمباريات الجارية
+// ══════════════════════════════════════════════════════
+let autoRefreshTimer = null;
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  autoRefreshTimer = setInterval(async () => {
+    // تحديث فقط لو في مباريات مباشرة الآن
+    const hasLive = currentMatches.some(m => m.isLive);
+    if (hasLive) {
+      await fetchDynamicConfig();
+      await loadMatchesSilent(activeDay);
+    }
+  }, 60000); // كل 60 ثانية
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+}
+
+// تحميل صامت بدون spinner — فقط بيحدّث البيانات
+async function loadMatchesSilent(dayKey) {
+  try {
+    const res = await fetch(STATIC_CONFIG.proxy + encodeURIComponent(STATIC_CONFIG.sources[dayKey]));
+    if (!res.ok) return;
+    const html    = await res.text();
+    const matches = parseMatches(html);
+    if (matches.length > 0) {
+      currentMatches = matches;
+      renderMatches(matches);
+      document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
+    }
+  } catch(e) { console.warn('Silent refresh failed:', e); }
+}
 </script>
 </body>
 </html>
