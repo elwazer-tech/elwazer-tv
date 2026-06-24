@@ -394,6 +394,9 @@ video::media-controls-fullscreen-button {
 //  CONFIG — عدّل هنا فقط
 // ══════════════════════════════════════════════════════
 const CONFIG = {
+  // فرق التوقيت بالساعات لتعديل توقيت مباريات موقع ssirtv (اضبطه على +2 ساعات لتعديل توقيت جرينتش إلى توقيت مكة المكرمة/الرياض) 🎯
+  timeOffset: 2, 
+
   // أفلام — ضع روابطك هنا
   movies: [
     { 
@@ -580,7 +583,8 @@ function parseMatches(html) {
 
     const text = container.textContent || '';
 
-    const timeMatch = text.match(/\b(\d{1,2}:\d{2})\b/);
+    // تم تعديل الاستخراج ليتعرف على التوقيت بصيغة AM/PM بدقة كاملة من السيرفر 🎯
+    const timeMatch = text.match(/\b(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?)\b/i);
     const time = timeMatch ? timeMatch[1] : '—';
 
     const scoreMatch = text.match(/\b(\d+)-(\d+)\b/);
@@ -625,15 +629,43 @@ function findCommonContainer(img1, img2, doc) {
 //  RENDER MATCHES (فلترة تلقائية لعرض المباريات المباشرة والجارية أولاً) ⚽
 // ══════════════════════════════════════════════════════
 
+// دالة تحويل وعرض التوقيت مع المعالجة الكاملة لرموز الـ AM و الـ PM وإضافة فرق التوقيت لبلدك 🎯
 function toAmPm(t) {
   if (!t || t === '—') return { display: t, ampm: '' };
-  const parts = t.split(':');
+  
+  let hours = 0;
+  let minutes = 0;
+  
+  // استخراج الساعة والدقائق بدقة
+  const cleanT = t.replace(/(AM|PM)/i, '').trim();
+  const parts = cleanT.split(':');
   if (parts.length < 2) return { display: t, ampm: '' };
-  let h = parseInt(parts[0], 10);
-  const m = parts[1];
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  return { display: h + ':' + m, ampm };
+  
+  hours = parseInt(parts[0], 10);
+  minutes = parseInt(parts[1], 10);
+  
+  // إذا كان التوقيت الأصلي يحتوي على PM، نحوله لصيغة 24 ساعة لتسهيل الحساب
+  if (t.toLowerCase().includes('pm') && hours < 12) {
+    hours += 12;
+  }
+  if (t.toLowerCase().includes('am') && hours === 12) {
+    hours = 0;
+  }
+  
+  // إضافة فرق الساعات تلقائياً من الـ CONFIG (الافتراضي هو +2 ساعة ليتطابق مع مكة المكرمة) 🎯
+  const offset = CONFIG.timeOffset || 2;
+  hours = (hours + offset) % 24;
+  if (hours < 0) hours += 24;
+  
+  // تحويل الوقت المعدل النهائي إلى صيغة AM/PM للعرض المنسق
+  const finalAmpm = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
+  
+  return { 
+    display: displayHours + ':' + displayMinutes, 
+    ampm: finalAmpm 
+  };
 }
 
 function renderMatches(matches) {
@@ -1029,9 +1061,7 @@ function openVLC() {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  FULLSCREEN SYSTEM (تصحيح وتثبيت اللوجو بالأبعاد والنسب الأصلية تماماً عند التكبير) 🎯
-// ══════════════════════════════════════════════════════
+// ربط النقر المزدوج (Double Click) لتفعيل وتكبير المشغل بالكامل مع الحفاظ على اللوجو العائم 🎯
 function toggleFullscreen() {
   const wrapper = document.getElementById('player-wrapper');
   if (!document.fullscreenElement) {
