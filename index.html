@@ -130,6 +130,11 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:12px 20px;font-size:14px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;}
 
+/* pull hint — نص صغير فوق المحتوى مباشرة */
+.pull-hint{text-align:center;font-size:11px;color:var(--text3);padding:6px 0 0;letter-spacing:.3px;user-select:none;}
+/* spinner داخل pull-hint لما بيكون بيحدّث */
+.pull-hint.refreshing{color:var(--red);}
+
 .loading-state{text-align:center;padding:60px 20px;color:var(--text3);}
 .empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
 
@@ -182,6 +187,7 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
       <div class="section-line"></div>
     </div>
     <div class="day-tabs" id="day-tabs"></div>
+    <div class="pull-hint" id="pull-hint">↓ اسحب للتحديث</div>
     <div id="matches-container">
       <div class="loading-state"><div class="spinner-big" style="margin:0 auto 16px;"></div><p>جاري تحميل المباريات...</p></div>
     </div>
@@ -263,9 +269,14 @@ let DYNAMIC = {
 // جلب config.json مع cache-busting عشان يضمن أحدث نسخة دايماً
 async function fetchDynamicConfig() {
   try {
-    const ts = Date.now(); // cache buster — بيمنع المتصفح يحتفظ بالنسخة القديمة
+    // مسح الكاش أولاً لو الـ Cache API متاحة
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    const ts = Date.now();
     const res = await fetch(`config.json?v=${ts}`, {
-      cache: 'no-store'   // تعليمة صريحة للمتصفح: لا تحتفظ بنسخة قديمة أبداً
+      cache: 'no-store'
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
@@ -697,76 +708,31 @@ function toast(msg) {
 //  PULL TO REFRESH
 // ══════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════
-//  PULL TO REFRESH — سحب للأسفل لتحديث النتائج فوراً
+//  PULL TO REFRESH
 // ══════════════════════════════════════════════════════
 let startY = 0, isPulling = false, pullTriggered = false;
 
-// مؤشر السحب المرئي
-const pullIndicator = document.createElement('div');
-pullIndicator.id = 'pull-indicator';
-pullIndicator.style.cssText = `
-  position: fixed; top: 62px; left: 50%; transform: translateX(-50%) translateY(-60px);
-  background: var(--card2); border: 1px solid var(--border2);
-  color: var(--text); border-radius: 30px; padding: 8px 18px;
-  font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 600;
-  z-index: 200; transition: transform 0.25s ease; pointer-events: none;
-  display: flex; align-items: center; gap: 8px; white-space: nowrap;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-`;
-pullIndicator.innerHTML = '↓ اسحب للتحديث';
-document.body.appendChild(pullIndicator);
-
 window.addEventListener('touchstart', e => {
   if (window.scrollY === 0 && document.getElementById('page-main').classList.contains('active')) {
-    startY       = e.touches[0].pageY;
-    isPulling    = true;
+    startY = e.touches[0].pageY;
+    isPulling = true;
     pullTriggered = false;
   }
 }, { passive: true });
 
 window.addEventListener('touchmove', e => {
-  if (!isPulling) return;
-  const diff = e.touches[0].pageY - startY;
-  if (diff > 10 && window.scrollY === 0) {
-    // إظهار المؤشر تدريجياً حسب مقدار السحب
-    const progress = Math.min(diff / 80, 1);
-    const translateY = -60 + (progress * 70);
-    pullIndicator.style.transform = `translateX(-50%) translateY(${translateY}px)`;
-    if (diff > 70) {
-      pullIndicator.innerHTML = '↑ ارفع للتحديث';
-      pullIndicator.style.background = 'var(--red)';
-      pullIndicator.style.borderColor = 'var(--red)';
-    } else {
-      pullIndicator.innerHTML = '↓ اسحب للتحديث';
-      pullIndicator.style.background = 'var(--card2)';
-      pullIndicator.style.borderColor = 'var(--border2)';
-    }
-    // تشغيل التحديث لما يوصل لـ 80px
-    if (diff > 80 && !pullTriggered) {
-      pullTriggered = true;
-      triggerPullRefresh();
-    }
+  if (!isPulling || pullTriggered) return;
+  if (e.touches[0].pageY - startY > 80 && window.scrollY === 0) {
+    pullTriggered = true;
+    triggerPullRefresh();
   }
 }, { passive: true });
 
-window.addEventListener('touchend', () => {
-  isPulling = false;
-  pullIndicator.style.transform = 'translateX(-50%) translateY(-60px)';
-  pullIndicator.style.background = 'var(--card2)';
-  pullIndicator.style.borderColor = 'var(--border2)';
-  pullIndicator.innerHTML = '↓ اسحب للتحديث';
-});
+window.addEventListener('touchend', () => { isPulling = false; });
 async function triggerPullRefresh() {
-  // تحديث صامت وسريع — بدون spinner أو إعادة بناء كاملة
-  toast('🔄 جاري تحديث المباريات...');
-  try {
-    await fetchDynamicConfig();              // تحديث config.json (روابط جديدة)
-    await loadMatchesSilent(activeDay);     // تحديث النتائج والحالة والتوقيت
-    buildMovies();                          // تحديث قائمة الأفلام
-    toast('✅ تم التحديث');
-  } catch(e) {
-    toast('⚠️ فشل التحديث، تحقق من الإنترنت');
-  }
+  await fetchDynamicConfig();
+  await loadMatchesSilent(activeDay);
+  buildMovies();
 }
 
 // ══════════════════════════════════════════════════════
@@ -792,8 +758,13 @@ function stopAutoRefresh() {
 
 // تحميل صامت بدون spinner — فقط بيحدّث البيانات
 async function loadMatchesSilent(dayKey) {
+  const hint = document.getElementById('pull-hint');
+  if (hint) { hint.textContent = '⟳ جاري التحديث...'; hint.classList.add('refreshing'); }
   try {
-    const res = await fetch(STATIC_CONFIG.proxy + encodeURIComponent(STATIC_CONFIG.sources[dayKey]));
+    const res = await fetch(
+      STATIC_CONFIG.proxy + encodeURIComponent(STATIC_CONFIG.sources[dayKey]),
+      { cache: 'no-store' }   // مسح كاش الطلب
+    );
     if (!res.ok) return;
     const html    = await res.text();
     const matches = parseMatches(html);
@@ -803,6 +774,12 @@ async function loadMatchesSilent(dayKey) {
       document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
     }
   } catch(e) { console.warn('Silent refresh failed:', e); }
+  finally {
+    if (hint) {
+      hint.textContent = '↓ اسحب للتحديث';
+      hint.classList.remove('refreshing');
+    }
+  }
 }
 </script>
 </body>
