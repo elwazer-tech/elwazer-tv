@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SportsFlix — بث مباشر</title>
-<!-- استدعاء مشغل Clappr الاحترافي -->
-<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -13,6 +11,7 @@
   --border:#1e2330;--border2:#2a3048;
   --red:#e63946;--red-glow:rgba(230,57,70,0.2);
   --gold:#f4a72a;--green:#2ecc71;--blue:#3a7bd5;
+  --text:#dde3f0;--text2:#7a8499;--text3:#3d4560;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
@@ -90,7 +89,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* MOVIES */
-#tab-movies{padding:28px;}
 .movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
 .movie-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;}
 .movie-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.5);}
@@ -235,7 +233,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
     <div class="nav-user">
       <div class="nav-avatar" id="nav-avatar">م</div>
       <span class="nav-username" id="nav-username">المشرف</span>
-      <!-- زر إعادة تحميل بدلاً من الخروج -->
+      <!-- زر إعادة تحميل لتنشيط السيرفرات -->
       <button class="btn-logout" onclick="location.reload()">🔄 تحديث</button>
     </div>
   </nav>
@@ -369,7 +367,21 @@ const HLSJS_URL = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
 let hlsLoaded = false;
 
 // ══════════════════════════════════════════════════════
-//  INIT (تحميل فوري للمباريات والأفلام معاً)
+//  DYNAMIC HLS LOADER
+// ══════════════════════════════════════════════════════
+function loadHlsJS() {
+  return new Promise((res, rej) => {
+    if (hlsLoaded || typeof Hls !== 'undefined') { hlsLoaded = true; res(); return; }
+    const s = document.createElement('script');
+    s.src = HLSJS_URL;
+    s.onload = () => { hlsLoaded = true; res(); };
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT (تحميل فوري ومزدوج للمباريات والأفلام عند الدخول)
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', async () => {
   await initMain();
@@ -460,7 +472,7 @@ function parseMatches(html) {
   const doc = parser.parseFromString(html, 'text/html');
   const matches = [];
 
-  // تم إصلاح خطأ القوس النحوي هنا بدقة 🎯
+  // تم تصحيح القوس المربع بالكامل هنا ليصبح برمجياً صحيحاً 🎯
   const allImgs = [...doc.querySelectorAll('img')].filter(img => {
     const src = img.src || img.getAttribute('src') || '';
     return src.includes('wp-content/uploads') && !src.includes('thumb') && !src.includes('logo');
@@ -787,7 +799,7 @@ async function playUrl(url, label, isEmbed = false) {
     return;
   }
 
-  // تشغيل روابط m3u8 (HLS) بسرعة فائقة مع تحميل المكتبة ديناميكياً
+  // استدعاء وتجهيز مكتبة Hls لوضع الاستجابة الفائقة والكمون المنخفض
   try {
     await loadHlsJS();
   } catch {
