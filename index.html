@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SportsFlix — بث مباشر</title>
+<!-- استدعاء مشغل Clappr الاحترافي -->
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -12,6 +14,7 @@
   --red:#e63946;--red-glow:rgba(230,57,70,0.2);
   --gold:#f4a72a;--green:#2ecc71;--blue:#3a7bd5;
   --text:#dde3f0;--text2:#7a8499;--text3:#3d4560;
+  --accent: #00ff88;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
@@ -127,25 +130,151 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .btn-back:hover{background:rgba(255,255,255,.14);}
 .player-title{font-size:15px;font-weight:700;}
 .player-sub{font-size:12px;color:#666;margin-right:auto;}
-.player-wrapper{flex:1;position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-height:0;}
-#main-video{width:100%;height:100%;max-height:calc(100vh - 54px - 72px);background:#000;}
-#iframe-player{width:100%;height:100%;max-height:calc(100vh - 54px - 72px);background:#000;border:none;}
+.player-wrapper-outer {
+  flex: 1;
+  min-height: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  overflow: hidden;
+}
+.player-wrapper{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 120vh;
+  max-height: calc(100vh - 190px);
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
 
-/* حاوية الأكواد البرمجية والتضمين الكامل */
+/* CLAPPR VIDEO ELEMENTS STYLING */
+#clappr-player { width:100%; height:100%; }
+#clappr-player video { object-fit: fill !important; width:100% !important; height:100% !important; }
+
+/* IFRAME & CUSTOM PLAYER CONTAINER */
+#iframe-player {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #000;
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+}
 #custom-player-container {
   width: 100%;
   height: 100%;
-  max-height: calc(100vh - 54px - 72px);
   background: #000;
-  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 999;
 }
 #custom-player-container iframe, 
-#custom-player-container embed, 
-#custom-player-container video {
+#custom-player-container embed {
   width: 100% !important;
   height: 100% !important;
   border: none !important;
 }
+
+/* REFRESH BUTTON */
+.refresh-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 9999999;
+  background: rgba(10,10,10,0.82);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 6px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s;
+  font-family: inherit;
+}
+.refresh-btn:hover { background: rgba(66,20,128,0.75); }
+.refresh-btn svg { width:13px; height:13px; fill:currentColor; }
+.refresh-btn.spinning svg { animation: spin 0.6s linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* CUSTOM LOGO ABOVE VIDEOS */
+.custom-video-logo {
+  position: absolute !important;
+  top: 0.1% !important;
+  right: 2.1% !important;
+  z-index: 999999 !important;
+  width: 18% !important;
+  aspect-ratio: 1.45/1 !important;
+  object-fit: fill !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  transition: right 0.15s ease;
+}
+
+/* UNMUTE OVERLAY */
+.unmute-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 9999999;
+  background: rgba(10,10,10,0.88);
+  border: 1px solid rgba(0,255,136,0.3);
+  color: #fff;
+  padding: 13px 26px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  animation: pulse 2s infinite;
+  font-family: inherit;
+}
+.unmute-overlay svg { width:20px; height:20px; fill:currentColor; }
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,136,0.35); }
+  70%  { box-shadow: 0 0 0 10px rgba(0,255,136,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+}
+
+/* OFFLINE OVERLAY */
+.offline-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 9999998;
+  background: rgba(7,7,8,0.94);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  backdrop-filter: blur(12px);
+}
+.offline-overlay .off-icon {
+  width: 56px; height: 56px;
+  background: rgba(255,59,48,0.12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.offline-overlay .off-icon svg { width:28px; height:28px; fill:#ff3b30; }
+.offline-overlay h3 { font-size:16px; margin-bottom:6px; }
+.offline-overlay p  { font-size:12px; color:var(--text2); max-width:280px; line-height:1.6; }
 
 .player-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#000;z-index:5;}
 .player-loading .spinner-big{width:48px;height:48px;}
@@ -263,25 +392,57 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
     </div>
     <div class="nav-live-dot"><div class="live-dot"></div>بث مباشر</div>
   </div>
-  <div class="player-wrapper">
-    <div class="player-loading" id="player-loading">
-      <div class="spinner-big"></div>
-      <p>جاري تحميل البث...</p>
+  
+  <div class="player-wrapper-outer">
+    <div class="player-wrapper" id="clappr-wrapper">
+      
+      <!-- زر تحديث القناة الحالية -->
+      <button class="refresh-btn" id="refresh-btn" onclick="reloadCurrentChannel()">
+          <svg viewBox="0 0 24 24">
+              <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          تحديث البث
+      </button>
+
+      <!-- حاوية مشغل Clappr الأساسي -->
+      <div id="clappr-player"></div>
+      
+      <!-- مشغل الآيفريم لروابط التضمين الخارجية -->
+      <iframe id="iframe-player" style="display:none;" allowfullscreen></iframe>
+      
+      <!-- حاوية للأكواد البرمجية الكاملة (Iframe كامل أو Embed كامل) -->
+      <div id="custom-player-container" style="display:none;"></div>
+
+      <!-- اللوجو العائم فوق المشغلات والـ embed -->
+      <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="">
+
+      <!-- شاشة البث متوقف مؤقتاً -->
+      <div id="offline-overlay" class="offline-overlay">
+          <div class="off-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          </div>
+          <h3>البث متوقف مؤقتاً</h3>
+          <p>يرجى تجربة قناة أخرى أو الانتظار قليلاً حتى يعود البث</p>
+      </div>
+
+      <!-- شاشة كتم الصوت وتفعيل الصوت بنقرة -->
+      <div id="unmute-overlay" class="unmute-overlay" onclick="unmutePlayer()">
+          <svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0 3.28-2.16 6.07-5.14 7.03c1.92-.61 3.44-2.13 4.05-4.05C18.42 13.93 19 12.82 19 12zm-8.81 7.19L5.35 14H2v-4h3.35l4.84-5.19C10.74 4.26 11.5 4.61 11.5 5.3v13.4c0 .69-.76 1.04-1.31.49z"/></svg>
+          اضغط لتفعيل الصوت
+      </div>
+
+      <div class="player-loading" id="player-loading" style="display: none;">
+        <div class="spinner-big"></div>
+        <p>جاري تحميل البث...</p>
+      </div>
+      
+      <div class="player-error-box" id="player-error-box" style="display: none;">
+        <div class="err-icon">📡</div>
+        <p>تعذّر تحميل البث<br><span style="font-size:12px;color:#555">جرب رابطاً آخر أو افتح في VLC</span></p>
+        <button class="btn-vlc" onclick="openVLC()">🎬 فتح في VLC</button>
+      </div>
+
     </div>
-    <div class="player-error-box" id="player-error-box">
-      <div class="err-icon">📡</div>
-      <p>تعذّر تحميل البث<br><span style="font-size:12px;color:#555">جرب رابطاً آخر أو افتح في VLC</span></p>
-      <button class="btn-vlc" onclick="openVLC()">🎬 فتح في VLC</button>
-    </div>
-    
-    <!-- 1. مشغل الفيديو المباشر لـ m3u8 و mp4 -->
-    <video id="main-video" controls playsinline></video>
-    
-    <!-- 2. مشغل الآيفريم لروابط التضمين الخارجية -->
-    <iframe id="iframe-player" style="display:none;" allowfullscreen></iframe>
-    
-    <!-- 3. حاوية مخصصة للأكواد البرمجية الكاملة (Iframe كامل أو Embed كامل) -->
-    <div id="custom-player-container"></div>
   </div>
   <div class="channel-strip" id="channel-strip"></div>
 </div>
@@ -317,9 +478,8 @@ const CONFIG = {
       year:'2026', 
       quality:'HD', 
       emoji:'https://a.asd.ink/wp-content/uploads/2026/06/cEIPRBe6THaUNXWYUBSW2dtqlC4-scaled-367x550.webp', 
-      // هنا يمكنك كتابة كود iframe كامل مثل: <iframe src="..."></iframe> أو كود embed كامل أو رابط m3u8 أو mp4 أو رابط تضمين عادي. الكود سيتعامل معها تلقائياً.
       url:'https://8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq.vood78.xyz/hls/cxcun54cyhcsvb3x6v3csbvkvb7saxqmt4rpchsm4kp76iwh375ivzsjw3ha/index-v1-a1.m3u8', 
-      isEmbed: false, 
+      isEmbed: true, 
       genre:'كوميدي' 
     },
     { title:'فيلم 2', year:'2023', quality:'4K', emoji:'🎭', url:'', genre:'دراما'      },
@@ -352,7 +512,7 @@ const CONFIG = {
 // ══════════════════════════════════════════════════════
 let currentUser = null;
 let currentStreamUrl = '';
-let hlsInstance = null;
+let clapprInstance = null;
 let currentMatches = [];
 
 // ══════════════════════════════════════════════════════
@@ -376,7 +536,6 @@ async function initMain() {
   buildDayTabs();
   await loadMatches('today');
   buildMovies();
-  loadHlsJS();
 }
 
 // ══════════════════════════════════════════════════════
@@ -747,41 +906,50 @@ function playMovie(i) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PLAYER
+//  PLAYER (الدمج المطور لمشغل CLAPPR)
 // ══════════════════════════════════════════════════════
 async function playUrl(url, label, isEmbed = false) {
   currentStreamUrl = url;
-  const video    = document.getElementById('main-video');
-  const iframe   = document.getElementById('iframe-player');
+  const clapprContainer = document.getElementById('clappr-player');
+  const iframe          = document.getElementById('iframe-player');
   const customContainer = document.getElementById('custom-player-container');
-  const loading  = document.getElementById('player-loading');
-  const errorBox = document.getElementById('player-error-box');
+  const loading         = document.getElementById('player-loading');
+  const errorBox        = document.getElementById('player-error-box');
+  const offEl           = document.getElementById('offline-overlay');
+  const unmEl           = document.getElementById('unmute-overlay');
+  const refreshBtn      = document.getElementById('refresh-btn');
 
   loading.style.display  = 'flex';
   errorBox.style.display = 'none';
+  offEl.style.display    = 'none';
+  unmEl.style.display    = 'none';
   
-  // إيقاف أي بث نشط سابق وتفريغ العناصر
-  if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-  video.src = '';
+  // إيقاف وتدمير أي مشغل Clappr سابق بأمان
+  if (clapprInstance) {
+    try { clapprInstance.destroy(); } catch(e){}
+    clapprInstance = null;
+  }
   iframe.src = '';
   customContainer.innerHTML = '';
 
-  // إخفاء كافة المشغلات مؤقتاً حتى تحديد النوع
-  video.style.display  = 'none';
-  iframe.style.display = 'none';
+  // إخفاء كل نوافذ التشغيل مبدئياً
+  clapprContainer.style.display = 'none';
+  iframe.style.display          = 'none';
   customContainer.style.display = 'none';
+  refreshBtn.style.display      = 'none';
 
   const trimmed = url.trim();
 
-  // 1. فحص ما إذا كان المدخل كود HTML كامل (Iframe كامل أو Embed كامل يبدأ بـ < )
+  // 1. فحص تشغيل الأكواد الكاملة المباشرة (كامل كود الـ iframe أو الـ embed)
   if (trimmed.startsWith('<')) {
     customContainer.style.display = 'block';
     customContainer.innerHTML = trimmed;
-    loading.style.display = 'none'; // إخفاء التحميل فوراً لأن الـ HTML سيعرض مشغله الخاص
+    injectOverlaysCustom(); // المحافظة على شعار الموقع عائماً فوق كود التضمين
+    loading.style.display = 'none';
     return;
   }
 
-  // 2. فحص ما إذا كان الرابط للتضمين (Embed Link) فقط أو مفعل عليه خيار isEmbed
+  // 2. فحص روابط التضمين العادية (Embed Links) أو خيار isEmbed
   const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
   if (isEmbed || !isDirectStream) {
     iframe.style.display = 'block';
@@ -789,55 +957,129 @@ async function playUrl(url, label, isEmbed = false) {
     iframe.onload = () => {
       loading.style.display = 'none';
     };
+    injectOverlaysCustom(); // المحافظة على الشعار عائماً فوق رابط التضمين
     return;
   }
 
-  // 3. التشغيل المباشر لملفات الـ m3u8 والـ mp4
-  video.style.display  = 'block';
+  // 3. تشغيل ملفات الـ m3u8 و الـ mp4 الأساسية عبر مشغل Clappr
+  clapprContainer.style.display = 'block';
+  refreshBtn.style.display      = 'flex';
 
-  const isHLS = url.includes('.m3u8') || url.includes('/hls/');
+  clapprInstance = new Clappr.Player({
+      source: url,
+      parentId: '#clappr-player',
+      width: '100%', height: '100%',
+      autoPlay: true, mute: true, preload: 'auto',
+      playback: {
+          playInline: true, recycleVideo: true,
+          hlsjsConfig: {
+              enableWorker: true, lowLatencyMode: true,
+              maxBufferLength: 12, liveBackBufferLength: 0,
+              manifestLoadingMaxRetry: 10, levelLoadingMaxRetry: 10
+          }
+      }
+  });
 
-  if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
-    hlsInstance = new Hls({ lowLatencyMode:true, backBufferLength:60 });
-    hlsInstance.loadSource(url);
-    hlsInstance.attachMedia(video);
-    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+  // التحكم بإعدادات كتم الصوت وإظهار اللوجو العائم فور جاهزية البث
+  clapprInstance.on(Clappr.Events.PLAYER_READY, function() {
       loading.style.display = 'none';
-      video.play().catch(()=>{});
-    });
-    hlsInstance.on(Hls.Events.ERROR, (e, data) => {
-      if (data.fatal) { loading.style.display='none'; showPlayerError(); }
-    });
-  } else if (isHLS && video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.oncanplay = () => { loading.style.display='none'; };
-    video.onerror   = () => { loading.style.display='none'; showPlayerError(); };
-    video.play().catch(()=>{});
-  } else {
-    video.src = url;
-    video.oncanplay = () => { loading.style.display='none'; };
-    video.onerror   = () => { loading.style.display='none'; showPlayerError(); };
-    video.play().catch(()=>{});
-  }
+      injectOverlays();
+      clapprInstance.unmute();
+      setTimeout(function() {
+          if (clapprInstance && clapprInstance.getVolume() === 0)
+              document.getElementById('unmute-overlay').style.display = 'flex';
+      }, 700);
+  });
+
+  clapprInstance.on(Clappr.Events.CORE_CONTAINERS_CREATED, injectOverlays);
+
+  clapprInstance.on(Clappr.Events.PLAYER_PLAY, function() {
+      document.getElementById('offline-overlay').style.display = 'none';
+  });
+
+  // معالجة الأخطاء وظهور نافذة الأوفلاين في حال تعطل البث المباشر
+  clapprInstance.on(Clappr.Events.PLAYER_ERROR, function() {
+      loading.style.display = 'none';
+      document.getElementById('offline-overlay').style.display = 'flex';
+      document.getElementById('unmute-overlay').style.display  = 'none';
+      setTimeout(function() {
+          if (currentStreamUrl && currentStreamUrl !== '#' && clapprInstance) {
+              clapprInstance.load(currentStreamUrl);
+              clapprInstance.play();
+          }
+      }, 5000);
+  });
+
+  // تثبيت الشعار والمشغلات بداخل المشغل حتى في وضع ملء الشاشة (Fullscreen)
+  clapprInstance.on(Clappr.Events.CORE_FULLSCREEN, function(full) {
+      var logo = document.getElementById('custom-logo');
+      if (logo) logo.style.setProperty('right', full ? '4.5%' : '2.1%', 'important');
+      injectOverlays();
+  });
 }
 
-function showPlayerError() {
-  document.getElementById('main-video').style.display      = 'none';
-  document.getElementById('iframe-player').style.display   = 'none';
-  document.getElementById('custom-player-container').style.display = 'none';
-  document.getElementById('player-error-box').style.display = 'flex';
+// حقن وتثبيت الشعار والنوافذ التفاعلية بداخل حاوية Clappr
+function injectOverlays() {
+    if (!clapprInstance || !clapprInstance.core || !clapprInstance.core.el) return;
+    var c = clapprInstance.core.el;
+    ['custom-logo','unmute-overlay','offline-overlay','refresh-btn','player-loading','player-error-box'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.parentElement !== c) c.appendChild(el);
+    });
+}
+
+// إعادة اللوجو والنوافذ لحاويتها الطبيعية عند تشغيل آيفريم أو أكواد تضمين مخصصة خارج Clappr
+function injectOverlaysCustom() {
+    const wrapper = document.getElementById('clappr-wrapper');
+    ['custom-logo','unmute-overlay','offline-overlay','refresh-btn','player-loading','player-error-box'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && el.parentElement !== wrapper) wrapper.appendChild(el);
+    });
+}
+
+// تفعيل وتعديل الصوت بنقرة واحدة
+function unmutePlayer() {
+    if (clapprInstance) { clapprInstance.unmute(); clapprInstance.setVolume(100); }
+    document.getElementById('unmute-overlay').style.display = 'none';
+}
+
+document.body.addEventListener('click', function() {
+    if (document.getElementById('unmute-overlay').style.display === 'flex') unmutePlayer();
+}, { once: true });
+
+// تحديث البث الحالي يدوياً
+function reloadCurrentChannel() {
+    var btn = document.getElementById('refresh-btn');
+    btn.classList.add('spinning');
+    setTimeout(function() { btn.classList.remove('spinning'); }, 650);
+    if (!currentStreamUrl || currentStreamUrl === '#') return;
+    document.getElementById('offline-overlay').style.display = 'none';
+    if (clapprInstance) {
+        try {
+            clapprInstance.load(currentStreamUrl);
+            clapprInstance.play();
+            clapprInstance.unmute();
+            clapprInstance.setVolume(100);
+            document.getElementById('unmute-overlay').style.display = 'none';
+        } catch(e) { playUrl(currentStreamUrl, document.getElementById('player-title').textContent); }
+    } else {
+        playUrl(currentStreamUrl, document.getElementById('player-title').textContent);
+    }
 }
 
 function closePlayer() {
-  if (hlsInstance) { hlsInstance.destroy(); hlsInstance=null; }
-  const v = document.getElementById('main-video');
+  if (clapprInstance) {
+    try { clapprInstance.destroy(); } catch(e){}
+    clapprInstance = null;
+  }
   const iframe = document.getElementById('iframe-player');
   const customContainer = document.getElementById('custom-player-container');
   
-  v.pause(); v.src = ''; v.style.display = 'none';
   iframe.src = ''; iframe.style.display = 'none';
   customContainer.innerHTML = ''; customContainer.style.display = 'none';
   
+  document.getElementById('offline-overlay').style.display = 'none';
+  document.getElementById('unmute-overlay').style.display  = 'none';
   document.getElementById('player-error-box').style.display = 'none';
   document.getElementById('player-loading').style.display   = 'flex';
   showPage('main');
@@ -845,34 +1087,12 @@ function closePlayer() {
 
 function openVLC() {
   if (currentStreamUrl) {
-    // التحقق من أن المدخل ليس كود HTML قبل الإرسال لـ VLC
     if (currentStreamUrl.trim().startsWith('<')) {
       toast('⚠️ لا يمكن فتح كود التضمين في VLC مباشرة');
     } else {
       window.location.href = 'vlc://' + currentStreamUrl;
     }
   }
-}
-
-// ══════════════════════════════════════════════════════
-//  HLS.JS
-// ══════════════════════════════════════════════════════
-function loadHlsJS() {
-  if (typeof Hls !== 'undefined') return;
-  const s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
-  document.head.appendChild(s);
-}
-
-// ══════════════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════════════
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
