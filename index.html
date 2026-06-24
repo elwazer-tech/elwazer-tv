@@ -473,7 +473,6 @@ function parseMatches(html) {
   const doc = parser.parseFromString(html, 'text/html');
   const matches = [];
 
-  // تم تصحيح القوس المربع بالكامل هنا ليصبح برمجياً صحيحاً 🎯
   const allImgs = [...doc.querySelectorAll('img')].filter(img => {
     const src = img.src || img.getAttribute('src') || '';
     return src.includes('wp-content/uploads') && !src.includes('thumb') && !src.includes('logo');
@@ -848,6 +847,13 @@ function setupHls(url, video, loading) {
     enableWorker: true,
     lowLatencyMode: true,
     backBufferLength: 90,
+    // تم إضافة ميزة اعتراض الطلبات وحقن البروكسي ديناميكياً لتجاوز حظر الـ CORS على المقاطع التجزيئية .ts 🎯
+    xhrSetup: function(xhr, targetUrl) {
+      if (!targetUrl.startsWith(CONFIG.proxy) && (targetUrl.includes('vood') || targetUrl.includes('boutique') || targetUrl.includes('asd.ink'))) {
+        const proxiedUrl = CONFIG.proxy + encodeURIComponent(targetUrl);
+        xhr.open('GET', proxiedUrl, true);
+      }
+    }
   });
   
   hlsInstance.loadSource(url);
@@ -860,7 +866,7 @@ function setupHls(url, video, loading) {
   
   hlsInstance.on(Hls.Events.ERROR, (event, data) => {
     if (data.fatal) {
-      // إذا فشل البث بسبب حظر CORS (manifestLoadError)، نعيد المحاولة تلقائياً عبر البروكسي 🎯
+      // محاولة استرداد البث في حال حدوث خطأ فادح آخر
       if (data.details === 'manifestLoadError' && !hlsInstance.url.includes(CONFIG.proxy)) {
         console.log("CORS block detected! Re-trying HLS stream automatically via CORS Proxy...");
         setupHls(CONFIG.proxy + encodeURIComponent(url), video, loading);
