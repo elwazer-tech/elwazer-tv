@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV بث</title>
+<title>Elwazer TV</title>
 
 <!-- استدعاء ملف الـ manifest لدعم تثبيت الموقع كتطبيق PWA 🎯 -->
 <link rel="manifest" href="manifest.json">
@@ -258,14 +258,6 @@ video::media-controls-fullscreen-button {
     right: 2.1% !important;
     width: 18% !important;
   }
-
-  /* 🎯 عندما يدخل الموبايل في وضع التكبير وملء الشاشة، ندفع اللوجو لأعلى أكثر بكثير ليناسب أبعاد التطبيق والـ WebView بالتحديد */
-  #player-wrapper:fullscreen .custom-video-logo,
-  #player-wrapper:-webkit-full-screen .custom-video-logo {
-    top: -5.5% !important; /* 👈 زيادة القيمة السالبة هنا مخصصة للموبايل والتطبيق في وضع تكبير ملء الشاشة لمنع الهوامش */
-    right: 2.1% !important;
-    width: 18% !important;
-  }
   
   /* تعديل التوزيع في الموبايل ليصبح عمودين متجاورين كالتطبيقات الرسمية لشاشات الهواتف 🎯 */
   .movies-grid{
@@ -289,6 +281,16 @@ video::media-controls-fullscreen-button {
   .status-pill { font-size: 8px; padding: 1px 6px; }
   .btn-watch { padding: 4px 8px; font-size: 11px; border-radius: 6px; }
   .match-divider { height: 32px; }
+}
+
+/* 🎯 استهداف الهواتف عند تدوير الشاشة أفقياً بوضع ملء الشاشة (Landscape Fullscreen) لدفع اللوجو لأعلى الشاشة تماماً ومنع الهوامش */
+@media (max-height: 540px) {
+  #player-wrapper:fullscreen .custom-video-logo,
+  #player-wrapper:-webkit-full-screen .custom-video-logo {
+    top: -6.5% !important; /* 👈 تم تعديل الارتفاع إلى -6.5% خصيصاً في تطبيق الهاتف وتجاوز أبعاد الـ WebView بدقة متناهية */
+    right: 2.1% !important;
+    width: 18% !important;
+  }
 }
 </style>
 </head>
@@ -525,7 +527,7 @@ function selectDay(key, btn) {
 // ══════════════════════════════════════════════════════
 async function loadMatches(dayKey) {
   const container = document.getElementById('matches-container');
-  container.innerHTML = `<div class="loading-state"><div class="spinner-big"></div><p>جاري تحميل المباريات...</p></div>`;
+  container.innerHTML = `<div class="loading-state"><div class="spinner-big"></div><p>jاري تحميل المباريات...</p></div>`;
   document.getElementById('matches-badge').textContent = '...';
 
   const srcUrl = CONFIG.sources[dayKey];
