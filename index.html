@@ -184,14 +184,10 @@ video::media-controls-fullscreen-button {
 }
 
 /* ضمان بقاء اللوجو عائماً ومرئياً ومرفوعاً لأعلى حافة أثناء وضع ملء الشاشة المخصص بزاويته الدقيقة 🎯 */
-#player-wrapper:fullscreen .custom-video-logo {
-  right: 2.1% !important;
-  top: -1% !important;            /* 👈 تم تعديلها هنا ليرتفع اللوجو لأعلى حافة أثناء وضع التكبير والتكبير الكامل */
-  width: 18% !important;
-}
+#player-wrapper:fullscreen .custom-video-logo,
 #player-wrapper:-webkit-full-screen .custom-video-logo {
   right: 2.1% !important;
-  top: -4.5% !important;            /* 👈 تم تعديلها هنا ليرتفع اللوجو لأعلى حافة أثناء وضع التكبير والتكبير الكامل */
+  top: -1% !important;            /* 👈 تم تعديلها هنا ليرتفع اللوجو لأعلى حافة أثناء وضع التكبير والتكبير الكامل */
   width: 18% !important;
 }
 
