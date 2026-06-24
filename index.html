@@ -4,13 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Elwazer TV</title>
-
-<!-- استدعاء ملف الـ manifest لدعم تثبيت الموقع كتطبيق PWA 🎯 -->
 <link rel="manifest" href="manifest.json">
-
-<!-- استدعاء مكتبة Hls المستقرة والسريعة مباشرة في الرأس لمنع أي تعليق أو حظر أمني بالويب فيو 🎯 -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -21,20 +16,10 @@
   --text:#dde3f0;--text2:#7a8499;--text3:#3d4560;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{
-  font-family:'Tajawal',sans-serif;
-  background:var(--void);
-  color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: none;
-  user-select: none;
-}
+body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
 
-/* NAVBAR (تعديل الهيدر ليصبح نظيفاً ومبسطاً وبدون أي أزرار أو صناديق حسابات) */
 #navbar{background:rgba(7,8,9,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 28px;height:62px;gap:20px;}
 .nav-brand{font-size:22px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
 .nav-brand span{color:var(--red);}
@@ -43,13 +28,11 @@ body{
 .nav-tab:hover{color:var(--text);background:var(--card);}
 .nav-tab.active{color:var(--text);background:var(--card2);}
 
-/* SECTION */
 .section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
 .section-title{font-size:20px;font-weight:800;letter-spacing:-.3px;}
 .section-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--red-glow);color:var(--red);border:1px solid rgba(230,57,70,.3);}
 .section-line{flex:1;height:1px;background:var(--border);}
 
-/* DAY TABS */
 #tab-matches{padding:28px;}
 .day-tabs{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px;}
 .day-tabs::-webkit-scrollbar{display:none;}
@@ -57,7 +40,6 @@ body{
 .day-btn:hover{border-color:var(--border2);color:var(--text);}
 .day-btn.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 4px 16px var(--red-glow);}
 
-/* MATCH CARD */
 .match-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:default;transition:all .15s;position:relative;overflow:hidden;}
 .match-card::before{content:'';position:absolute;top:0;right:0;bottom:0;width:3px;background:var(--border);transition:all .15s;}
 .match-card.has-link{cursor:pointer;}
@@ -67,17 +49,16 @@ body{
 .match-card.live-now::before{background:var(--red);}
 
 .match-time{min-width:60px;text-align:center;}
-.time-val{font-size:17px;font-weight:800;color:var(--text);}
 .live-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:.5px;animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .time-val{font-size:16px;font-weight:800;color:var(--text);line-height:1.2;}
 .time-ampm{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.3px;margin-top:1px;}
 .status-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px;letter-spacing:.3px;}
-.status-pill.ended  {background:rgba(100,110,130,.15);color:#8892aa;border:1px solid rgba(100,110,130,.25);}
+.status-pill.ended{background:rgba(100,110,130,.15);color:#8892aa;border:1px solid rgba(100,110,130,.25);}
 .status-pill.upcoming{background:rgba(58,123,213,.12);color:#5b9ef5;border:1px solid rgba(58,123,213,.25);}
-.status-pill.live   {background:rgba(230,57,70,.15);color:var(--red);border:1px solid rgba(230,57,70,.3);}
+.status-pill.live{background:rgba(230,57,70,.15);color:var(--red);border:1px solid rgba(230,57,70,.3);}
 
 .match-divider{width:1px;height:44px;background:var(--border);flex-shrink:0;}
-
 .match-teams{flex:1;display:flex;align-items:center;gap:12px;}
 .team{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
 .team-logo{width:44px;height:44px;border-radius:50%;background:var(--base);display:flex;align-items:center;justify-content:center;overflow:hidden;}
@@ -86,12 +67,10 @@ body{
 .vs-block{text-align:center;min-width:56px;}
 .vs-score{font-size:22px;font-weight:800;letter-spacing:2px;}
 .vs-dash{font-size:18px;color:var(--text3);font-weight:700;}
-
 .match-action{min-width:70px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
 .btn-watch{background:var(--red);color:#fff;border:none;border-radius:9px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;transition:all .15s;box-shadow:0 4px 14px var(--red-glow);}
 .btn-watch:hover{background:#ff4757;transform:scale(1.04);}
 
-/* MOVIES */
 #tab-movies{padding:28px;}
 .movies-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
 .movie-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .15s;}
@@ -105,7 +84,6 @@ body{
 .movie-play{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--red);color:#fff;border:none;border-radius:7px;padding:7px;width:100%;margin-top:10px;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;}
 .movie-play:hover{background:#ff4757;}
 
-/* PLAYER */
 #page-player{background:#000;min-height:100vh;display:none;flex-direction:column;}
 #page-player.active{display:flex;}
 .player-topbar{background:rgba(0,0,0,.9);backdrop-filter:blur(10px);border-bottom:1px solid #1a1a1a;padding:0 24px;height:54px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
@@ -113,117 +91,27 @@ body{
 .btn-back:hover{background:rgba(255,255,255,.14);}
 .player-title{font-size:15px;font-weight:700;}
 .player-sub{font-size:12px;color:#666;margin-right:auto;}
+.nav-live-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--red);font-weight:600;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:blink 1.2s infinite;}
 
-.player-wrapper-outer {
-  flex: 1;
-  min-height: 0;
-  background: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  overflow: hidden;
-}
-.player-wrapper{
-  position: relative;
-  width: 100%;
-  height: 100%;
-  max-width: 120vh;
-  max-height: calc(100vh - 190px);
-  aspect-ratio: 16/9;
-  background: #000;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-}
+.player-wrapper-outer{flex:1;min-height:0;background:#000;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;}
+.player-wrapper{position:relative;width:100%;height:100%;max-width:120vh;max-height:calc(100vh - 190px);aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 15px 40px rgba(0,0,0,.6);}
+#main-video{width:100%;height:100%;background:#000;display:block;object-fit:fill !important;}
+video::-webkit-media-controls-fullscreen-button{display:none !important;}
+#iframe-player{width:100%;height:100%;border:none;background:#000;display:none;}
+#custom-player-container{width:100%;height:100%;background:#000;display:none;}
+#custom-player-container iframe,#custom-player-container embed{width:100% !important;height:100% !important;border:none !important;}
 
-/* NATIVE VIDEO STYLING */
-#main-video {
-  width: 100%; height: 100%;
-  background: #000;
-  display: block;
-  object-fit: fill !important;  /* يتمدد الفيديو ليملأ كامل الحاوية تماماً دون هوامش سوداء بالملء 🎯 */
-}
+.custom-video-logo{position:absolute !important;top:-1% !important;right:2.1% !important;z-index:999999 !important;width:18% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
+#player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:18% !important;}
 
-/* إخفاء زر ملء الشاشة الافتراضي للمتصفح لتوجيه المستخدم للزر المخصص الذي يحافظ على اللوجو 🎯 */
-video::-webkit-media-controls-fullscreen-button {
-  display: none !important;
-}
-video::media-controls-fullscreen-button {
-  display: none !important;
-}
+#custom-fullscreen-btn{position:absolute;bottom:10px;right:12px;z-index:999999;background:rgba(10,10,10,.75);border:1px solid rgba(255,255,255,.15);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);transition:all .15s ease;}
+#custom-fullscreen-btn:hover{background:var(--red);border-color:var(--red);transform:scale(1.05);}
+#custom-fullscreen-btn svg{width:18px;height:18px;fill:currentColor;}
 
-/* IFRAME & CUSTOM EMBED CONTAINER */
-#iframe-player {
-  width: 100%; height: 100%;
-  border: none; background: #000;
-  display: none;
-}
-#custom-player-container {
-  width: 100%; height: 100%;
-  background: #000;
-  display: none;
-}
-#custom-player-container iframe, 
-#custom-player-container embed {
-  width: 100% !important; height: 100% !important;
-  border: none !important;
-}
-
-/* 🎯 اللوجو الأصلي والملائم للكمبيوتر والمتصفحات 🎯 */
-.custom-video-logo {
-  position: absolute !important;
-  top: -1% !important;            /* الارتفاع المثالي للكمبيوتر والويب العادي */
-  right: 2.1% !important;          
-  z-index: 999999 !important;      
-  width: 18% !important;           
-  aspect-ratio: 1.45 / 1 !important; 
-  object-fit: contain !important;
-  pointer-events: none !important;
-  background: transparent !important;
-}
-
-/* ضمان بقاء اللوجو عائماً ومرئياً ومرفوعاً لأعلى حافة أثناء وضع تكبير ملء الشاشة المخصص بزاويته الدقيقة على الكمبيوتر 🎯 */
-#player-wrapper:fullscreen .custom-video-logo,
-#player-wrapper:-webkit-full-screen .custom-video-logo {
-  right: 2.1% !important;
-  top: -1% !important;            
-  width: 18% !important;
-}
-
-/* زر ملء الشاشة العائم المخصص - تم نقله في الأسفل جهة اليمين بجوار أيقونة تعلية الصوت 🎯 */
-#custom-fullscreen-btn {
-  position: absolute;
-  bottom: 10px;
-  right: 12px;
-  z-index: 999999;
-  background: rgba(10, 10, 10, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(6px);
-  transition: all 0.15s ease;
-}
-#custom-fullscreen-btn:hover {
-  background: var(--red);
-  border-color: var(--red);
-  transform: scale(1.05);
-}
-#custom-fullscreen-btn svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-
-/* LOADING & ERROR SLIDES */
-.player-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#000;z-index:5;}
-.player-loading .spinner-big{width:48px;height:48px;}
+.player-loading{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.85);z-index:5;}
+.spinner-big{width:48px;height:48px;border:3px solid var(--border2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 .player-loading p{color:#666;font-size:14px;}
 .player-error-box{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000;z-index:10;}
 .player-error-box .err-icon{font-size:48px;}
@@ -236,67 +124,41 @@ video::media-controls-fullscreen-button {
 .strip-ch:hover{border-color:#333;color:#ccc;}
 .strip-ch.active{background:var(--red);border-color:var(--red);color:#fff;}
 
-/* APP LOADING */
 #app-loading{position:fixed;inset:0;background:var(--void);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:999;}
 .app-brand{font-size:28px;font-weight:800;}
 .app-brand span{color:var(--red);}
-
-/* TOAST */
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:10px;padding:12px 20px;font-size:14px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;}
 
-/* تحسينات وتعديلات خاصة بالهواتف و الـ WebViews ليظهر كتطبيق سينمائي حقيقي 🎯 */
+.loading-state{text-align:center;padding:60px 20px;color:var(--text3);}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
+
 @media(max-width:640px){
   #navbar{padding:0 12px;gap:8px;}
   .nav-brand{font-size:19px;}
   .nav-tab{font-size:13px;padding:6px 12px;}
   #tab-matches,#tab-movies{padding:12px;}
-  
-  /* 🎯 تعديل اللوجو العائم على شاشة الموبايل والهواتف ليرتفع لأعلى بنسبة مريحة ومتناسقة مع الويب العادي */
-  .custom-video-logo {
-    top: -1% !important; 
-    right: 2.1% !important;
-    width: 18% !important;
-  }
-  
-  /* تعديل التوزيع في الموبايل ليصبح عمودين متجاورين كالتطبيقات الرسمية لشاشات الهواتف 🎯 */
-  .movies-grid{
-    grid-template-columns:repeat(2, 1fr) !important;
-    gap: 10px !important;
-  }
-  
-  /* كروت المباريات المدمجة والمختصرة للموبايل لمنع التمرير الطويل 🎯 */
-  .match-card{
-    padding: 8px 10px;
-    gap: 6px;
-    border-radius: 10px;
-  }
-  .team-logo{width:34px; height:34px;}
-  .team-name{font-size:10px; font-weight:600;}
-  .vs-score{font-size:15px; letter-spacing:1px;}
+  .custom-video-logo{top:-1% !important;right:2.1% !important;width:18% !important;}
+  .movies-grid{grid-template-columns:repeat(2,1fr) !important;gap:10px !important;}
+  .match-card{padding:8px 10px;gap:6px;border-radius:10px;}
+  .team-logo{width:34px;height:34px;}
+  .team-name{font-size:10px;font-weight:600;}
+  .vs-score{font-size:15px;letter-spacing:1px;}
   .vs-dash{font-size:13px;}
-  .match-time { min-width: 50px; }
-  .time-val { font-size: 13px; }
-  .time-ampm { font-size: 9px; }
-  .status-pill { font-size: 8px; padding: 1px 6px; }
-  .btn-watch { padding: 4px 8px; font-size: 11px; border-radius: 6px; }
-  .match-divider { height: 32px; }
+  .match-time{min-width:50px;}
+  .time-val{font-size:13px;}
+  .time-ampm{font-size:9px;}
+  .status-pill{font-size:8px;padding:1px 6px;}
+  .btn-watch{padding:4px 8px;font-size:11px;border-radius:6px;}
+  .match-divider{height:32px;}
 }
-
-/* 🎯 استهداف الهواتف عند تدوير الشاشة أفقياً بوضع ملء الشاشة (Landscape Fullscreen) لدفع اللوجو لأعلى الشاشة تماماً ومنع الهوامش */
-@media (max-height: 540px) {
-  #player-wrapper:fullscreen .custom-video-logo,
-  #player-wrapper:-webkit-full-screen .custom-video-logo {
-    top: -9.5% !important; /* 👈 تم تعديل الارتفاع إلى -9.5% خصيصاً في تطبيق الهاتف وتجاوز أبعاد الـ WebView بدقة متناهية */
-    right: 2.1% !important;
-    width: 18% !important;
-  }
+@media(max-height:540px){
+  #player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{top:-4% !important;right:2.1% !important;width:18% !important;}
 }
 </style>
 </head>
 <body>
 
-<!-- APP LOADING (تعديل شعار التحميل للعلامة التجارية الجديدة) -->
 <div id="app-loading">
   <div class="app-brand">Elwazer <span>TV</span></div>
   <div class="spinner-big" style="width:36px;height:36px;border-width:2px;margin:0;"></div>
@@ -305,17 +167,14 @@ video::media-controls-fullscreen-button {
 
 <div id="toast"></div>
 
-<!-- MAIN -->
 <div id="page-main" class="page">
   <nav id="navbar">
-    <!-- تعديل شعار الموقع في الهيدر للعلامة التجارية الجديدة -->
     <div class="nav-brand">Elwazer <span>TV</span></div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('matches',this)">⚽ المباريات</button>
       <button class="nav-tab" onclick="switchTab('movies',this)">🎬 أفلام</button>
     </div>
   </nav>
-
   <div id="tab-matches">
     <div class="section-header">
       <div class="section-title">جدول المباريات</div>
@@ -324,10 +183,9 @@ video::media-controls-fullscreen-button {
     </div>
     <div class="day-tabs" id="day-tabs"></div>
     <div id="matches-container">
-      <div class="loading-state"><div class="spinner-big"></div><p>جاري تحميل المباريات...</p></div>
+      <div class="loading-state"><div class="spinner-big" style="margin:0 auto 16px;"></div><p>جاري تحميل المباريات...</p></div>
     </div>
   </div>
-
   <div id="tab-movies" style="display:none">
     <div class="section-header">
       <div class="section-title">أفلام مختارة</div>
@@ -337,7 +195,6 @@ video::media-controls-fullscreen-button {
   </div>
 </div>
 
-<!-- PLAYER -->
 <div id="page-player" class="page">
   <div class="player-topbar">
     <button class="btn-back" onclick="closePlayer()">← رجوع</button>
@@ -345,45 +202,26 @@ video::media-controls-fullscreen-button {
       <div class="player-title" id="player-title">—</div>
       <div class="player-sub" id="player-sub">—</div>
     </div>
-    <!-- تم إضافة id هنا للتحكم بإخفاء وإظهار كلمة "بث مباشر" برمجياً حسب نوع المادة 🎯 -->
     <div class="nav-live-dot" id="player-live-indicator"><div class="live-dot"></div>بث مباشر</div>
   </div>
-  
   <div class="player-wrapper-outer">
     <div class="player-wrapper" id="player-wrapper">
-      
-      <!-- 1. مشغل الفيديو المباشر السريع والخفيف (نفس آلية StreamDNS) -->
       <video id="main-video" controls playsinline></video>
-      
-      <!-- 2. مشغل الآيفريم لروابط التضمين الخارجية -->
       <iframe id="iframe-player" allowfullscreen></iframe>
-      
-      <!-- 3. حاوية مخصصة للأكواد البرمجية الكاملة (Iframe كامل أو Embed كامل) -->
       <div id="custom-player-container"></div>
-
-      <!-- اللوجو العائم فوق المشغلات والـ embed بالنسب المحددة لديك تماماً 🎯 -->
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
-
-      <!-- زر ملء الشاشة المخصص العائم للحفاظ على اللوجو العائم بنسبتك الدقيقة (تم نقله للركن السفلي الأيمن بجوار أيقونة الصوت) 🎯 -->
       <button id="custom-fullscreen-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
-        <svg viewBox="0 0 24 24">
-          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
       </button>
-
-      <!-- شاشة مؤشر التحميل التفاعلية الخفيفة والذكية -->
-      <div class="player-loading" id="player-loading" style="display: none; background: rgba(0, 0, 0, 0.85);">
+      <div class="player-loading" id="player-loading">
         <div class="spinner-big"></div>
         <p>جاري تحميل البث...</p>
       </div>
-
-      <!-- شاشة خطأ التشغيل -->
-      <div class="player-error-box" id="player-error-box" style="display: none;">
+      <div class="player-error-box" id="player-error-box">
         <div class="err-icon">📡</div>
         <p>تعذّر تحميل البث<br><span style="font-size:12px;color:#555" id="player-error-msg">جرّب فتح الرابط في VLC</span></p>
         <button class="btn-vlc" onclick="openVLC()">🎬 فتح في VLC</button>
       </div>
-
     </div>
   </div>
   <div class="channel-strip" id="channel-strip"></div>
@@ -391,35 +229,16 @@ video::media-controls-fullscreen-button {
 
 <script>
 // ══════════════════════════════════════════════════════
-//  CONFIG — عدّل هنا فقط
+//  CONFIG الثابت — لا تحتاج تغيّره أبداً
 // ══════════════════════════════════════════════════════
-const CONFIG = {
-  // فرق التوقيت بالساعات لتعديل توقيت مباريات موقع ssirtv (اضبطه على +2 ساعات لتعديل توقيت جرينتش إلى توقيت مكة المكرمة/الرياض) 🎯
-  timeOffset: 2, 
-
-  // أفلام — ضع روابطك هنا
-  movies: [
-    { 
-      title:'فيلم فاميلي بيزنس', 
-      year:'2026', 
-      quality:'HD', 
-      emoji:'https://assets.voxcinemas.com/posters/P_HO00012993_1773228351581.jpg', 
-      url:'https://tmp-cdn1-vaq.cdnz.quest/hls2/01/00234/7f7u7b5vcerq_n/index-v1-a1.m3u8?t=w-QlyuvaRS8HdP_YN_5SzYQyJ2jqq_TajmRUaV_pJdk&s=1782333877&e=43200&v=1245526&i=0.3&sp=0', 
-      isEmbed: false, 
-      genre:'كوميدي' 
-    },
-    { 
-      title:'فيلم الكلام على ايه', 
-      year:'2026', 
-      quality:'تصوير سينما', 
-      emoji:'https://media0103.elcinema.com/uploads/_315x420_cb2afb51a2df394d5b604818b92d024840b360f88d6c144cafa0911e051f7582.jpg', 
-      url:'https://aflam-store2-lhr.cdnz.quest/yh5chbvip7ikjnl75zakr7zyx4pi32kecjsbmsa7xbk3n4wmflxp2xf53gra/v.mp4', 
-      isEmbed: false, 
-      genre:'كوميدي' 
-    },
-  ],
-
-  // قنوات البث — ضع روابطك هنا
+const STATIC_CONFIG = {
+  timeOffset: 2,
+  proxy: 'https://corsproxy.io/?url=',
+  sources: {
+    today:     'https://www.ssirtv.com/matches-today/',
+    yesterday: 'https://www.ssirtv.com/matches-yesterday/',
+    tomorrow:  'https://www.ssirtv.com/matches-tomorrow/',
+  },
   channels: [
     { id:'bein1',  name:'beIN Sports 1',  url:'', logo:'📺' },
     { id:'bein2',  name:'beIN Sports 2',  url:'', logo:'📺' },
@@ -430,25 +249,33 @@ const CONFIG = {
     { id:'ssc2',   name:'SSC 2',           url:'', logo:'🏆' },
     { id:'rotana', name:'روتانا سبورت',    url:'', logo:'⚽' },
     { id:'mbc',    name:'MBC Sport',       url:'', logo:'🎯' },
-  ],
-
-  // CORS proxy — بيحل مشكلة جلب بيانات ssirtv
-  proxy: 'https://corsproxy.io/?url=',
-
-  sources: {
-    today:     'https://www.ssirtv.com/matches-today/',
-    yesterday: 'https://www.ssirtv.com/matches-yesterday/',
-    tomorrow:  'https://www.ssirtv.com/matches-tomorrow/',
-  },
-
-  // ==================================================
-  //  روابط المباريات — يمكنك تحديدها يدوياً
-  // ==================================================
-  matchLinks: {
-     'كندا vs سويسرا':  'https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8',
-    'قطر vs البوسنة الهرسك':  'https://sh.clouata.space/wooorle2_720/index.m3u8',
-  }
+  ]
 };
+
+// ══════════════════════════════════════════════════════
+//  DYNAMIC CONFIG — يُحمَّل من config.json كل مرة
+// ══════════════════════════════════════════════════════
+let DYNAMIC = {
+  matchLinks: {},
+  movies: []
+};
+
+// جلب config.json مع cache-busting عشان يضمن أحدث نسخة دايماً
+async function fetchDynamicConfig() {
+  try {
+    const ts = Date.now(); // cache buster — بيمنع المتصفح يحتفظ بالنسخة القديمة
+    const res = await fetch(`config.json?v=${ts}`, {
+      cache: 'no-store'   // تعليمة صريحة للمتصفح: لا تحتفظ بنسخة قديمة أبداً
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    DYNAMIC.matchLinks = data.matchLinks || {};
+    DYNAMIC.movies     = data.movies     || [];
+    console.log('✅ config.json loaded:', Object.keys(DYNAMIC.matchLinks).length, 'matches,', DYNAMIC.movies.length, 'movies');
+  } catch(e) {
+    console.warn('⚠️ config.json not found, using defaults:', e.message);
+  }
+}
 
 // ══════════════════════════════════════════════════════
 //  STATE
@@ -456,18 +283,17 @@ const CONFIG = {
 let currentStreamUrl = '';
 let hlsInstance = null;
 let currentMatches = [];
-
-const HLSJS_URL = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
+let activeDay = 'today';
 let hlsLoaded = false;
 
 // ══════════════════════════════════════════════════════
-//  DYNAMIC HLS LOADER
+//  HLS LOADER
 // ══════════════════════════════════════════════════════
 function loadHlsJS() {
   return new Promise((res, rej) => {
     if (hlsLoaded || typeof Hls !== 'undefined') { hlsLoaded = true; res(); return; }
     const s = document.createElement('script');
-    s.src = HLSJS_URL;
+    s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
     s.onload = () => { hlsLoaded = true; res(); };
     s.onerror = rej;
     document.head.appendChild(s);
@@ -475,9 +301,11 @@ function loadHlsJS() {
 }
 
 // ══════════════════════════════════════════════════════
-//  INIT (تحميل فوري ومزدوج للمباريات والأفلام عند الدخول)
+//  INIT — يجلب config.json أولاً، ثم يبني الصفحة
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', async () => {
+  document.getElementById('loading-msg').textContent = 'جاري تحميل الإعدادات...';
+  await fetchDynamicConfig();   // ← الخطوة الأهم: جلب config.json
   await initMain();
   document.getElementById('app-loading').style.display = 'none';
 });
@@ -485,8 +313,8 @@ window.addEventListener('load', async () => {
 async function initMain() {
   showPage('main');
   buildDayTabs();
-  buildMovies(); // بناء قائمة الأفلام فوراً
-  await loadMatches('today'); // جلب جدول المباريات بالتزامن
+  buildMovies();
+  await loadMatches(activeDay);
 }
 
 // ══════════════════════════════════════════════════════
@@ -496,7 +324,6 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
 }
-
 function switchTab(tab, btn) {
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -508,17 +335,14 @@ function switchTab(tab, btn) {
 //  DAY TABS
 // ══════════════════════════════════════════════════════
 const DAY_DEFS = [
-  { label:'الأمس',  key:'yesterday' },
-  { label:'اليوم',  key:'today'     },
-  { label:'الغد',   key:'tomorrow'  },
+  { label:'الأمس', key:'yesterday' },
+  { label:'اليوم', key:'today'    },
+  { label:'الغد',  key:'tomorrow' },
 ];
-let activeDay = 'today';
 
 function buildDayTabs() {
-  const c = document.getElementById('day-tabs');
-  c.innerHTML = DAY_DEFS.map(d =>
-    `<button class="day-btn ${d.key==='today'?'active':''}"
-       onclick="selectDay('${d.key}',this)">${d.label}</button>`
+  document.getElementById('day-tabs').innerHTML = DAY_DEFS.map(d =>
+    `<button class="day-btn ${d.key==='today'?'active':''}" onclick="selectDay('${d.key}',this)">${d.label}</button>`
   ).join('');
 }
 
@@ -534,11 +358,14 @@ function selectDay(key, btn) {
 // ══════════════════════════════════════════════════════
 async function loadMatches(dayKey) {
   const container = document.getElementById('matches-container');
-  container.innerHTML = `<div class="loading-state"><div class="spinner-big"></div><p>جاري تحميل المباريات...</p></div>`;
+  container.innerHTML = `<div class="loading-state"><div class="spinner-big" style="margin:0 auto 16px;"></div><p>جاري تحميل المباريات...</p></div>`;
   document.getElementById('matches-badge').textContent = '...';
 
-  const srcUrl = CONFIG.sources[dayKey];
-  const fetchUrl = CONFIG.proxy + encodeURIComponent(srcUrl);
+  // جلب config.json من جديد عشان نضمن أحدث الروابط عند كل تحميل
+  await fetchDynamicConfig();
+
+  const srcUrl   = STATIC_CONFIG.sources[dayKey];
+  const fetchUrl = STATIC_CONFIG.proxy + encodeURIComponent(srcUrl);
 
   try {
     const res = await fetch(fetchUrl);
@@ -548,13 +375,13 @@ async function loadMatches(dayKey) {
     currentMatches = matches;
     renderMatches(matches);
     document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
-  } catch (err) {
+  } catch(err) {
     console.error(err);
     container.innerHTML = `
       <div class="empty-state">
-        <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
-        <div style="font-size:15px;font-weight:700;margin-bottom:8px;">تعذّر تحميل المباريات</div>
-        <div style="font-size:13px;color:var(--text3);">تحقق من اتصالك بالإنترنت ثم أعد المحاولة</div>
+        <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:8px">تعذّر تحميل المباريات</div>
+        <div style="font-size:13px;color:var(--text3)">تحقق من اتصالك بالإنترنت ثم أعد المحاولة</div>
         <button onclick="loadMatches('${dayKey}')" style="margin-top:16px;background:var(--red);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">إعادة المحاولة</button>
       </div>`;
     document.getElementById('matches-badge').textContent = '!';
@@ -563,55 +390,35 @@ async function loadMatches(dayKey) {
 
 function parseMatches(html) {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
+  const doc    = parser.parseFromString(html, 'text/html');
   const matches = [];
-
   const allImgs = [...doc.querySelectorAll('img')].filter(img => {
     const src = img.src || img.getAttribute('src') || '';
     return src.includes('wp-content/uploads') && !src.includes('thumb') && !src.includes('logo');
   });
-
   for (let i = 0; i + 1 < allImgs.length; i += 2) {
-    const img1 = allImgs[i];
-    const img2 = allImgs[i + 1];
-
+    const img1 = allImgs[i], img2 = allImgs[i+1];
     const home = img1.getAttribute('alt') || 'فريق 1';
     const away = img2.getAttribute('alt') || 'فريق 2';
-
     const container = findCommonContainer(img1, img2, doc);
     if (!container) continue;
-
     const text = container.textContent || '';
-
-    // تم تعديل الاستخراج ليتعرف على التوقيت بصيغة AM/PM بدقة كاملة من السيرفر 🎯
-    const timeMatch = text.match(/\b(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?)\b/i);
-    const time = timeMatch ? timeMatch[1] : '—';
-
+    const timeMatch  = text.match(/\b(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)?)\b/i);
+    const time       = timeMatch ? timeMatch[1] : '—';
     const scoreMatch = text.match(/\b(\d+)-(\d+)\b/);
-    const homeScore = scoreMatch ? scoreMatch[1] : null;
-    const awayScore = scoreMatch ? scoreMatch[2] : null;
-
-    const isLive    = text.includes('جارية') || text.includes('مباشر') || text.includes('الآن');
-    const isEnded   = text.includes('انتهت') || text.includes('منتهية');
-    const notStarted= text.includes('لم تبدأ') || text.includes('لم يبدأ');
-
-    const links = [...container.querySelectorAll('a[href]')];
-    const watchLink = links.find(a => {
+    const homeScore  = scoreMatch ? scoreMatch[1] : null;
+    const awayScore  = scoreMatch ? scoreMatch[2] : null;
+    const isLive     = text.includes('جارية') || text.includes('مباشر') || text.includes('الآن');
+    const isEnded    = text.includes('انتهت') || text.includes('منتهية');
+    const notStarted = text.includes('لم تبدأ') || text.includes('لم يبدأ');
+    const links      = [...container.querySelectorAll('a[href]')];
+    const watchLink  = links.find(a => {
       const h = a.getAttribute('href') || '';
       return h.includes('ssirtv.com/matches/') || h.includes('hes-goals') || h.includes('korat');
     });
     const watchUrl = watchLink ? (watchLink.getAttribute('href') || '') : '';
-
-    matches.push({
-      home, away,
-      homeLogo: img1.getAttribute('src') || '',
-      awayLogo: img2.getAttribute('src') || '',
-      time, homeScore, awayScore,
-      isLive, isEnded, notStarted,
-      watchUrl
-    });
+    matches.push({ home, away, homeLogo: img1.getAttribute('src')||'', awayLogo: img2.getAttribute('src')||'', time, homeScore, awayScore, isLive, isEnded, notStarted, watchUrl });
   }
-
   return matches;
 }
 
@@ -626,46 +433,24 @@ function findCommonContainer(img1, img2, doc) {
 }
 
 // ══════════════════════════════════════════════════════
-//  RENDER MATCHES (فلترة تلقائية لعرض المباريات المباشرة والجارية أولاً) ⚽
+//  RENDER
 // ══════════════════════════════════════════════════════
-
-// دالة تحويل وعرض التوقيت مع المعالجة الكاملة لرموز الـ AM و الـ PM وإضافة فرق التوقيت لبلدك 🎯
 function toAmPm(t) {
   if (!t || t === '—') return { display: t, ampm: '' };
-  
-  let hours = 0;
-  let minutes = 0;
-  
-  // استخراج الساعة والدقائق بدقة
   const cleanT = t.replace(/(AM|PM)/i, '').trim();
-  const parts = cleanT.split(':');
+  const parts  = cleanT.split(':');
   if (parts.length < 2) return { display: t, ampm: '' };
-  
-  hours = parseInt(parts[0], 10);
-  minutes = parseInt(parts[1], 10);
-  
-  // إذا كان التوقيت الأصلي يحتوي على PM، نحوله لصيغة 24 ساعة لتسهيل الحساب
-  if (t.toLowerCase().includes('pm') && hours < 12) {
-    hours += 12;
-  }
-  if (t.toLowerCase().includes('am') && hours === 12) {
-    hours = 0;
-  }
-  
-  // إضافة فرق الساعات تلقائياً من الـ CONFIG (الافتراضي هو +2 ساعة ليتطابق مع مكة المكرمة) 🎯
-  const offset = CONFIG.timeOffset || 2;
+  let hours   = parseInt(parts[0], 10);
+  let minutes = parseInt(parts[1], 10);
+  if (t.toLowerCase().includes('pm') && hours < 12) hours += 12;
+  if (t.toLowerCase().includes('am') && hours === 12) hours = 0;
+  const offset = STATIC_CONFIG.timeOffset || 2;
   hours = (hours + offset) % 24;
   if (hours < 0) hours += 24;
-  
-  // تحويل الوقت المعدل النهائي إلى صيغة AM/PM للعرض المنسق
-  const finalAmpm = hours >= 12 ? 'PM' : 'AM';
-  const displayHours = hours % 12 || 12;
-  const displayMinutes = minutes < 10 ? '0' + minutes : minutes;
-  
-  return { 
-    display: displayHours + ':' + displayMinutes, 
-    ampm: finalAmpm 
-  };
+  const finalAmpm    = hours >= 12 ? 'PM' : 'AM';
+  const displayH     = hours % 12 || 12;
+  const displayM     = minutes < 10 ? '0' + minutes : minutes;
+  return { display: displayH + ':' + displayM, ampm: finalAmpm };
 }
 
 function renderMatches(matches) {
@@ -674,193 +459,81 @@ function renderMatches(matches) {
     container.innerHTML = `<div class="empty-state"><div style="font-size:40px;margin-bottom:12px">😴</div><div>لا توجد مباريات في هذا اليوم</div></div>`;
     return;
   }
+  matches.sort((a,b) => (b.isLive?1:0) - (a.isLive?1:0));
 
-  // فلترة ذكية لفرز وعرض المباريات الجارية والمباشرة الآن في أول الجدول دائماً ⚽
-  matches.sort((a, b) => {
-    const aLive = a.isLive ? 1 : 0;
-    const bLive = b.isLive ? 1 : 0;
-    return bLive - aLive; 
-  });
-
-  container.innerHTML = matches.map((m) => {
+  container.innerHTML = matches.map(m => {
     const { display: timeDisplay, ampm } = toAmPm(m.time);
     let timeHtml = '';
     if (m.isLive) {
-      timeHtml = `
-        <div class="live-badge">LIVE</div>
-        <div class="time-ampm" style="margin-top:4px">${timeDisplay} <span style="color:var(--red)">${ampm}</span></div>`;
+      timeHtml = `<div class="live-badge">LIVE</div><div class="time-ampm" style="margin-top:4px">${timeDisplay} <span style="color:var(--red)">${ampm}</span></div>`;
     } else {
-      let pillHtml = '';
-      if (m.isEnded)    pillHtml = `<div class="status-pill ended">انتهت</div>`;
-      else if (m.notStarted) pillHtml = `<div class="status-pill upcoming">لم تبدأ</div>`;
-      timeHtml = `
-        <div class="time-val">${timeDisplay}</div>
-        <div class="time-ampm">${ampm}</div>
-        ${pillHtml}`;
+      let pill = '';
+      if (m.isEnded)         pill = `<div class="status-pill ended">انتهت</div>`;
+      else if (m.notStarted) pill = `<div class="status-pill upcoming">لم تبدأ</div>`;
+      timeHtml = `<div class="time-val">${timeDisplay}</div><div class="time-ampm">${ampm}</div>${pill}`;
     }
 
     const scoreHtml = (m.homeScore !== null && m.homeScore !== undefined)
       ? `<div class="vs-score">${m.homeScore} - ${m.awayScore}</div>`
       : `<div class="vs-dash">VS</div>`;
 
-    // تم إضافة referrerpolicy لمنع حجب شعارات الفرق بسبب حماية السيرفرات الخارجية 🎯
-    const homeLogo = m.homeLogo
-      ? `<img src="${m.homeLogo}" alt="${m.home}" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
-      : '🏠';
-    const awayLogo = m.awayLogo
-      ? `<img src="${m.awayLogo}" alt="${m.away}" referrerpolicy="no-referrer" onerror="this.style.display='none'">`
-      : '🚌';
+    const homeLogo = m.homeLogo ? `<img src="${m.homeLogo}" alt="${m.home}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '🏠';
+    const awayLogo = m.awayLogo ? `<img src="${m.awayLogo}" alt="${m.away}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '🚌';
 
-    const matchKey1 = m.home + ' vs ' + m.away;
-    const matchKey2 = m.away + ' vs ' + m.home;
-    const configUrl = CONFIG.matchLinks[matchKey1] || CONFIG.matchLinks[matchKey2] || '';
+    // ← يجلب الرابط من DYNAMIC (config.json) وليس من الكود الثابت
+    const key1      = m.home + ' vs ' + m.away;
+    const key2      = m.away + ' vs ' + m.home;
+    const configUrl = DYNAMIC.matchLinks[key1] || DYNAMIC.matchLinks[key2] || '';
     const streamUrl = configUrl || m.watchUrl || '';
 
-    const cardClass = streamUrl
-      ? (m.isLive ? 'match-card live-now has-link' : 'match-card has-link')
-      : (m.isLive ? 'match-card live-now' : 'match-card');
-
-    const actionHtml = streamUrl
-      ? `<button class="btn-watch" onclick="openStream('${encodeURIComponent(streamUrl)}','${encodeURIComponent(matchKey1)}')">▶ شاهد</button>`
-      : ``;
+    const cardClass  = streamUrl ? (m.isLive ? 'match-card live-now has-link' : 'match-card has-link') : (m.isLive ? 'match-card live-now' : 'match-card');
+    const actionHtml = streamUrl ? `<button class="btn-watch" onclick="event.stopPropagation();openStream('${encodeURIComponent(streamUrl)}','${encodeURIComponent(key1)}')">▶ شاهد</button>` : '';
 
     return `
-      <div class="${cardClass}" ${streamUrl ? `onclick="openStream('${encodeURIComponent(streamUrl)}','${encodeURIComponent(matchKey1)}')"` : ''}>
+      <div class="${cardClass}" ${streamUrl?`onclick="openStream('${encodeURIComponent(streamUrl)}','${encodeURIComponent(key1)}')"`:''}>
         <div class="match-time">${timeHtml}</div>
         <div class="match-divider"></div>
         <div class="match-teams">
-          <div class="team">
-            <div class="team-logo">${homeLogo}</div>
-            <div class="team-name">${m.home}</div>
-          </div>
+          <div class="team"><div class="team-logo">${homeLogo}</div><div class="team-name">${m.home}</div></div>
           <div class="vs-block">${scoreHtml}</div>
-          <div class="team">
-            <div class="team-logo">${awayLogo}</div>
-            <div class="team-name">${m.away}</div>
-          </div>
+          <div class="team"><div class="team-logo">${awayLogo}</div><div class="team-name">${m.away}</div></div>
         </div>
         <div class="match-action">${actionHtml}</div>
       </div>`;
   }).join('');
 }
 
+// ══════════════════════════════════════════════════════
+//  OPEN STREAM
+// ══════════════════════════════════════════════════════
 function openStream(encodedUrl, encodedTitle) {
   const url   = decodeURIComponent(encodedUrl);
   const title = decodeURIComponent(encodedTitle);
   document.getElementById('player-title').textContent = title;
   document.getElementById('player-sub').textContent   = 'بث مباشر';
   document.getElementById('channel-strip').innerHTML  = '';
-  
-  // إظهار كلمة "بث مباشر" للمباريات والقنوات المباشرة 🎯
   document.getElementById('player-live-indicator').style.display = 'flex';
-  
   showPage('player');
   playUrl(url, title);
 }
 
 // ══════════════════════════════════════════════════════
-//  OPEN MATCH
-// ══════════════════════════════════════════════════════
-async function openMatchPage(encodedUrl, encodedTitle) {
-  const url   = decodeURIComponent(encodedUrl);
-  const title = decodeURIComponent(encodedTitle);
-
-  if (url.includes('hes-goals') || url.includes('.m3u8') || url.includes('.mp4')) {
-    document.getElementById('player-title').textContent = title;
-    document.getElementById('player-sub').textContent   = 'بث مباشر';
-    document.getElementById('channel-strip').innerHTML  = buildChannelStrip();
-    
-    // إظهار كلمة "بث مباشر" للمباريات والقنوات المباشرة 🎯
-    document.getElementById('player-live-indicator').style.display = 'flex';
-    
-    showPage('player');
-    playUrl(url, title);
-    return;
-  }
-
-  toast('🔍 جاري البحث عن البث...');
-  try {
-    const proxyUrl = CONFIG.proxy + encodeURIComponent(url);
-    const res = await fetch(proxyUrl);
-    const html = await res.text();
-
-    const streamUrl = extractStreamUrl(html);
-
-    document.getElementById('player-title').textContent = title;
-    document.getElementById('player-sub').textContent   = 'بث مباشر';
-    document.getElementById('channel-strip').innerHTML  = buildChannelStrip();
-    
-    // إظهار كلمة "بث مباشر" للمباريات والقنوات المباشرة 🎯
-    document.getElementById('player-live-indicator').style.display = 'flex';
-    
-    showPage('player');
-
-    if (streamUrl) {
-      playUrl(streamUrl, title);
-    } else {
-      document.getElementById('player-loading').style.display = 'none';
-      document.getElementById('player-error-box').style.display = 'flex';
-      document.getElementById('player-error-box').querySelector('p').innerHTML =
-        'لم يتم العثور على رابط البث تلقائياً<br><span style="font-size:12px;color:#555">اختر قناة من الشريط أدناه</span>';
-    }
-  } catch(e) {
-    document.getElementById('player-title').textContent = title;
-    showPage('player');
-    document.getElementById('player-loading').style.display = 'none';
-    document.getElementById('player-error-box').style.display = 'flex';
-    document.getElementById('channel-strip').innerHTML = buildChannelStrip();
-  }
-}
-
-function extractStreamUrl(html) {
-  const patterns = [
-    /(?:src|source|file|url)\s*[:=]\s*["']([^"']+\.m3u8[^"']*)/gi,
-    /["'](https?:\/\/[^"']+\.m3u8[^"']*)/gi,
-    /["'](https?:\/\/[^"']+\/hls\/[^"']+)/gi,
-    /(?:src|source|file|url)\s*[:=]\s*["']([^"']+\.mp4[^"']*)/gi,
-  ];
-  for (const rx of patterns) {
-    const m = rx.exec(html);
-    if (m && m[1] && m[1].startsWith('http')) return m[1];
-  }
-  return null;
-}
-
-function buildChannelStrip() {
-  return CONFIG.channels.filter(c => c.url).map(c =>
-    `<button class="strip-ch" onclick="switchChannel('${c.id}',this)">${c.logo} ${c.name}</button>`
-  ).join('') || '<span style="color:#555;font-size:13px;align-self:center;">أضف روابط القنوات في CONFIG لتظهر هنا</span>';
-}
-
-function switchChannel(id, btn) {
-  document.querySelectorAll('.strip-ch').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const ch = CONFIG.channels.find(c => c.id === id);
-  if (ch?.url) { document.getElementById('player-sub').textContent = ch.name; playUrl(ch.url, ch.name); }
-  else toast('الرابط غير محدد لهذه القناة');
-}
-
-// ══════════════════════════════════════════════════════
-//  MOVIES (سحب الصور عبر بروكسي ويسيرف العالمي فائق الاستقرار لتعمل بالموبايل) 🎬
+//  MOVIES — تُبنى من DYNAMIC.movies (config.json)
 // ══════════════════════════════════════════════════════
 function buildMovies() {
   const grid = document.getElementById('movies-grid');
-  grid.innerHTML = CONFIG.movies.map((m, i) => {
-    const isUrl = m.emoji.startsWith('http') || m.emoji.includes('/') || m.emoji.includes('.');
-    
-    // سحب صور الأفلام وتوجيهها عبر البروكسي العالمي ويسيرف لتعمل بداخل الموبايل والتطبيق دون حظر 🎯
-    const imageUrl = isUrl ? (`https://images.weserv.nl/?url=` + encodeURIComponent(m.emoji)) : m.emoji;
-    
-    const posterHtml = isUrl 
-      ? `<img src="${imageUrl}" alt="${m.title}" referrerpolicy="no-referrer">` 
-      : `<span>${m.emoji}</span>`;
-
+  if (!DYNAMIC.movies.length) {
+    grid.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:20px;">لا توجد أفلام — أضفها في config.json</div>`;
+    return;
+  }
+  grid.innerHTML = DYNAMIC.movies.map((m, i) => {
+    const isUrl = m.emoji && (m.emoji.startsWith('http') || m.emoji.includes('/'));
+    const posterHtml = isUrl
+      ? `<img src="${m.emoji}" alt="${m.title}" referrerpolicy="no-referrer">`
+      : `<span>${m.emoji || '🎬'}</span>`;
     return `
     <div class="movie-card" onclick="playMovie(${i})">
-      <div class="movie-poster">
-        ${posterHtml}
-        <span class="movie-quality">${m.quality}</span>
-      </div>
+      <div class="movie-poster">${posterHtml}<span class="movie-quality">${m.quality||'HD'}</span></div>
       <div class="movie-info">
         <div class="movie-title">${m.title}</div>
         <div class="movie-meta">${m.genre} · ${m.year}</div>
@@ -871,157 +544,80 @@ function buildMovies() {
 }
 
 function playMovie(i) {
-  const m = CONFIG.movies[i];
-  if (!m.url) { toast('⚠️ ضع رابط الفيلم في CONFIG.movies'); return; }
+  const m = DYNAMIC.movies[i];
+  if (!m || !m.url) { toast('⚠️ ضع رابط الفيلم في config.json'); return; }
   document.getElementById('player-title').textContent = m.title;
-  document.getElementById('player-sub').textContent   = m.quality + ' · ' + m.genre;
+  document.getElementById('player-sub').textContent   = (m.quality||'') + ' · ' + (m.genre||'');
   document.getElementById('channel-strip').innerHTML  = '';
-  
-  // إخفاء كلمة "بث مباشر" للأفلام 🎯
   document.getElementById('player-live-indicator').style.display = 'none';
-  
   showPage('player');
-  playUrl(m.url, m.title, m.isEmbed);
+  playUrl(m.url, m.title, m.isEmbed || false);
 }
 
 // ══════════════════════════════════════════════════════
-//  PLAYER (نظام تشغيل ذكي وخفيف فائق السرعة مع بروكسي احتياطي تلقائي)
+//  PLAYER ENGINE
 // ══════════════════════════════════════════════════════
 async function playUrl(url, label, isEmbed = false) {
   currentStreamUrl = url;
-  const video    = document.getElementById('main-video');
-  const iframe   = document.getElementById('iframe-player');
-  const customContainer = document.getElementById('custom-player-container');
-  const loading  = document.getElementById('player-loading');
-  const errorBox = document.getElementById('player-error-box');
+  const video   = document.getElementById('main-video');
+  const iframe  = document.getElementById('iframe-player');
+  const custom  = document.getElementById('custom-player-container');
+  const loading = document.getElementById('player-loading');
+  const errBox  = document.getElementById('player-error-box');
 
-  loading.style.display  = 'flex';
-  errorBox.style.display = 'none';
-  
-  // تفريغ أي بث سابق لتجنب التداخل
+  loading.style.display = 'flex';
+  errBox.style.display  = 'none';
+
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
-  video.pause();
-  video.removeAttribute('src');
-  video.load();
-  iframe.src = '';
-  customContainer.innerHTML = '';
-
-  // إخفاء كافة المشغلات مؤقتاً
-  video.style.display  = 'none';
-  iframe.style.display = 'none';
-  customContainer.style.display = 'none';
+  video.pause(); video.removeAttribute('src'); video.load();
+  iframe.src = ''; custom.innerHTML = '';
+  video.style.display = 'none'; iframe.style.display = 'none'; custom.style.display = 'none';
 
   const trimmed = url.trim();
 
-  // 1. فحص تشغيل الأكواد الكاملة المباشرة (مثل كود iframe كامل أو embed)
   if (trimmed.startsWith('<')) {
-    customContainer.style.display = 'block';
-    customContainer.innerHTML = trimmed;
-    loading.style.display = 'none';
-    return;
+    custom.style.display = 'block'; custom.innerHTML = trimmed;
+    loading.style.display = 'none'; return;
   }
 
-  // 2. فحص روابط التضمين العادية (Embed Links) أو خيار isEmbed
   const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
   if (isEmbed || !isDirectStream) {
-    iframe.style.display = 'block';
-    iframe.src = url;
-    iframe.onload = () => {
-      loading.style.display = 'none';
-    };
-    return;
+    iframe.style.display = 'block'; iframe.src = url;
+    iframe.onload = () => { loading.style.display = 'none'; }; return;
   }
 
-  // 3. تشغيل ملفات الـ m3u8 و الـ mp4 الأساسية بسرعة فائقة كـ StreamDNS
   video.style.display = 'block';
 
-  // تشغيل ملفات MP4 المباشرة بسرعة فائقة مباشرة دون Hls
   if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
     video.src = url;
-    video.play()
-      .then(() => { loading.style.display = 'none'; })
-      .catch(e => {
-        // تجربة البروكسي كخيار احتياطي لملفات mp4 المحمية 🎯
-        if (!video.src.includes(CONFIG.proxy)) {
-          video.src = CONFIG.proxy + encodeURIComponent(url);
-          video.play().catch(()=>{});
-        } else {
-          loading.style.display = 'none';
-          showPlayerError('خطأ في التشغيل: ' + e.message);
-        }
-      });
+    video.play().then(() => { loading.style.display='none'; })
+      .catch(() => { loading.style.display='none'; showPlayerError(); });
     return;
   }
 
-  // استدعاء وتجهيز مكتبة Hls لوضع الاستجابة الفائقة والكمون المنخفض
-  try {
-    await loadHlsJS();
-  } catch {
-    loading.style.display = 'none';
-    showPlayerError('فشل تحميل hls.js — تحقق من الإنترنت');
-    return;
-  }
+  try { await loadHlsJS(); } catch { loading.style.display='none'; showPlayerError('فشل تحميل hls.js'); return; }
 
-  const isHLS = url.includes('.m3u8') || url.includes('/hls/');
-
-  if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
-    // استدعاء دالة التشغيل التي تدعم التحويل الاحتياطي للبروكسي تلقائياً عند فشل الـ CORS 🎯
+  if (typeof Hls !== 'undefined' && Hls.isSupported()) {
     setupHls(url, video, loading);
-  } else if (isHLS && video.canPlayType('application/vnd.apple.mpegurl')) {
-    // تشغيل مباشر على متصفحات Safari مع دعم التخطي الاحتياطي للبروكسي تلقائياً 🎯
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = url;
-    video.play()
-      .then(() => { loading.style.display = 'none'; })
-      .catch(e => {
-        if (!video.src.includes(CONFIG.proxy)) {
-          video.src = CONFIG.proxy + encodeURIComponent(url);
-          video.play().catch(()=>{});
-        } else {
-          loading.style.display = 'none';
-          showPlayerError(e.message);
-        }
-      });
+    video.play().then(() => { loading.style.display='none'; }).catch(() => showPlayerError());
   } else {
-    loading.style.display = 'none';
-    showPlayerError('المتصفح لا يدعم هذا البث — افتح الرابط في VLC');
+    loading.style.display='none'; showPlayerError('المتصفح لا يدعم هذا البث');
   }
 }
 
-// دالة إنشاء وتحميل مشغل Hls بشكل ذكي مع حلقة معالجة أخطاء الـ CORS التلقائية 🎯
 function setupHls(url, video, loading) {
-  if (hlsInstance) { hlsInstance.destroy(); }
-  
-  hlsInstance = new Hls({
-    enableWorker: true,
-    lowLatencyMode: true,
-    backBufferLength: 90,
-    // تم إضافة ميزة اعتراض الطلبات وحقن البروكسي ديناميكياً لتجاوز حظر الـ CORS على المقاطع التجزيئية .ts 🎯
-    xhrSetup: function(xhr, targetUrl) {
-      if (!targetUrl.startsWith(CONFIG.proxy) && (targetUrl.includes('vood') || targetUrl.includes('boutique') || targetUrl.includes('asd.ink'))) {
-        const proxiedUrl = CONFIG.proxy + encodeURIComponent(targetUrl);
-        xhr.open('GET', proxiedUrl, true);
-      }
-    }
-  });
-  
+  if (hlsInstance) hlsInstance.destroy();
+  hlsInstance = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:90 });
   hlsInstance.loadSource(url);
   hlsInstance.attachMedia(video);
-  
-  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-    loading.style.display = 'none';
-    video.play().catch(()=>{});
-  });
-  
-  hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+  hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { loading.style.display='none'; video.play().catch(()=>{}); });
+  hlsInstance.on(Hls.Events.ERROR, (e, data) => {
     if (data.fatal) {
-      // محاولة استرداد البث في حال حدوة خطأ فادح آخر للبروكسي
-      if (data.details === 'manifestLoadError' && !hlsInstance.url.includes(CONFIG.proxy)) {
-        console.log("CORS block detected! Re-trying HLS stream automatically via CORS Proxy...");
-        setupHls(CONFIG.proxy + encodeURIComponent(url), video, loading);
-      } else {
-        loading.style.display = 'none';
-        showPlayerError(`فشل البث: ${data.details}`);
-      }
+      if (data.details === 'manifestLoadError' && !url.includes(STATIC_CONFIG.proxy)) {
+        setupHls(STATIC_CONFIG.proxy + encodeURIComponent(url), video, loading);
+      } else { loading.style.display='none'; showPlayerError(`فشل البث: ${data.details}`); }
     }
   });
 }
@@ -1038,77 +634,50 @@ function closePlayer() {
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
   const v = document.getElementById('main-video');
   const iframe = document.getElementById('iframe-player');
-  const customContainer = document.getElementById('custom-player-container');
-  
+  const custom = document.getElementById('custom-player-container');
   v.pause(); v.removeAttribute('src'); v.load();
-  iframe.src = ''; iframe.style.display = 'none';
-  customContainer.innerHTML = ''; customContainer.style.display = 'none';
-  
-  document.getElementById('player-error-box').style.display = 'none';
-  document.getElementById('player-loading').style.display   = 'flex';
+  iframe.src=''; iframe.style.display='none';
+  custom.innerHTML=''; custom.style.display='none';
+  document.getElementById('player-error-box').style.display='none';
+  document.getElementById('player-loading').style.display='flex';
   showPage('main');
 }
 
 function openVLC() {
-  if (currentStreamUrl) {
-    if (currentStreamUrl.trim().startsWith('<')) {
-      toast('⚠️ لا يمكن فتح كود التضمين في VLC مباشرة');
-    } else {
-      window.location.href = 'vlc://' + currentStreamUrl;
-    }
-  }
+  if (currentStreamUrl && !currentStreamUrl.trim().startsWith('<'))
+    window.location.href = 'vlc://' + currentStreamUrl;
 }
 
-// ══════════════════════════════════════════════════════
-//  FULLSCREEN SYSTEM (تصحيح وتثبيت اللوجو بالأبعاد والنسب الأصلية تماماً عند التكبير) 🎯
-// ══════════════════════════════════════════════════════
 function toggleFullscreen() {
-  const wrapper = document.getElementById('player-wrapper');
-  if (!document.fullscreenElement) {
-    wrapper.requestFullscreen().catch(err => {
-      console.log("Error going fullscreen: ", err);
-    });
-  } else {
-    document.exitFullscreen();
-  }
+  const w = document.getElementById('player-wrapper');
+  if (!document.fullscreenElement) w.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
 }
-
 document.getElementById('main-video').addEventListener('dblclick', toggleFullscreen);
 document.getElementById('iframe-player').addEventListener('dblclick', toggleFullscreen);
 
 // ══════════════════════════════════════════════════════
-//  MOBILES / WEBVIEW PULL TO REFRESH (ميزة السحب للتحديث الفائقة للموبايل) 🎯
+//  TOAST
 // ══════════════════════════════════════════════════════
-let startY = 0;
-let isPulling = false;
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
 
-window.addEventListener('touchstart', e => {
-  if (window.scrollY === 0) {
-    startY = e.touches[0].pageY;
-    isPulling = true;
-  }
-}, { passive: true });
-
+// ══════════════════════════════════════════════════════
+//  PULL TO REFRESH
+// ══════════════════════════════════════════════════════
+let startY = 0, isPulling = false;
+window.addEventListener('touchstart', e => { if (window.scrollY===0) { startY=e.touches[0].pageY; isPulling=true; } }, { passive:true });
 window.addEventListener('touchmove', e => {
   if (!isPulling) return;
-  const currentY = e.touches[0].pageY;
-  const diff = currentY - startY;
-  
-  // إذا تم سحب الصفحة لأسفل بمسافة كافية وهي في الأعلى، نقوم بالتحديث الفوري
-  if (diff > 90 && window.scrollY === 0) {
-    isPulling = false;
-    triggerPullRefresh();
-  }
-}, { passive: true });
-
-window.addEventListener('touchend', () => {
-  isPulling = false;
-});
-
-async function triggerPullRefresh() {
-  toast('🔄 جاري تحديث جدول المباريات والسينما...');
-  await initMain();
-}
+  if (e.touches[0].pageY - startY > 90 && window.scrollY===0) { isPulling=false; triggerPullRefresh(); }
+}, { passive:true });
+window.addEventListener('touchend', () => { isPulling=false; });
+async function triggerPullRefresh() { toast('🔄 جاري التحديث...'); await initMain(); }
 </script>
 </body>
 </html>
