@@ -705,10 +705,17 @@ function switchChannel(id, btn) {
 // ══════════════════════════════════════════════════════
 function buildMovies() {
   const grid = document.getElementById('movies-grid');
-  grid.innerHTML = CONFIG.movies.map((m, i) => `
+  grid.innerHTML = CONFIG.movies.map((m, i) => {
+    // تم التعديل هنا لفحص إذا كان الحقل "emoji" يحتوي على رابط صورة خارجي أو مجرد رمز تعبيري (Emoji)
+    const isUrl = m.emoji.startsWith('http') || m.emoji.includes('/') || m.emoji.includes('.');
+    const posterHtml = isUrl 
+      ? `<img src="${m.emoji}" alt="${m.title}">` 
+      : `<span>${m.emoji}</span>`;
+
+    return `
     <div class="movie-card" onclick="playMovie(${i})">
       <div class="movie-poster">
-        <span>${m.emoji}</span>
+        ${posterHtml}
         <span class="movie-quality">${m.quality}</span>
       </div>
       <div class="movie-info">
@@ -716,7 +723,8 @@ function buildMovies() {
         <div class="movie-meta">${m.genre} · ${m.year}</div>
         <button class="movie-play">▶ مشاهدة</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function playMovie(i) {
