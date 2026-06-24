@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Elwazer TV</title>
+<title>Elwazer TV — بث مباشر</title>
 
 <!-- استدعاء ملف الـ manifest لدعم تثبيت الموقع كتطبيق PWA 🎯 -->
 <link rel="manifest" href="manifest.json">
@@ -170,12 +170,12 @@ video::media-controls-fullscreen-button {
   border: none !important;
 }
 
-/* 🎯 اللوجو الأصلي والمثالي المعتمد لديك بالأبعاد والنسب الدقيقة تماماً 🎯 */
+/* 🎯 اللوجو الأصلي والملائم للكمبيوتر والمتصفحات 🎯 */
 .custom-video-logo {
   position: absolute !important;
-  top: -1% !important;          /* 👈 قمنا بتغييرها إلى قيمة سالبة لرفع اللوجو لأعلى */
-  right: 2.1% !important;          /* الاتجاه الجانبي المثالي الذي اعتمدته */
-  z-index: 999999 !important;      /* لضمان الظهور فوق كود المشغل في وضع ملء الشاشة */
+  top: -1% !important;            /* الارتفاع المثالي للكمبيوتر */
+  right: 2.1% !important;          
+  z-index: 999999 !important;      
   width: 18% !important;           
   aspect-ratio: 1.45 / 1 !important; 
   object-fit: contain !important;
@@ -251,6 +251,13 @@ video::media-controls-fullscreen-button {
   .nav-brand{font-size:19px;}
   .nav-tab{font-size:13px;padding:6px 12px;}
   #tab-matches,#tab-movies{padding:12px;}
+  
+  /* 🎯 تعديل اللوجو العائم على شاشة الموبايل والهواتف ليرتفع لأعلى بنفس النسبة المريحة للعين */
+  .custom-video-logo {
+    top: -1% !important; /* قمنا بإضافتها وضبطها هنا لتطابق الموبايل بدقة 🎯 */
+    right: 2.1% !important;
+    width: 18% !important;
+  }
   
   /* تعديل التوزيع في الموبايل ليصبح عمودين متجاورين كالتطبيقات الرسمية لشاشات الهواتف 🎯 */
   .movies-grid{
@@ -380,7 +387,7 @@ const CONFIG = {
   // أفلام — ضع روابطك هنا
   movies: [
     { 
-      title:'فيلم فاميلي بيزنس 2026', 
+      title:'فيلم فاميلي بيزنس', 
       year:'2026', 
       quality:'HD', 
       emoji:'https://a.asd.ink/wp-content/uploads/2026/06/cEIPRBe6THaUNXWYUBSW2dtqlC4-scaled-367x550.webp', 
@@ -1008,9 +1015,7 @@ function openVLC() {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  FULLSCREEN SYSTEM (تصحيح وتثبيت اللوجو بالأبعاد والنسب الأصلية تماماً عند التكبير) 🎯
-// ══════════════════════════════════════════════════════
+// ربط النقر المزدوج (Double Click) لتفعيل وتكبير المشغل بالكامل مع الحفاظ على اللوجو العائم 🎯
 function toggleFullscreen() {
   const wrapper = document.getElementById('player-wrapper');
   if (!document.fullscreenElement) {
