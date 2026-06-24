@@ -816,11 +816,9 @@ function buildMovies() {
   grid.innerHTML = CONFIG.movies.map((m, i) => {
     const isUrl = m.emoji.startsWith('http') || m.emoji.includes('/') || m.emoji.includes('.');
     
-    // سحب صورة الشعار للموبايل وتطبيق الويب فيو عبر بروكسي جوجل المتجاوب فائق السرعة لتخطي حظر السيرفرات الخارجية 🎯
-    const imageUrl = isUrl ? (`https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=604800&url=` + encodeURIComponent(m.emoji)) : m.emoji;
-    
+    // تم إضافة referrerpolicy="no-referrer" لتخطي حظر Hotlink لسيرفرات الأفلام الخارجية وصور البوسترات 🎯
     const posterHtml = isUrl 
-      ? `<img src="${imageUrl}" alt="${m.title}" referrerpolicy="no-referrer">` 
+      ? `<img src="${m.emoji}" alt="${m.title}" referrerpolicy="no-referrer">` 
       : `<span>${m.emoji}</span>`;
 
     return `
@@ -1031,9 +1029,7 @@ function openVLC() {
   }
 }
 
-// ══════════════════════════════════════════════════════
-//  FULLSCREEN SYSTEM (تصحيح وتثبيت اللوجو بالأبعاد والنسب الأصلية تماماً عند التكبير) 🎯
-// ══════════════════════════════════════════════════════
+// ربط النقر المزدوج (Double Click) لتفعيل وتكبير المشغل بالكامل مع الحفاظ على اللوجو العائم 🎯
 function toggleFullscreen() {
   const wrapper = document.getElementById('player-wrapper');
   if (!document.fullscreenElement) {
