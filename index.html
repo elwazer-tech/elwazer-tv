@@ -78,9 +78,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .match-time{min-width:60px;text-align:center;}
 .time-val{font-size:17px;font-weight:800;color:var(--text);}
 .live-badge{display:inline-block;background:var(--red);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;letter-spacing:.5px;animation:blink 1.2s infinite;}
-.time-status{font-size:11px;color:var(--text3);margin-top:3px;}
-.time-status.ended{color:var(--text3);}
-.time-status.upcoming{color:var(--text3);}
+.time-val{font-size:16px;font-weight:800;color:var(--text);line-height:1.2;}
+.time-ampm{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.3px;margin-top:1px;}
+.status-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px;letter-spacing:.3px;}
+.status-pill.ended  {background:rgba(100,110,130,.15);color:#8892aa;border:1px solid rgba(100,110,130,.25);}
+.status-pill.upcoming{background:rgba(58,123,213,.12);color:#5b9ef5;border:1px solid rgba(58,123,213,.25);}
+.status-pill.live   {background:rgba(230,57,70,.15);color:var(--red);border:1px solid rgba(230,57,70,.3);}
 
 .match-divider{width:1px;height:44px;background:var(--border);flex-shrink:0;}
 
@@ -93,10 +96,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .vs-score{font-size:22px;font-weight:800;letter-spacing:2px;}
 .vs-dash{font-size:18px;color:var(--text3);font-weight:700;}
 
-.match-action{min-width:90px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+.match-action{min-width:70px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
 .btn-watch{background:var(--red);color:#fff;border:none;border-radius:9px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;transition:all .15s;box-shadow:0 4px 14px var(--red-glow);}
 .btn-watch:hover{background:#ff4757;transform:scale(1.04);}
-.no-link-badge{font-size:11px;color:var(--text3);background:var(--card2);padding:5px 10px;border-radius:7px;border:1px solid var(--border);}
 
 /* LOADING / EMPTY */
 .loading-state,.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
@@ -299,6 +301,16 @@ const CONFIG = {
     today:     'https://www.ssirtv.com/matches-today/',
     yesterday: 'https://www.ssirtv.com/matches-yesterday/',
     tomorrow:  'https://www.ssirtv.com/matches-tomorrow/',
+  },
+
+  // ==================================================
+  //  روابط المباريات — أنت بتحددها وبتغيرها يدوياً
+  //  المفتاح = "فريق1 vs فريق2" بنفس الأسماء في الكارت
+  // ==================================================
+  matchLinks: {
+    // 'المغرب vs هايتي':  'https://cdn.example.com/hls/match1.m3u8',
+    // 'إنجلترا vs غانا':  'https://cdn.example.com/hls/match2.m3u8',
+    // 'كرواتيا vs بنما':  'https://cdn.example.com/hls/match3.m3u8',
   }
 };
 
@@ -513,6 +525,19 @@ function findCommonContainer(img1, img2, doc) {
 // ══════════════════════════════════════════════════════
 //  RENDER MATCHES
 // ══════════════════════════════════════════════════════
+
+// Convert "HH:MM" (24h) → "H:MM AM/PM"
+function toAmPm(t) {
+  if (!t || t === '—') return { display: t, ampm: '' };
+  const parts = t.split(':');
+  if (parts.length < 2) return { display: t, ampm: '' };
+  let h = parseInt(parts[0], 10);
+  const m = parts[1];
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return { display: h + ':' + m, ampm };
+}
+
 function renderMatches(matches) {
   const container = document.getElementById('matches-container');
   if (matches.length === 0) {
@@ -520,24 +545,30 @@ function renderMatches(matches) {
     return;
   }
 
-  container.innerHTML = matches.map((m, i) => {
-    // Time block
+  container.innerHTML = matches.map((m) => {
+    // ── Time + AM/PM + Status pill ──
+    const { display: timeDisplay, ampm } = toAmPm(m.time);
     let timeHtml = '';
     if (m.isLive) {
-      timeHtml = `<div class="live-badge">LIVE</div>`;
-    } else {
-      const statusLabel = m.isEnded ? 'انتهت' : m.notStarted ? 'لم تبدأ' : '';
       timeHtml = `
-        <div class="time-val">${m.time}</div>
-        ${statusLabel ? `<div class="time-status">${statusLabel}</div>` : ''}`;
+        <div class="live-badge">LIVE</div>
+        <div class="time-ampm" style="margin-top:4px">${timeDisplay} <span style="color:var(--red)">${ampm}</span></div>`;
+    } else {
+      let pillHtml = '';
+      if (m.isEnded)    pillHtml = `<div class="status-pill ended">انتهت</div>`;
+      else if (m.notStarted) pillHtml = `<div class="status-pill upcoming">لم تبدأ</div>`;
+      timeHtml = `
+        <div class="time-val">${timeDisplay}</div>
+        <div class="time-ampm">${ampm}</div>
+        ${pillHtml}`;
     }
 
-    // Score
+    // ── Score / VS ──
     const scoreHtml = (m.homeScore !== null && m.homeScore !== undefined)
       ? `<div class="vs-score">${m.homeScore} - ${m.awayScore}</div>`
       : `<div class="vs-dash">VS</div>`;
 
-    // Logos
+    // ── Logos ──
     const homeLogo = m.homeLogo
       ? `<img src="${m.homeLogo}" alt="${m.home}" onerror="this.style.display='none'">`
       : '🏠';
@@ -545,14 +576,22 @@ function renderMatches(matches) {
       ? `<img src="${m.awayLogo}" alt="${m.away}" onerror="this.style.display='none'">`
       : '🚌';
 
-    // Action button
-    const hasLink = !!m.watchUrl;
-    const actionHtml = hasLink
-      ? `<button class="btn-watch" onclick="openMatchPage('${encodeURIComponent(m.watchUrl)}','${encodeURIComponent(m.home + ' vs ' + m.away)}')">▶ شاهد</button>`
-      : `<span class="no-link-badge">قريباً</span>`;
+    // ── Stream URL: first check CONFIG.matchLinks, then fallback to scraped link ──
+    const matchKey1 = m.home + ' vs ' + m.away;
+    const matchKey2 = m.away + ' vs ' + m.home;
+    const configUrl = CONFIG.matchLinks[matchKey1] || CONFIG.matchLinks[matchKey2] || '';
+    const streamUrl = configUrl || m.watchUrl || '';
+
+    const cardClass = streamUrl
+      ? (m.isLive ? 'match-card live-now has-link' : 'match-card has-link')
+      : (m.isLive ? 'match-card live-now' : 'match-card');
+
+    const actionHtml = streamUrl
+      ? `<button class="btn-watch" onclick="openStream('${encodeURIComponent(streamUrl)}','${encodeURIComponent(matchKey1)}')">▶ شاهد</button>`
+      : ``;   // لا يوجد زر إذا لم يكن هناك رابط
 
     return `
-      <div class="match-card ${m.isLive ? 'live-now' : ''} ${hasLink ? 'has-link' : ''}">
+      <div class="${cardClass}" ${streamUrl ? `onclick="openStream('${encodeURIComponent(streamUrl)}','${encodeURIComponent(matchKey1)}')"` : ''}>
         <div class="match-time">${timeHtml}</div>
         <div class="match-divider"></div>
         <div class="match-teams">
@@ -569,6 +608,17 @@ function renderMatches(matches) {
         <div class="match-action">${actionHtml}</div>
       </div>`;
   }).join('');
+}
+
+// Direct stream open (from matchLinks)
+function openStream(encodedUrl, encodedTitle) {
+  const url   = decodeURIComponent(encodedUrl);
+  const title = decodeURIComponent(encodedTitle);
+  document.getElementById('player-title').textContent = title;
+  document.getElementById('player-sub').textContent   = 'بث مباشر';
+  document.getElementById('channel-strip').innerHTML  = '';
+  showPage('player');
+  playUrl(url, title);
 }
 
 // ══════════════════════════════════════════════════════
