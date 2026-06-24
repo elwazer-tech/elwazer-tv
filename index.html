@@ -29,12 +29,12 @@ body{
 .page{display:none;min-height:100vh;}
 .page.active{display:block;}
 
-/* NAVBAR (تحديث الشعار والاسم الجديد بداخل الهيدر) */
+/* NAVBAR (تعديل الهيدر ليصبح نظيفاً ومبسطاً بدون حسابات) */
 #navbar{background:rgba(7,8,9,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;padding:0 28px;height:62px;gap:20px;}
 .nav-brand{font-size:22px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
 .nav-brand span{color:var(--red);}
 .nav-tabs{display:flex;gap:4px;flex:1;justify-content:flex-end;}
-.nav-tab{padding:7px 18px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:transparent;font-family:'Tajawal',sans-serif;}
+.nav-tab{padding:7px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:transparent;font-family:'Tajawal',sans-serif;}
 .nav-tab:hover{color:var(--text);background:var(--card);}
 .nav-tab.active{color:var(--text);background:var(--card2);}
 
@@ -139,6 +139,14 @@ body{
   display: none;
 }
 
+/* إخفاء زر ملء الشاشة الافتراضي للمتصفح لتوجيه المستخدم للزر المخصص الذي يحافظ على اللوجو 🎯 */
+video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+video::media-controls-fullscreen-button {
+  display: none !important;
+}
+
 /* IFRAME & CUSTOM EMBED CONTAINER */
 #iframe-player {
   width: 100%; height: 100%;
@@ -170,13 +178,43 @@ body{
   background: transparent !important;
 }
 
-/* ضمان بقاء اللوجو عائماً ومرئياً أثناء وضع تكبير ملء الشاشة 🎯 */
+/* ضمان بقاء اللوجو عائماً ومرئياً أثناء وضع تكبير ملء الشاشة المخصص 🎯 */
 #player-wrapper:fullscreen .custom-video-logo,
 #player-wrapper:-webkit-full-screen .custom-video-logo {
   right: 3% !important;
   top: 3% !important;
   width: 12% !important;
   max-width: 120px !important;
+}
+
+/* زر ملء الشاشة العائم المخصص (للحفاظ على الشعار مرئياً أثناء التكبير) 🎯 */
+#custom-fullscreen-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 999999;
+  background: rgba(10, 10, 10, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: all 0.15s ease;
+}
+#custom-fullscreen-btn:hover {
+  background: var(--red);
+  border-color: var(--red);
+  transform: scale(1.05);
+}
+#custom-fullscreen-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 /* LOADING & ERROR SLIDES */
@@ -294,6 +332,13 @@ body{
       <!-- اللوجو العائم فوق المشغلات والـ embed -->
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="">
 
+      <!-- زر ملء الشاشة المخصص العائم للحفاظ على اللوجو 🎯 -->
+      <button id="custom-fullscreen-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
+        <svg viewBox="0 0 24 24">
+          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+      </button>
+
       <!-- شاشة مؤشر التحميل -->
       <div class="player-loading" id="player-loading" style="display: none;">
         <div class="spinner-big"></div>
@@ -324,7 +369,7 @@ const CONFIG = {
       year:'2026', 
       quality:'HD', 
       emoji:'https://a.asd.ink/wp-content/uploads/2026/06/cEIPRBe6THaUNXWYUBSW2dtqlC4-scaled-367x550.webp', 
-      url:'https://8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq8gwaiubvfqtm5gxzsq.vood78.xyz/hls/cxcun54cyhcsvb3x6v3csbvkvb7saxqmt4rpchsm4kp76iwh375ivzsjw3ha/index-v1-a1.m3u8', 
+      url:'https://amoo.larhu.website/hls/vxzxgs6cqkqfycihmto7zuxgj6bpsbzdfzjy2najr2icmmmadcauc4s4z6wa/index-v1-a1.m3u8', 
       isEmbed: false, 
       genre:'كوميدي' 
     },
