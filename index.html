@@ -6,6 +6,7 @@
 <title>Elwazer TV</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 :root {
@@ -96,7 +97,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 
 .player-wrapper-outer{flex:1;min-height:0;background:#000;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;}
 .player-wrapper{position:relative;width:100%;height:100%;max-width:120vh;max-height:calc(100vh - 190px);aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 15px 40px rgba(0,0,0,.6);}
-#main-video{width:100%;height:100%;background:#000;display:block;object-fit:fill !important;}
+/* Clappr full fill */
+#clappr-container{width:100%;height:100%;background:#000;}
+#clappr-container .player-poster,
+#clappr-container [data-player]{width:100%!important;height:100%!important;}
+#clappr-container video{width:100%!important;height:100%!important;object-fit:fill!important;}
+#main-video{width:100%;height:100%;background:#000;display:none;object-fit:fill !important;}
 video::-webkit-media-controls-fullscreen-button{display:none !important;}
 #iframe-player{width:100%;height:100%;border:none;background:#000;display:none;}
 #custom-player-container{width:100%;height:100%;background:#000;display:none;}
@@ -105,9 +111,7 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
 .custom-video-logo{position:absolute !important;top:-1% !important;right:2.1% !important;z-index:999999 !important;width:18% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
 #player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:18% !important;}
 
-#custom-fullscreen-btn{position:absolute;bottom:10px;right:12px;z-index:999999;background:rgba(10,10,10,.75);border:1px solid rgba(255,255,255,.15);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(6px);transition:all .15s ease;}
-#custom-fullscreen-btn:hover{background:var(--red);border-color:var(--red);transform:scale(1.05);}
-#custom-fullscreen-btn svg{width:18px;height:18px;fill:currentColor;}
+
 
 .player-loading{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.85);z-index:5;}
 .spinner-big{width:48px;height:48px;border:3px solid var(--border2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
@@ -213,13 +217,13 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
   </div>
   <div class="player-wrapper-outer">
     <div class="player-wrapper" id="player-wrapper">
-      <video id="main-video" controls playsinline></video>
+      <!-- Clappr Player -->
+      <div id="clappr-container"></div>
+      <!-- Fallback native video -->
+      <video id="main-video" playsinline></video>
       <iframe id="iframe-player" allowfullscreen></iframe>
       <div id="custom-player-container"></div>
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
-      <button id="custom-fullscreen-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
-        <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-      </button>
       <div class="player-loading" id="player-loading">
         <div class="spinner-big"></div>
         <p>جاري تحميل البث...</p>
@@ -593,8 +597,18 @@ function playMovie(i) {
 }
 
 // ══════════════════════════════════════════════════════
-//  PLAYER ENGINE
+//  PLAYER ENGINE — Clappr
 // ══════════════════════════════════════════════════════
+let clapprPlayer = null;
+
+function destroyClappr() {
+  if (clapprPlayer) {
+    try { clapprPlayer.destroy(); } catch(e) {}
+    clapprPlayer = null;
+    document.getElementById('clappr-container').innerHTML = '';
+  }
+}
+
 async function playUrl(url, label, isEmbed = false) {
   currentStreamUrl = url;
   const video   = document.getElementById('main-video');
@@ -606,43 +620,97 @@ async function playUrl(url, label, isEmbed = false) {
   loading.style.display = 'flex';
   errBox.style.display  = 'none';
 
+  // إيقاف كل المشغلات القديمة
+  destroyClappr();
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
   video.pause(); video.removeAttribute('src'); video.load();
   iframe.src = ''; custom.innerHTML = '';
-  video.style.display = 'none'; iframe.style.display = 'none'; custom.style.display = 'none';
+  video.style.display  = 'none';
+  iframe.style.display = 'none';
+  custom.style.display = 'none';
+  document.getElementById('clappr-container').style.display = 'none';
 
   const trimmed = url.trim();
 
+  // كود مضمّن مباشرة
   if (trimmed.startsWith('<')) {
     custom.style.display = 'block'; custom.innerHTML = trimmed;
     loading.style.display = 'none'; return;
   }
 
-  const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
+  // embed خارجي
+  const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/') || url.includes('.mkv');
   if (isEmbed || !isDirectStream) {
     extractAndPlay(url, video, iframe, loading);
     return;
   }
 
-  video.style.display = 'block';
+  // تشغيل مباشر بـ Clappr
+  loading.style.display = 'none';
+  document.getElementById('clappr-container').style.display = 'block';
+  playClappr(url, label);
+}
 
-  if (url.match(/\.(mp4|webm|ogg)(\?|$)/i) || url.includes('video.mp4') || url.includes('/v.mp4')) {
-    // استخراج الـ domain كـ Referer محتمل
-    let referer = '';
-    try { referer = new URL(url).origin + '/'; } catch(e) {}
-    playMp4WithReferer(url, video, loading, referer);
-    return;
+function playClappr(url, label) {
+  const container = document.getElementById('clappr-container');
+  container.innerHTML = '';
+  container.style.display = 'block';
+
+  const loading = document.getElementById('player-loading');
+  loading.style.display = 'none';
+
+  try {
+    clapprPlayer = new Clappr.Player({
+      source: url,
+      parentId: '#clappr-container',
+      width: '100%',
+      height: '100%',
+      autoPlay: true,
+      mute: false,
+      preload: 'auto',
+      playback: {
+        playInline: true,
+        recycleVideo: true,
+        hlsjsConfig: {
+          enableWorker: true,
+          lowLatencyMode: true,
+          maxBufferLength: 20,
+          liveBackBufferLength: 0,
+          manifestLoadingMaxRetry: 6,
+          levelLoadingMaxRetry: 6,
+        }
+      }
+    });
+
+    clapprPlayer.on(Clappr.Events.PLAYER_READY, () => {
+      clapprPlayer.play();
+      // نقل اللوجو داخل مشغل Clappr
+      injectLogoIntoClappr();
+    });
+
+    clapprPlayer.on(Clappr.Events.PLAYER_ERROR, () => {
+      // جرّب الـ proxy تلقائياً
+      if (!url.includes(STATIC_CONFIG.proxy)) {
+        destroyClappr();
+        playClappr(STATIC_CONFIG.proxy + encodeURIComponent(url), label);
+      } else {
+        showPlayerError('تعذّر تشغيل البث');
+      }
+    });
+
+    clapprPlayer.on(Clappr.Events.CORE_FULLSCREEN, injectLogoIntoClappr);
+
+  } catch(e) {
+    showPlayerError('فشل تحميل المشغل');
   }
+}
 
-  try { await loadHlsJS(); } catch { loading.style.display='none'; showPlayerError('فشل تحميل hls.js'); return; }
-
-  if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-    setupHls(url, video, loading);
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-    video.play().then(() => { loading.style.display='none'; }).catch(() => showPlayerError());
-  } else {
-    loading.style.display='none'; showPlayerError('المتصفح لا يدعم هذا البث');
+function injectLogoIntoClappr() {
+  if (!clapprPlayer || !clapprPlayer.core || !clapprPlayer.core.el) return;
+  const playerEl = clapprPlayer.core.el;
+  const logo = document.getElementById('custom-logo');
+  if (logo && logo.parentElement !== playerEl) {
+    playerEl.appendChild(logo);
   }
 }
 
@@ -777,6 +845,7 @@ function showPlayerError(msg) {
 }
 
 function closePlayer() {
+  destroyClappr();
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
   const v = document.getElementById('main-video');
   const iframe = document.getElementById('iframe-player');
@@ -786,6 +855,10 @@ function closePlayer() {
   custom.innerHTML=''; custom.style.display='none';
   document.getElementById('player-error-box').style.display='none';
   document.getElementById('player-loading').style.display='flex';
+  // رجّع اللوجو لمكانه الأصلي
+  const logo = document.getElementById('custom-logo');
+  const wrapper = document.getElementById('player-wrapper');
+  if (logo && wrapper && logo.parentElement !== wrapper) wrapper.appendChild(logo);
   showPage('main');
 }
 
@@ -795,12 +868,14 @@ function openVLC() {
 }
 
 function toggleFullscreen() {
-  const w = document.getElementById('player-wrapper');
-  if (!document.fullscreenElement) w.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
+  if (clapprPlayer) {
+    clapprPlayer.core.toggleFullscreen();
+  } else {
+    const w = document.getElementById('player-wrapper');
+    if (!document.fullscreenElement) w.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen();
+  }
 }
-document.getElementById('main-video').addEventListener('dblclick', toggleFullscreen);
-document.getElementById('iframe-player').addEventListener('dblclick', toggleFullscreen);
 
 // ══════════════════════════════════════════════════════
 //  TOAST
