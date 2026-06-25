@@ -316,7 +316,7 @@ function loadHlsJS() {
 //  INIT — يجلب config.json أولاً، ثم يبني الصفحة
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', async () => {
-  document.getElementById('loading-msg').textContent = 'جاري تحميل الإعدادات...';
+  document.getElementById('loading-msg').textContent = 'جاري التحميل...';
   await fetchDynamicConfig();   // ← الخطوة الأهم: جلب config.json
   await initMain();
   document.getElementById('app-loading').style.display = 'none';
@@ -387,7 +387,7 @@ async function loadMatches(dayKey) {
     const matches = parseMatches(html);
     currentMatches = matches;
     renderMatches(matches);
-    document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
+    document.getElementById('matches-badge').textContent = matches.length + ' مباريات';
   } catch(err) {
     console.error(err);
     container.innerHTML = `
