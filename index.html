@@ -118,6 +118,56 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
 .player-error-box p{color:#888;font-size:14px;text-align:center;}
 .btn-vlc{background:#f60;border:none;color:#fff;border-radius:8px;padding:9px 20px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
 
+/* EMBED OVERLAY PLAYER */
+.embed-wrapper {
+  position: relative;
+  width: 100%; height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+.embed-iframe {
+  width: 100%; height: 100%;
+  border: none;
+  /* نكبّر الـ iframe بنسبة أكبر من الشاشة عشان نخبي شريط الإعلانات */
+  transform: scale(1.02);
+  pointer-events: none; /* منع أي كليك على الإعلانات */
+}
+.embed-blocker {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: transparent;
+  cursor: default;
+}
+/* شريط تحكم مخصص فوق الـ iframe */
+.embed-controls {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  z-index: 20;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding: 20px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.embed-wrapper:hover .embed-controls { opacity: 1; }
+.embed-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; border-radius: 50%;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 14px;
+  transition: all 0.15s; flex-shrink: 0;
+}
+.embed-btn:hover { background: var(--red); border-color: var(--red); }
+.embed-title-bar {
+  flex: 1; font-size: 13px; font-weight: 600; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
 .channel-strip{background:#080808;border-top:1px solid #111;padding:12px 24px;display:flex;gap:10px;overflow-x:auto;flex-shrink:0;}
 .channel-strip::-webkit-scrollbar{display:none;}
 .strip-ch{flex-shrink:0;padding:7px 16px;border-radius:8px;background:#111;border:1px solid #222;color:#888;font-size:13px;font-weight:600;cursor:pointer;font-family:'Tajawal',sans-serif;transition:all .15s;white-space:nowrap;}
@@ -385,7 +435,7 @@ async function loadMatches(dayKey) {
     const matches = parseMatches(html);
     currentMatches = matches;
     renderMatches(matches);
-    document.getElementById('matches-badge').textContent = matches.length + ' مباريات';
+    document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
   } catch(err) {
     console.error(err);
     container.innerHTML = `
@@ -618,8 +668,9 @@ async function playUrl(url, label, isEmbed = false) {
 
   const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
   if (isEmbed || !isDirectStream) {
-    iframe.style.display = 'block'; iframe.src = url;
-    iframe.onload = () => { loading.style.display = 'none'; }; return;
+    loading.style.display = 'none';
+    buildEmbedPlayer(url);
+    return;
   }
 
   video.style.display = 'block';
@@ -641,6 +692,72 @@ async function playUrl(url, label, isEmbed = false) {
   } else {
     loading.style.display='none'; showPlayerError('المتصفح لا يدعم هذا البث');
   }
+}
+
+// ══════════════════════════════════════════════════════
+//  EMBED OVERLAY PLAYER — يشغّل الـ iframe بدون إعلانات
+// ══════════════════════════════════════════════════════
+function buildEmbedPlayer(url) {
+  const wrapper = document.getElementById('player-wrapper');
+
+  // شيل أي embed قديم
+  const old = wrapper.querySelector('.embed-wrapper');
+  if (old) old.remove();
+
+  // أخفِ المشغلات التانية
+  document.getElementById('main-video').style.display    = 'none';
+  document.getElementById('iframe-player').style.display = 'none';
+  document.getElementById('custom-player-container').style.display = 'none';
+  document.getElementById('player-loading').style.display  = 'none';
+  document.getElementById('player-error-box').style.display = 'none';
+
+  const title = document.getElementById('player-title').textContent || '';
+
+  const div = document.createElement('div');
+  div.className = 'embed-wrapper';
+  div.innerHTML = `
+    <iframe class="embed-iframe" src="${url}"
+      allow="autoplay; fullscreen"
+      allowfullscreen scrolling="no">
+    </iframe>
+    <div class="embed-blocker"></div>
+    <div class="embed-controls">
+      <button class="embed-btn" onclick="toggleEmbedMute(this)" title="صوت">🔊</button>
+      <span class="embed-title-bar">${title}</span>
+      <button class="embed-btn" onclick="reloadEmbed()" title="تحديث">↺</button>
+      <button class="embed-btn" onclick="toggleEmbedFS()" title="ملء الشاشة">⛶</button>
+    </div>`;
+
+  wrapper.appendChild(div);
+}
+
+function reloadEmbed() {
+  const iframe = document.querySelector('.embed-iframe');
+  if (iframe) { const s = iframe.src; iframe.src = ''; iframe.src = s; }
+}
+
+function toggleEmbedFS() {
+  const wrapper = document.getElementById('player-wrapper');
+  if (!document.fullscreenElement) wrapper.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+
+let embedMuted = false;
+function toggleEmbedMute(btn) {
+  // الـ iframe من domain تاني — مش ممكن نتحكم في الصوت مباشرة
+  // بس ممكن نشيل الـ blocker مؤقتاً عشان المستخدم يكلك على الفيديو ويتحكم
+  const blocker = document.querySelector('.embed-blocker');
+  if (blocker) {
+    if (blocker.style.pointerEvents === 'none' || !blocker.style.pointerEvents) {
+      blocker.style.pointerEvents = 'none';
+      blocker.style.background = 'transparent';
+    }
+  }
+  // فتح/غلق الصوت عن طريق إعادة التحميل بمعامل mute
+  const iframe = document.querySelector('.embed-iframe');
+  if (!iframe) return;
+  embedMuted = !embedMuted;
+  btn.textContent = embedMuted ? '🔇' : '🔊';
 }
 
 function setupHls(url, video, loading) {
@@ -674,6 +791,9 @@ function closePlayer() {
   v.pause(); v.removeAttribute('src'); v.load();
   iframe.src=''; iframe.style.display='none';
   custom.innerHTML=''; custom.style.display='none';
+  // إزالة الـ embed overlay لو موجود
+  const embedW = document.querySelector('.embed-wrapper');
+  if (embedW) embedW.remove();
   document.getElementById('player-error-box').style.display='none';
   document.getElementById('player-loading').style.display='flex';
   showPage('main');
@@ -770,7 +890,7 @@ async function loadMatchesSilent(dayKey) {
     if (matches.length > 0) {
       currentMatches = matches;
       renderMatches(matches);
-      document.getElementById('matches-badge').textContent = matches.length + ' مباريات';
+      document.getElementById('matches-badge').textContent = matches.length + ' مباراة';
     }
   } catch(e) { console.warn('Silent refresh failed:', e); }
   finally {
