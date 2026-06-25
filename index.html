@@ -620,7 +620,7 @@ async function playUrl(url, label, isEmbed = false) {
 
   const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
   if (isEmbed || !isDirectStream) {
-    loadCleanEmbed(url, iframe, loading);
+    extractAndPlay(url, video, iframe, loading);
     return;
   }
 
@@ -649,163 +649,76 @@ async function playUrl(url, label, isEmbed = false) {
 
 
 // ══════════════════════════════════════════════════════
-//  CLEAN EMBED — بيجيب الصفحة عبر proxy ويشيل الإعلانات
+//  EXTRACT & PLAY — يسحب الـ m3u8/mp4 من صفحة الـ embed
+//  ويشغله في مشغلنا مباشرة
 // ══════════════════════════════════════════════════════
-async function loadCleanEmbed(url, iframe, loading) {
-  iframe.style.display = 'block';
-  loading.style.display = 'flex';
+async function extractAndPlay(embedUrl, video, iframe, loading) {
+  // proxies نجربهم بالترتيب
+  const proxies = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://api.codetabs.com/v1/proxy?quest=',
+  ];
 
-  try {
-    // جيب الـ HTML عبر الـ proxy
-    const proxyUrl = STATIC_CONFIG.proxy + encodeURIComponent(url);
-    const res = await fetch(proxyUrl, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    let html = await res.text();
+  let html = null;
 
-    // استخرج base domain عشان نصلح الروابط النسبية
-    const base = new URL(url).origin;
+  for (const proxy of proxies) {
+    try {
+      const res = await fetch(proxy + encodeURIComponent(embedUrl), {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(8000)
+      });
+      if (!res.ok) continue;
+      html = await res.text();
+      if (html && html.length > 200) break;
+    } catch(e) { continue; }
+  }
 
-    // ── شيل الإعلانات ──
-    // 1. شيل سكريبتات الإعلانات المعروفة
-    const adScripts = [
-      /popads/i, /popcash/i, /exoclick/i, /trafficjunky/i,
-      /propellerads/i, /adsterra/i, /hilltopads/i, /adspyglass/i,
-      /juicyads/i, /plugrush/i, /adcash/i, /admaven/i,
-      /adskeeper/i, /revcontent/i, /mgid/i, /taboola/i,
-      /outbrain/i, /adinplay/i, /monetag/i, /adnium/i,
-      /pop\.js/i, /pops\.js/i, /popunder/i, /popup/i,
-      /ads\.js/i, /ad\.js/i, /banner/i, /interstitial/i,
-    ];
+  if (!html) {
+    // كل الـ proxies فشلوا — شغّل embed عادي
+    loading.style.display = 'none';
+    iframe.style.display  = 'block';
+    iframe.src = embedUrl;
+    return;
+  }
 
-    // شيل كل <script> يحتوي على مصادر إعلانات
-    html = html.replace(/<script[^>]*src=[^>]*>/gi, (match) => {
-      for (const pattern of adScripts) {
-        if (pattern.test(match)) return '<!-- ad removed -->';
-      }
-      return match;
-    });
+  // ابحث عن روابط البث في الـ HTML
+  const patterns = [
+    /["'`](https?:\/\/[^"'`\s]+\.m3u8[^"'`\s]*)/g,
+    /["'`](https?:\/\/[^"'`\s]+\/hls\/[^"'`\s]+)/g,
+    /["'`](https?:\/\/[^"'`\s]+\.mp4[^"'`\s]*)/g,
+    /source[:\s=]+["'`](https?:\/\/[^"'`\s]+)/g,
+    /file[:\s=]+["'`](https?:\/\/[^"'`\s]+)/g,
+    /src[:\s=]+["'`](https?:\/\/[^"'`\s]+\.m3u8[^"'`\s]*)/g,
+  ];
 
-    // شيل <script> inline فيه كود إعلانات
-    html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, (match, code) => {
-      if (/popunder|pop\(|window\.open|push\(|adblock|advert/i.test(code)) {
-        return '<!-- inline ad removed -->';
-      }
-      return match;
-    });
+  let streamUrl = null;
+  for (const rx of patterns) {
+    rx.lastIndex = 0;
+    const m = rx.exec(html);
+    if (m && m[1] && m[1].startsWith('http') && !m[1].includes('google') && !m[1].includes('facebook')) {
+      streamUrl = m[1];
+      break;
+    }
+  }
 
-    // 2. شيل iframes إعلانية داخلية
-    html = html.replace(/<iframe[^>]*src=[^>]*(ad|pop|banner|monetiz)[^>]*>[\s\S]*?<\/iframe>/gi, '');
-
-    // 3. شيل divs إعلانية
-    html = html.replace(/<div[^>]*(id|class)=["'][^"']*(ad|banner|popup|overlay|interstitial)[^"']*["'][^>]*>[\s\S]*?<\/div>/gi, '');
-
-    // 4. أضف base tag عشان الروابط النسبية تشتغل
-    html = html.replace('<head>', `<head><base href="${base}/">`);
-
-    // 5. أضف CSS يخفي أي إعلان متبقي
-    const adBlockCss = `
-    <style>
-      /* إخفاء كل حاجة مش فيديو */
-      body > *:not(script):not(style) { display: none !important; }
-      /* إظهار المشغل بس */
-      video, .jw-wrapper, .jw-player, #jwplayer, .plyr,
-      .video-js, #player, .player-wrapper, .video-player,
-      [class*="player"], [id*="player"],
-      div:has(> video), div:has(> iframe[src*="embed"]) {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-      }
-      /* إخفاء أي لينك أو نص زيادة */
-      a, p:not(:has(video)), h1,h2,h3,h4,h5,h6,
-      img:not([src*="thumb"]):not([src*="poster"]) {
-        display: none !important;
-      }
-      /* كل الضغطات على الروابط ممنوعة */
-      a { pointer-events: none !important; }
-      /* الفيديو يملأ الشاشة */
-      html, body { 
-        margin: 0 !important; padding: 0 !important;
-        background: #000 !important; 
-        overflow: hidden !important;
-        width: 100% !important; height: 100% !important;
-      }
-      video { 
-        width: 100vw !important; height: 100vh !important; 
-        object-fit: contain !important;
-        display: block !important;
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        z-index: 9999 !important;
-      }
-      .jw-wrapper, .jw-player, #jwplayer, .plyr,
-      .video-js, #player, [class*="player"] {
-        width: 100vw !important; height: 100vh !important;
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        z-index: 9999 !important;
-      }
-    </style>`;
-
-    // 6. أضف JS يمنع window.open و popunder
-    const adBlockJs = `
-    <script>
-      // منع كل أنواع الـ popups نهائياً
-      (function() {
-        var _open = window.open;
-        window.open = function() { return null; };
-        Object.defineProperty(window, 'open', { value: function() { return null; }, writable: false });
-      })();
-      window.onbeforeunload = null;
-
-      // منع أي ضغطة على رابط تفتح صفحة جديدة
-      document.addEventListener('click', function(e) {
-        const a = e.target.closest('a');
-        if (a) { e.preventDefault(); e.stopPropagation(); return false; }
-      }, true);
-
-      // منع mousedown عشان بعض الإعلانات بتشتغل عليه
-      document.addEventListener('mousedown', function(e) {
-        const a = e.target.closest('a');
-        if (a) { e.preventDefault(); e.stopPropagation(); return false; }
-      }, true);
-
-      // منع touchstart للموبايل
-      document.addEventListener('touchstart', function(e) {
-        const a = e.target.closest('a');
-        if (a && !a.href.includes('javascript')) { 
-          e.preventDefault(); e.stopPropagation(); return false; 
-        }
-      }, true);
-
-      // تأكيد المنع كل ثانية
-      var stopAds = function() { window.open = function() { return null; }; };
-      setInterval(stopAds, 500);
-
-      // شيل أي عنصر بيظهر بعد التحميل فوق الفيديو
-      function cleanOverlays() {
-        document.querySelectorAll('a, [class*="upgrade"], [class*="premium"], [class*="ad"], [class*="banner"]').forEach(function(el) {
-          if (!el.closest('video') && !el.closest('[class*="player"]')) {
-            el.style.display = 'none';
-            el.style.pointerEvents = 'none';
-          }
-        });
-      }
-      setInterval(cleanOverlays, 300);
-      document.addEventListener('DOMContentLoaded', cleanOverlays);
-    <\/script>`;
-
-    html = html.replace('</head>', adBlockCss + adBlockJs + '</head>');
-
-    // عرض الـ HTML النظيف في الـ iframe عبر srcdoc
-    iframe.srcdoc = html;
-    iframe.onload = () => { loading.style.display = 'none'; };
-
-  } catch(e) {
-    console.warn('Clean embed failed, falling back to direct iframe:', e);
-    // لو فشل الـ proxy — ارجع للـ iframe العادي
-    iframe.src = url;
-    iframe.onload = () => { loading.style.display = 'none'; };
+  if (streamUrl) {
+    console.log('✅ Stream found:', streamUrl);
+    // شغّله في مشغلنا مباشرة
+    video.style.display = 'block';
+    iframe.style.display = 'none';
+    if (streamUrl.includes('.m3u8') || streamUrl.includes('/hls/')) {
+      await loadHlsJS();
+      setupHls(streamUrl, video, loading);
+    } else {
+      video.src = streamUrl;
+      video.play().then(() => { loading.style.display = 'none'; }).catch(() => showPlayerError());
+    }
+  } else {
+    console.warn('❌ No stream found, falling back to iframe');
+    loading.style.display = 'none';
+    iframe.style.display  = 'block';
+    iframe.src = embedUrl;
   }
 }
 
