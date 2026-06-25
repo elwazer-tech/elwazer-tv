@@ -118,78 +118,7 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
 .player-error-box p{color:#888;font-size:14px;text-align:center;}
 .btn-vlc{background:#f60;border:none;color:#fff;border-radius:8px;padding:9px 20px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
 
-/* EMBED OVERLAY PLAYER */
-.embed-wrapper {
-  position: relative;
-  width: 100%; height: 100%;
-  background: #000;
-  overflow: hidden;
-}
-.embed-iframe {
-  width: 300%; height: 300%;
-  border: none;
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: all;
-}
-/* طبقة شفافة تغطي كل حاجة إلا وسط الشاشة (مكان الفيديو الفعلي) */
-.embed-top-block {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 18%;
-  z-index: 20;
-  background: #000;
-}
-.embed-bottom-block {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 18%;
-  z-index: 20;
-  background: #000;
-}
-.embed-left-block {
-  position: absolute;
-  top: 18%; bottom: 18%; left: 0;
-  width: 33%;
-  z-index: 20;
-  background: #000;
-}
-.embed-right-block {
-  position: absolute;
-  top: 18%; bottom: 18%; right: 0;
-  width: 33%;
-  z-index: 20;
-  background: #000;
-}
-/* شريط تحكم */
-.embed-controls {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 30;
-  background: linear-gradient(transparent, rgba(0,0,0,0.85));
-  padding: 20px 16px 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.embed-wrapper:hover .embed-controls { opacity: 1; }
-.embed-btn {
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #fff; border-radius: 50%;
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 14px;
-  transition: all 0.15s; flex-shrink: 0;
-}
-.embed-btn:hover { background: var(--red); border-color: var(--red); }
-.embed-title-bar {
-  flex: 1; font-size: 13px; font-weight: 600; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+
 
 .channel-strip{background:#080808;border-top:1px solid #111;padding:12px 24px;display:flex;gap:10px;overflow-x:auto;flex-shrink:0;}
 .channel-strip::-webkit-scrollbar{display:none;}
@@ -691,17 +620,17 @@ async function playUrl(url, label, isEmbed = false) {
 
   const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
   if (isEmbed || !isDirectStream) {
-    loading.style.display = 'none';
-    buildEmbedPlayer(url);
+    loadCleanEmbed(url, iframe, loading);
     return;
   }
 
   video.style.display = 'block';
 
-  if (url.match(/\.(mp4|webm|ogg)(\?|$)/i)) {
-    video.src = url;
-    video.play().then(() => { loading.style.display='none'; })
-      .catch(() => { loading.style.display='none'; showPlayerError(); });
+  if (url.match(/\.(mp4|webm|ogg)(\?|$)/i) || url.includes('video.mp4') || url.includes('/v.mp4')) {
+    // استخراج الـ domain كـ Referer محتمل
+    let referer = '';
+    try { referer = new URL(url).origin + '/'; } catch(e) {}
+    playMp4WithReferer(url, video, loading, referer);
     return;
   }
 
@@ -717,71 +646,158 @@ async function playUrl(url, label, isEmbed = false) {
   }
 }
 
+
+
 // ══════════════════════════════════════════════════════
-//  EMBED OVERLAY PLAYER — يشغّل الـ iframe بدون إعلانات
+//  CLEAN EMBED — بيجيب الصفحة عبر proxy ويشيل الإعلانات
 // ══════════════════════════════════════════════════════
-function buildEmbedPlayer(url) {
-  const wrapper = document.getElementById('player-wrapper');
+async function loadCleanEmbed(url, iframe, loading) {
+  iframe.style.display = 'block';
+  loading.style.display = 'flex';
 
-  // شيل أي embed قديم
-  const old = wrapper.querySelector('.embed-wrapper');
-  if (old) old.remove();
+  try {
+    // جيب الـ HTML عبر الـ proxy
+    const proxyUrl = STATIC_CONFIG.proxy + encodeURIComponent(url);
+    const res = await fetch(proxyUrl, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    let html = await res.text();
 
-  // أخفِ المشغلات التانية
-  document.getElementById('main-video').style.display    = 'none';
-  document.getElementById('iframe-player').style.display = 'none';
-  document.getElementById('custom-player-container').style.display = 'none';
-  document.getElementById('player-loading').style.display  = 'none';
-  document.getElementById('player-error-box').style.display = 'none';
+    // استخرج base domain عشان نصلح الروابط النسبية
+    const base = new URL(url).origin;
 
-  const title = document.getElementById('player-title').textContent || '';
+    // ── شيل الإعلانات ──
+    // 1. شيل سكريبتات الإعلانات المعروفة
+    const adScripts = [
+      /popads/i, /popcash/i, /exoclick/i, /trafficjunky/i,
+      /propellerads/i, /adsterra/i, /hilltopads/i, /adspyglass/i,
+      /juicyads/i, /plugrush/i, /adcash/i, /admaven/i,
+      /adskeeper/i, /revcontent/i, /mgid/i, /taboola/i,
+      /outbrain/i, /adinplay/i, /monetag/i, /adnium/i,
+      /pop\.js/i, /pops\.js/i, /popunder/i, /popup/i,
+      /ads\.js/i, /ad\.js/i, /banner/i, /interstitial/i,
+    ];
 
-  const div = document.createElement('div');
-  div.className = 'embed-wrapper';
-  div.innerHTML = `
-    <iframe class="embed-iframe" src="${url}"
-      allow="autoplay; fullscreen; encrypted-media"
-      allowfullscreen scrolling="no">
-    </iframe>
-    <div class="embed-top-block"></div>
-    <div class="embed-bottom-block"></div>
-    <div class="embed-left-block"></div>
-    <div class="embed-right-block"></div>
-    <div class="embed-controls">
-      <span class="embed-title-bar">${title}</span>
-      <button class="embed-btn" onclick="reloadEmbed()" title="تحديث">↺</button>
-      <button class="embed-btn" onclick="toggleEmbedFS()" title="ملء الشاشة">⛶</button>
-    </div>`;
+    // شيل كل <script> يحتوي على مصادر إعلانات
+    html = html.replace(/<script[^>]*src=[^>]*>/gi, (match) => {
+      for (const pattern of adScripts) {
+        if (pattern.test(match)) return '<!-- ad removed -->';
+      }
+      return match;
+    });
 
-  wrapper.appendChild(div);
+    // شيل <script> inline فيه كود إعلانات
+    html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, (match, code) => {
+      if (/popunder|pop\(|window\.open|push\(|adblock|advert/i.test(code)) {
+        return '<!-- inline ad removed -->';
+      }
+      return match;
+    });
+
+    // 2. شيل iframes إعلانية داخلية
+    html = html.replace(/<iframe[^>]*src=[^>]*(ad|pop|banner|monetiz)[^>]*>[\s\S]*?<\/iframe>/gi, '');
+
+    // 3. شيل divs إعلانية
+    html = html.replace(/<div[^>]*(id|class)=["'][^"']*(ad|banner|popup|overlay|interstitial)[^"']*["'][^>]*>[\s\S]*?<\/div>/gi, '');
+
+    // 4. أضف base tag عشان الروابط النسبية تشتغل
+    html = html.replace('<head>', `<head><base href="${base}/">`);
+
+    // 5. أضف CSS يخفي أي إعلان متبقي
+    const adBlockCss = `
+    <style>
+      /* إخفاء عناصر الإعلانات المتبقية */
+      [class*="ad-"], [class*="-ad"], [class*="ads-"], [id*="ad-"], [id*="-ad"],
+      [class*="popup"], [class*="overlay"], [class*="banner"],
+      [class*="interstitial"], [class*="sponsor"],
+      .ad, .ads, .advert, .advertisement, .popup, .pop-up,
+      .overlay:not(video *), .modal-overlay,
+      iframe:not([src*="video"]):not([src*="player"]):not([src*="embed"]) {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      /* منع فتح نوافذ جديدة */
+      a[target="_blank"] { pointer-events: none !important; }
+      /* الفيديو يملأ الشاشة */
+      body { margin: 0 !important; background: #000 !important; overflow: hidden !important; }
+      video { width: 100% !important; height: 100vh !important; object-fit: contain !important; }
+      .player, .video-player, #player, .jw-wrapper, .plyr {
+        width: 100% !important; height: 100vh !important;
+      }
+    </style>`;
+
+    // 6. أضف JS يمنع window.open و popunder
+    const adBlockJs = `
+    <script>
+      // منع كل أنواع الـ popups
+      window.open = function() { return null; };
+      window.onbeforeunload = null;
+      document.addEventListener('click', function(e) {
+        const a = e.target.closest('a');
+        if (a && a.target === '_blank') { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+      // منع الـ popunder المتأخر
+      setTimeout(function() { window.open = function() { return null; }; }, 100);
+      setTimeout(function() { window.open = function() { return null; }; }, 500);
+      setTimeout(function() { window.open = function() { return null; }; }, 1000);
+    <\/script>`;
+
+    html = html.replace('</head>', adBlockCss + adBlockJs + '</head>');
+
+    // عرض الـ HTML النظيف في الـ iframe عبر srcdoc
+    iframe.srcdoc = html;
+    iframe.onload = () => { loading.style.display = 'none'; };
+
+  } catch(e) {
+    console.warn('Clean embed failed, falling back to direct iframe:', e);
+    // لو فشل الـ proxy — ارجع للـ iframe العادي
+    iframe.src = url;
+    iframe.onload = () => { loading.style.display = 'none'; };
+  }
 }
-
-function reloadEmbed() {
-  const iframe = document.querySelector('.embed-iframe');
-  if (iframe) { const s = iframe.src; iframe.src = ''; iframe.src = s; }
-}
-
-function toggleEmbedFS() {
-  const wrapper = document.getElementById('player-wrapper');
-  if (!document.fullscreenElement) wrapper.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
-}
-
-
 
 function setupHls(url, video, loading) {
   if (hlsInstance) hlsInstance.destroy();
-  hlsInstance = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:90 });
+  hlsInstance = new Hls({
+    enableWorker: true,
+    lowLatencyMode: true,
+    backBufferLength: 90,
+    xhrSetup: function(xhr, xhrUrl) {
+      // لو الرابط محتاج Referer خاص — بيتعامل معه تلقائياً
+      xhr.withCredentials = false;
+    }
+  });
   hlsInstance.loadSource(url);
   hlsInstance.attachMedia(video);
   hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { loading.style.display='none'; video.play().catch(()=>{}); });
   hlsInstance.on(Hls.Events.ERROR, (e, data) => {
     if (data.fatal) {
-      if (data.details === 'manifestLoadError' && !url.includes(STATIC_CONFIG.proxy)) {
+      if (!url.includes(STATIC_CONFIG.proxy)) {
+        // جرّب الـ proxy تلقائياً لو فشل
         setupHls(STATIC_CONFIG.proxy + encodeURIComponent(url), video, loading);
       } else { loading.style.display='none'; showPlayerError(`فشل البث: ${data.details}`); }
     }
   });
+}
+
+// تشغيل MP4 مع Referer header عن طريق fetch → blob
+async function playMp4WithReferer(url, video, loading, referer) {
+  try {
+    const res = await fetch(url, {
+      headers: referer ? { 'Referer': referer } : {},
+      mode: 'cors'
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const blob = await res.blob();
+    video.src = URL.createObjectURL(blob);
+    video.play().then(() => { loading.style.display = 'none'; }).catch(() => showPlayerError());
+  } catch(e) {
+    // Referer مش شغال — جرّب الـ proxy
+    const proxyUrl = STATIC_CONFIG.proxy + encodeURIComponent(url);
+    video.src = proxyUrl;
+    video.play().then(() => { loading.style.display = 'none'; }).catch(() => showPlayerError());
+  }
 }
 
 function showPlayerError(msg) {
@@ -800,9 +816,6 @@ function closePlayer() {
   v.pause(); v.removeAttribute('src'); v.load();
   iframe.src=''; iframe.style.display='none';
   custom.innerHTML=''; custom.style.display='none';
-  // إزالة الـ embed overlay لو موجود
-  const embedW = document.querySelector('.embed-wrapper');
-  if (embedW) embedW.remove();
   document.getElementById('player-error-box').style.display='none';
   document.getElementById('player-loading').style.display='flex';
   showPage('main');
