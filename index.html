@@ -126,24 +126,47 @@ video::-webkit-media-controls-fullscreen-button{display:none !important;}
   overflow: hidden;
 }
 .embed-iframe {
-  width: 100%; height: 100%;
+  width: 300%; height: 300%;
   border: none;
-  /* نكبّر الـ iframe بنسبة أكبر من الشاشة عشان نخبي شريط الإعلانات */
-  transform: scale(1.02);
-  pointer-events: none; /* منع أي كليك على الإعلانات */
-}
-.embed-blocker {
   position: absolute;
-  inset: 0;
-  z-index: 10;
-  background: transparent;
-  cursor: default;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: all;
 }
-/* شريط تحكم مخصص فوق الـ iframe */
+/* طبقة شفافة تغطي كل حاجة إلا وسط الشاشة (مكان الفيديو الفعلي) */
+.embed-top-block {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 18%;
+  z-index: 20;
+  background: #000;
+}
+.embed-bottom-block {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 18%;
+  z-index: 20;
+  background: #000;
+}
+.embed-left-block {
+  position: absolute;
+  top: 18%; bottom: 18%; left: 0;
+  width: 33%;
+  z-index: 20;
+  background: #000;
+}
+.embed-right-block {
+  position: absolute;
+  top: 18%; bottom: 18%; right: 0;
+  width: 33%;
+  z-index: 20;
+  background: #000;
+}
+/* شريط تحكم */
 .embed-controls {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  z-index: 20;
+  z-index: 30;
   background: linear-gradient(transparent, rgba(0,0,0,0.85));
   padding: 20px 16px 10px;
   display: flex;
@@ -717,12 +740,14 @@ function buildEmbedPlayer(url) {
   div.className = 'embed-wrapper';
   div.innerHTML = `
     <iframe class="embed-iframe" src="${url}"
-      allow="autoplay; fullscreen"
+      allow="autoplay; fullscreen; encrypted-media"
       allowfullscreen scrolling="no">
     </iframe>
-    <div class="embed-blocker"></div>
+    <div class="embed-top-block"></div>
+    <div class="embed-bottom-block"></div>
+    <div class="embed-left-block"></div>
+    <div class="embed-right-block"></div>
     <div class="embed-controls">
-      <button class="embed-btn" onclick="toggleEmbedMute(this)" title="صوت">🔊</button>
       <span class="embed-title-bar">${title}</span>
       <button class="embed-btn" onclick="reloadEmbed()" title="تحديث">↺</button>
       <button class="embed-btn" onclick="toggleEmbedFS()" title="ملء الشاشة">⛶</button>
@@ -742,23 +767,7 @@ function toggleEmbedFS() {
   else document.exitFullscreen();
 }
 
-let embedMuted = false;
-function toggleEmbedMute(btn) {
-  // الـ iframe من domain تاني — مش ممكن نتحكم في الصوت مباشرة
-  // بس ممكن نشيل الـ blocker مؤقتاً عشان المستخدم يكلك على الفيديو ويتحكم
-  const blocker = document.querySelector('.embed-blocker');
-  if (blocker) {
-    if (blocker.style.pointerEvents === 'none' || !blocker.style.pointerEvents) {
-      blocker.style.pointerEvents = 'none';
-      blocker.style.background = 'transparent';
-    }
-  }
-  // فتح/غلق الصوت عن طريق إعادة التحميل بمعامل mute
-  const iframe = document.querySelector('.embed-iframe');
-  if (!iframe) return;
-  embedMuted = !embedMuted;
-  btn.textContent = embedMuted ? '🔇' : '🔊';
-}
+
 
 function setupHls(url, video, loading) {
   if (hlsInstance) hlsInstance.destroy();
