@@ -103,44 +103,88 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 #custom-player-container{width:100%;height:100%;background:#000;display:none;position:absolute;inset:0;}
 #custom-player-container iframe,#custom-player-container embed{width:100%!important;height:100%!important;border:none!important;}
 
-/* ── CUSTOM CONTROLS ── */
+/* ── CUSTOM VIDEO CONTROLS ── */
 #video-controls{
   position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(transparent,rgba(0,0,0,0.85));
-  padding:24px 16px 10px;
-  display:flex;flex-direction:column;gap:8px;
+  background:linear-gradient(transparent 0%,rgba(0,0,0,0.5) 40%,rgba(0,0,0,0.88) 100%);
+  padding:32px 14px 10px;
+  display:flex;flex-direction:column;gap:6px;
   z-index:20;
-  opacity:0;transition:opacity 0.25s;
+  opacity:0;transition:opacity 0.3s ease;
+  pointer-events:none;
 }
-.player-wrapper:hover #video-controls,
-.player-wrapper.show-controls #video-controls{opacity:1;}
+#video-controls.visible{opacity:1;pointer-events:all;}
 
-/* شريط التقدم */
 #progress-bar{
-  width:100%;height:4px;background:rgba(255,255,255,0.2);
-  border-radius:4px;cursor:pointer;position:relative;
+  width:100%;height:3px;
+  background:rgba(255,255,255,0.18);
+  border-radius:99px;cursor:pointer;
+  position:relative;transition:height .15s;
 }
-#progress-fill{height:100%;background:var(--red);border-radius:4px;width:0%;pointer-events:none;}
-#progress-bar:hover{height:6px;}
+#progress-bar:hover{height:5px;}
+#progress-fill{
+  height:100%;border-radius:99px;width:0%;
+  background:#e63946;pointer-events:none;
+  position:relative;transition:width .1s linear;
+}
+#progress-fill::after{
+  content:'';position:absolute;right:-5px;top:50%;
+  transform:translateY(-50%) scale(0);
+  width:11px;height:11px;border-radius:50%;
+  background:#fff;transition:transform .15s;
+}
+#progress-bar:hover #progress-fill::after{transform:translateY(-50%) scale(1);}
 
-/* صف أزرار التحكم */
-.ctrl-row{display:flex;align-items:center;gap:10px;}
+.ctrl-row{display:flex;align-items:center;gap:4px;}
 .ctrl-btn{
-  background:none;border:none;color:#fff;
-  cursor:pointer;padding:4px;
+  background:none;border:none;color:rgba(255,255,255,.9);
+  cursor:pointer;padding:6px;border-radius:6px;
   display:flex;align-items:center;justify-content:center;
-  opacity:.85;transition:opacity .15s;font-size:18px;line-height:1;
+  transition:background .12s,color .12s;line-height:1;
 }
-.ctrl-btn:hover{opacity:1;}
-.ctrl-btn svg{width:20px;height:20px;fill:currentColor;}
-#time-display{font-size:12px;color:rgba(255,255,255,.7);font-family:monospace;white-space:nowrap;}
-.ctrl-spacer{flex:1;}
-/* مستوى الصوت */
-#vol-wrap{display:flex;align-items:center;gap:6px;}
-#vol-bar{width:70px;height:3px;background:rgba(255,255,255,.25);border-radius:3px;cursor:pointer;position:relative;}
-#vol-fill{height:100%;background:#fff;border-radius:3px;width:100%;pointer-events:none;}
+.ctrl-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+.ctrl-btn svg{width:20px;height:20px;fill:currentColor;display:block;}
+.ctrl-btn.big svg{width:26px;height:26px;}
 
-.custom-video-logo{position:absolute !important;top:-5% !important;right:2.1% !important;z-index:999999 !important;width:18% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
+#time-display{
+  font-size:12px;color:rgba(255,255,255,.75);
+  font-family:monospace;white-space:nowrap;padding:0 4px;
+}
+.ctrl-spacer{flex:1;}
+
+#vol-wrap{display:flex;align-items:center;gap:6px;}
+#vol-bar{
+  width:72px;height:3px;
+  background:rgba(255,255,255,.22);
+  border-radius:99px;cursor:pointer;
+  position:relative;transition:height .15s;
+}
+#vol-bar:hover{height:5px;}
+#vol-fill{
+  height:100%;background:#fff;border-radius:99px;width:100%;
+  pointer-events:none;
+}
+#video-click-zone{
+  position:absolute;inset:0;z-index:10;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+#center-icon{
+  width:58px;height:58px;border-radius:50%;
+  background:rgba(0,0,0,0.5);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .18s;pointer-events:none;
+}
+#center-icon svg{width:26px;height:26px;fill:#fff;}
+#center-icon.show{opacity:1;}
+
+.live-indicator{
+  font-size:11px;font-weight:700;letter-spacing:.5px;
+  color:#fff;background:#e63946;
+  padding:2px 7px;border-radius:4px;
+  animation:blink 1.2s infinite;margin-left:4px;
+}
+
+.custom-video-logo{position:absolute !important;top:-1% !important;right:2.1% !important;z-index:999999 !important;width:18% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
 #player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:18% !important;}
 
 
@@ -254,30 +298,35 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
       <div id="custom-player-container"></div>
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
 
-      <!-- CUSTOM CONTROLS -->
+      <!-- click zone وسط الشاشة للـ play/pause -->
+      <div id="video-click-zone" onclick="togglePlay()">
+        <div id="center-icon">
+          <svg id="ci-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="ci-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </div>
+      </div>
+
       <div id="video-controls">
-        <div id="progress-bar" onclick="seekVideo(event)" onmousemove="previewSeek(event)">
+        <div id="progress-bar" onclick="seekVideo(event)">
           <div id="progress-fill"></div>
         </div>
         <div class="ctrl-row">
-          <!-- play/pause -->
-          <button class="ctrl-btn" id="btn-play" onclick="togglePlay()">
+          <button class="ctrl-btn big" onclick="togglePlay()" title="تشغيل/إيقاف">
             <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           </button>
-          <!-- صوت -->
-          <button class="ctrl-btn" id="btn-mute" onclick="toggleMute()">
+          <button class="ctrl-btn" onclick="toggleMute()" title="صوت">
             <svg id="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
             <svg id="icon-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 19l2 2L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
           </button>
           <div id="vol-wrap">
             <div id="vol-bar" onclick="setVolume(event)"><div id="vol-fill"></div></div>
           </div>
-          <span id="time-display">0:00 / --:--</span>
+          <span id="time-display">0:00:00 / --:--:--</span>
           <div class="ctrl-spacer"></div>
-          <!-- fullscreen -->
-          <button class="ctrl-btn" onclick="toggleFullscreen()">
-            <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          <button class="ctrl-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
+            <svg id="icon-fs" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            <svg id="icon-fs-exit" viewBox="0 0 24 24" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
           </button>
         </div>
       </div>
@@ -703,77 +752,107 @@ async function playUrl(url, label, isEmbed = false) {
   }
 }
 
-// ── ربط الـ controls بالـ video ──
+// ══════════════════════════════════════════════════════
+//  VIDEO CONTROLS
+// ══════════════════════════════════════════════════════
+let controlsTimer = null;
+
+function showControls() {
+  const ctrl = document.getElementById('video-controls');
+  if (!ctrl) return;
+  ctrl.classList.add('visible');
+  clearTimeout(controlsTimer);
+  controlsTimer = setTimeout(() => ctrl.classList.remove('visible'), 3500);
+}
+
 function initVideoControls(video) {
-  const progressFill = document.getElementById('progress-fill');
-  const timeDisplay  = document.getElementById('time-display');
-  const iconPlay     = document.getElementById('icon-play');
-  const iconPause    = document.getElementById('icon-pause');
-  const volFill      = document.getElementById('vol-fill');
+  const wrapper = document.getElementById('player-wrapper');
 
   // تحديث شريط التقدم والوقت
   video.ontimeupdate = () => {
-    if (!video.duration) return;
-    const pct = (video.currentTime / video.duration) * 100;
-    if (progressFill) progressFill.style.width = pct + '%';
-    if (timeDisplay) timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
+    const fill = document.getElementById('progress-fill');
+    const time = document.getElementById('time-display');
+    if (fill && video.duration) {
+      fill.style.width = (video.currentTime / video.duration * 100) + '%';
+    }
+    if (time) time.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration);
   };
 
-  video.onplay  = () => { if(iconPlay) iconPlay.style.display='none'; if(iconPause) iconPause.style.display=''; };
-  video.onpause = () => { if(iconPlay) iconPlay.style.display=''; if(iconPause) iconPause.style.display='none'; };
+  video.onplay = () => {
+    document.getElementById('icon-play').style.display  = 'none';
+    document.getElementById('icon-pause').style.display = '';
+  };
+  video.onpause = () => {
+    document.getElementById('icon-play').style.display  = '';
+    document.getElementById('icon-pause').style.display = 'none';
+  };
+
+  // fullscreen icon
+  document.addEventListener('fullscreenchange', () => {
+    const isFs = !!document.fullscreenElement;
+    document.getElementById('icon-fs').style.display      = isFs ? 'none' : '';
+    document.getElementById('icon-fs-exit').style.display = isFs ? '' : 'none';
+  });
 
   // إظهار controls عند التفاعل
-  let hideTimer;
-  const wrapper = document.getElementById('player-wrapper');
-  const show = () => {
-    wrapper.classList.add('show-controls');
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(() => wrapper.classList.remove('show-controls'), 3000);
-  };
-  wrapper.addEventListener('mousemove', show);
-  wrapper.addEventListener('touchstart', show, { passive: true });
+  wrapper.addEventListener('mousemove', showControls);
+  wrapper.addEventListener('touchstart', showControls, { passive: true });
 
-  // مستوى الصوت
-  if (volFill) volFill.style.width = (video.volume * 100) + '%';
+  // ضغطة على الفيديو = play/pause
+  video.addEventListener('click', togglePlay);
+
+  // مستوى الصوت الافتراضي
+  document.getElementById('vol-fill').style.width = '100%';
+
+  // إظهار controls فور التشغيل
+  showControls();
 }
 
 function togglePlay() {
   const v = document.getElementById('main-video');
+  if (!v) return;
   if (v.paused) v.play(); else v.pause();
+  showControls();
 }
 
 function toggleMute() {
   const v = document.getElementById('main-video');
-  const iconVol  = document.getElementById('icon-vol');
-  const iconMute = document.getElementById('icon-mute');
   v.muted = !v.muted;
-  if (iconVol)  iconVol.style.display  = v.muted ? 'none' : '';
-  if (iconMute) iconMute.style.display = v.muted ? '' : 'none';
+  document.getElementById('icon-vol').style.display  = v.muted ? 'none' : '';
+  document.getElementById('icon-mute').style.display = v.muted ? '' : 'none';
+  document.getElementById('vol-fill').style.width    = v.muted ? '0%' : (v.volume * 100) + '%';
+  showControls();
 }
 
 function seekVideo(e) {
   const v = document.getElementById('main-video');
-  if (!v.duration) return;
+  if (!v || !v.duration) return;
   const bar = document.getElementById('progress-bar');
-  const pct = e.offsetX / bar.offsetWidth;
+  const rect = bar.getBoundingClientRect();
+  const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
   v.currentTime = pct * v.duration;
+  showControls();
 }
-
-function previewSeek(e) {}
 
 function setVolume(e) {
   const v = document.getElementById('main-video');
-  const bar = document.getElementById('vol-bar');
-  const pct = Math.max(0, Math.min(1, e.offsetX / bar.offsetWidth));
+  const bar  = document.getElementById('vol-bar');
+  const rect = bar.getBoundingClientRect();
+  const pct  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
   v.volume = pct;
-  document.getElementById('vol-fill').style.width = (pct * 100) + '%';
+  v.muted  = pct === 0;
+  document.getElementById('vol-fill').style.width    = (pct * 100) + '%';
+  document.getElementById('icon-vol').style.display  = pct === 0 ? 'none' : '';
+  document.getElementById('icon-mute').style.display = pct === 0 ? '' : 'none';
+  showControls();
 }
 
 function formatTime(s) {
-  if (!s || isNaN(s)) return '0:00';
-  const m = Math.floor(s / 60);
+  if (!s || isNaN(s) || !isFinite(s)) return '0:00:00';
+  const h   = Math.floor(s / 3600);
+  const m   = Math.floor((s % 3600) / 60);
   const sec = Math.floor(s % 60);
-  return m + ':' + (sec < 10 ? '0' : '') + sec;
+  return h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
 }
 
 
