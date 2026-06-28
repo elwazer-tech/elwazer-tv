@@ -394,6 +394,11 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 const STATIC_CONFIG = {
   timeOffset: 2,
   proxy: 'https://corsproxy.io/?url=',
+  // proxies احتياطية لو corsproxy وقف
+  proxyFallbacks: [
+    'https://api.allorigins.win/raw?url=',
+    'https://api.codetabs.com/v1/proxy?quest=',
+  ],
   sources: {
     today:     'https://www.ssirtv.com/matches-today/',
     yesterday: 'https://www.ssirtv.com/matches-yesterday/',
@@ -522,6 +527,24 @@ function selectDay(key, btn) {
 // ══════════════════════════════════════════════════════
 //  FETCH & PARSE ssirtv.com
 // ══════════════════════════════════════════════════════
+// جلب URL مع تجربة proxies احتياطية تلقائياً
+async function fetchWithProxy(url) {
+  const proxies = [
+    STATIC_CONFIG.proxy,
+    ...(STATIC_CONFIG.proxyFallbacks || [])
+  ];
+  for (const proxy of proxies) {
+    try {
+      const res = await fetch(proxy + encodeURIComponent(url), {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(8000)
+      });
+      if (res.ok) return res;
+    } catch(e) { continue; }
+  }
+  throw new Error('كل الـ proxies فشلوا');
+}
+
 async function loadMatches(dayKey) {
   const container = document.getElementById('matches-container');
   container.innerHTML = `<div class="loading-state"><div class="spinner-big" style="margin:0 auto 16px;"></div><p>جاري تحميل المباريات...</p></div>`;
@@ -531,10 +554,8 @@ async function loadMatches(dayKey) {
   await fetchDynamicConfig();
 
   const srcUrl   = STATIC_CONFIG.sources[dayKey];
-  const fetchUrl = STATIC_CONFIG.proxy + encodeURIComponent(srcUrl);
-
   try {
-    const res = await fetch(fetchUrl);
+    const res = await fetchWithProxy(srcUrl);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const html = await res.text();
     const matches = parseMatches(html);
@@ -1164,7 +1185,7 @@ function startAutoRefresh() {
       await fetchDynamicConfig();
       await loadMatchesSilent(activeDay);
     }
-  }, 60000); // كل 60 ثانية
+  }, 30000); // كل 30 ثانية
 }
 
 function stopAutoRefresh() {
@@ -1176,10 +1197,7 @@ async function loadMatchesSilent(dayKey) {
   const hint = document.getElementById('pull-hint');
   if (hint) { hint.textContent = '⟳ جاري التحديث...'; hint.classList.add('refreshing'); }
   try {
-    const res = await fetch(
-      STATIC_CONFIG.proxy + encodeURIComponent(STATIC_CONFIG.sources[dayKey]),
-      { cache: 'no-store' }   // مسح كاش الطلب
-    );
+    const res = await fetchWithProxy(STATIC_CONFIG.sources[dayKey]);
     if (!res.ok) return;
     const html    = await res.text();
     const matches = parseMatches(html);
