@@ -106,90 +106,99 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 /* ══ PLAYER CONTROLS ══ */
 #video-click-zone{
   position:absolute;inset:0;z-index:10;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
 }
-#center-icon{
-  width:64px;height:64px;border-radius:50%;
-  background:rgba(0,0,0,0.55);border:2px solid rgba(255,255,255,.85);
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .2s;pointer-events:none;
-}
-#center-icon svg{width:26px;height:26px;fill:#fff;}
-#center-icon.show{opacity:1;}
 
+/* شريط التحكم — شريط رفيع في الأسفل */
 #video-controls{
   position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(transparent,rgba(0,0,0,.75));
-  padding:28px 12px 8px;
-  display:flex;flex-direction:column;gap:5px;
-  z-index:20;opacity:0;transition:opacity .25s;pointer-events:none;
+  background:rgba(10,10,14,0.82);
+  padding:0 10px;height:44px;
+  display:flex;align-items:center;gap:4px;
+  z-index:20;
+  opacity:0;
+  transition:opacity 0.3s ease;
+  pointer-events:none;
+  direction:ltr;
 }
 .player-wrapper:hover #video-controls,
-.player-wrapper.show-controls #video-controls{opacity:1;pointer-events:all;}
-
-/* شريط التقدم */
-#progress-bar{
-  width:100%;height:4px;background:rgba(255,255,255,.25);
-  border-radius:2px;cursor:pointer;position:relative;margin-bottom:2px;
-  transition:height .12s;
+.player-wrapper.show-controls #video-controls{
+  opacity:1;pointer-events:all;
 }
-#progress-bar:hover{height:6px;}
+
+/* شريط التقدم فوق شريط التحكم */
+#progress-bar{
+  position:absolute;bottom:44px;left:0;right:0;
+  height:3px;background:rgba(255,255,255,.2);
+  cursor:pointer;transition:height .15s;
+  z-index:21;opacity:0;transition:opacity 0.3s ease, height 0.15s;
+  pointer-events:none;
+}
+.player-wrapper:hover #progress-bar,
+.player-wrapper.show-controls #progress-bar{
+  opacity:1;pointer-events:all;
+}
+#progress-bar:hover{height:5px;bottom:42px;}
 #progress-fill{
-  height:100%;background:#fff;border-radius:2px;
-  width:0%;pointer-events:none;position:relative;
+  height:100%;background:#e63946;width:0%;
+  pointer-events:none;position:relative;
 }
 #progress-fill::after{
-  content:'';position:absolute;right:-6px;top:50%;
+  content:'';position:absolute;right:-5px;top:50%;
   transform:translateY(-50%) scale(0);
-  width:13px;height:13px;border-radius:50%;background:#fff;
+  width:12px;height:12px;border-radius:50%;background:#e63946;
   transition:transform .12s;
 }
 #progress-bar:hover #progress-fill::after{transform:translateY(-50%) scale(1);}
 
-/* صف الأزرار — مهم: direction ltr عشان الترتيب صح في صفحة RTL */
-.ctrl-row{
-  display:flex;align-items:center;gap:2px;
-  direction:ltr !important;
-  unicode-bidi:bidi-override;
-}
+/* أزرار */
 .ctrl-btn{
-  background:none;border:none;color:rgba(255,255,255,.9);
-  cursor:pointer;padding:6px;border-radius:4px;
+  background:none;border:none;color:rgba(255,255,255,.85);
+  cursor:pointer;padding:5px;border-radius:4px;
   display:flex;align-items:center;justify-content:center;
-  transition:all .12s;flex-shrink:0;
-  direction:ltr;
+  transition:color .12s;flex-shrink:0;
 }
-.ctrl-btn:hover{color:#fff;background:rgba(255,255,255,.12);}
+.ctrl-btn:hover{color:#fff;}
 .ctrl-btn svg{display:block;fill:currentColor;pointer-events:none;}
-.sz-lg svg{width:24px;height:24px;}
-.sz-md svg{width:20px;height:20px;}
-.sz-sm svg{width:17px;height:17px;}
+.sz-lg svg{width:20px;height:20px;}
+.sz-md svg{width:18px;height:18px;}
+.sz-sm svg{width:16px;height:16px;}
 .ctrl-spacer{flex:1;}
+
+/* LIVE badge */
+#live-badge{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:800;color:#fff;
+  letter-spacing:.5px;padding:0 6px;
+}
+#live-dot-ctrl{
+  width:7px;height:7px;border-radius:50%;
+  background:#e63946;box-shadow:0 0 6px #e63946;
+  animation:blink 1.2s infinite;
+}
+
+/* الوقت */
 #time-display{
-  font-size:13px;font-weight:500;
-  color:rgba(255,255,255,.9);
+  font-size:12px;font-weight:600;
+  color:rgba(255,255,255,.85);
   font-family:monospace;white-space:nowrap;
-  padding:0 6px;letter-spacing:.2px;
-  direction:ltr;
+  padding:0 4px;
 }
-#vol-wrap{display:flex;align-items:center;gap:5px;direction:ltr;}
+
+/* HD badge */
+#hd-badge{
+  font-size:11px;font-weight:800;color:rgba(255,255,255,.7);
+  padding:1px 6px;border:1px solid rgba(255,255,255,.3);
+  border-radius:3px;letter-spacing:.5px;
+}
+
+/* الصوت */
+#vol-wrap{display:flex;align-items:center;gap:5px;}
 #vol-bar{
-  width:68px;height:4px;background:rgba(255,255,255,.25);
+  width:60px;height:3px;background:rgba(255,255,255,.25);
   border-radius:2px;cursor:pointer;position:relative;
-  transition:height .12s;
 }
-#vol-bar:hover{height:6px;}
-#vol-fill{
-  height:100%;background:#fff;border-radius:2px;
-  pointer-events:none;width:100%;position:relative;
-}
-#vol-fill::after{
-  content:'';position:absolute;right:-5px;top:50%;
-  transform:translateY(-50%) scale(0);
-  width:11px;height:11px;border-radius:50%;background:#fff;
-  transition:transform .12s;
-}
-#vol-bar:hover #vol-fill::after{transform:translateY(-50%) scale(1);}
+#vol-bar:hover{height:4px;}
+#vol-fill{height:100%;background:rgba(255,255,255,.85);border-radius:2px;pointer-events:none;width:100%;}
 
 .live-indicator{
   font-size:11px;font-weight:700;letter-spacing:.5px;
@@ -313,63 +322,48 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
 
       <!-- click zone -->
-      <div id="video-click-zone" onclick="togglePlay()">
-        <div id="center-icon">
-          <svg id="ci-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          <svg id="ci-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-        </div>
+      <div id="video-click-zone" onclick="togglePlay()"></div>
+
+      <!-- شريط التقدم -->
+      <div id="progress-bar" onclick="seekVideo(event)">
+        <div id="progress-fill"></div>
       </div>
 
+      <!-- شريط التحكم -->
       <div id="video-controls">
 
-        <!-- شريط التقدم -->
-        <div id="progress-bar" onclick="seekVideo(event)">
-          <div id="progress-fill"></div>
+        <!-- يسار: stop + live -->
+        <button class="ctrl-btn sz-lg" onclick="togglePlay()" title="تشغيل/إيقاف">
+          <svg id="icon-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <div id="live-badge">
+          <div id="live-dot-ctrl"></div>
+          LIVE
         </div>
 
-        <!-- أزرار التحكم — اتجاه LTR صريح -->
-        <div class="ctrl-row">
+        <div class="ctrl-spacer"></div>
 
-          <!-- ← يسار: rewind / play / forward / مكتوم / صوت / وقت -->
-          <button class="ctrl-btn sz-md" onclick="seekRel(-10)" title="10 ثواني للخلف">
-            <svg viewBox="0 0 24 24"><path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-          </button>
+        <!-- يمين: HD + صوت + شريط + fullscreen -->
+        <span id="hd-badge">HD</span>
 
-          <button class="ctrl-btn sz-lg" onclick="togglePlay()" title="تشغيل/إيقاف">
-            <svg id="icon-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-          </button>
+        <button class="ctrl-btn sz-md" onclick="toggleMute()" title="صوت">
+          <svg id="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+          <svg id="icon-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 19l2 2L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+        </button>
 
-          <button class="ctrl-btn sz-md" onclick="seekRel(10)" title="10 ثواني للأمام">
-            <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
-          </button>
-
-          <button class="ctrl-btn sz-md" onclick="toggleMute()" title="صوت">
-            <svg id="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-            <svg id="icon-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 19l2 2L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-          </button>
-
-          <div id="vol-wrap">
-            <div id="vol-bar" onclick="setVolume(event)">
-              <div id="vol-fill"></div>
-            </div>
+        <div id="vol-wrap">
+          <div id="vol-bar" onclick="setVolume(event)">
+            <div id="vol-fill"></div>
           </div>
-
-          <span id="time-display">0:00 / 0:00</span>
-
-          <!-- → يمين: مساحة فارغة + pip + fullscreen -->
-          <div class="ctrl-spacer"></div>
-
-          <button class="ctrl-btn sz-sm" onclick="togglePiP()" title="نافذة داخل نافذة">
-            <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3C1.9 3 1 3.9 1 5v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V5h18v14.02z"/></svg>
-          </button>
-
-          <button class="ctrl-btn sz-sm" onclick="toggleFullscreen()" title="ملء الشاشة">
-            <svg id="icon-fs"     viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            <svg id="icon-fs-exit" viewBox="0 0 24 24" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
-          </button>
-
         </div>
+
+        <button class="ctrl-btn sz-sm" onclick="toggleFullscreen()" title="ملء الشاشة">
+          <svg id="icon-fs"      viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          <svg id="icon-fs-exit" viewBox="0 0 24 24" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+        </button>
+
       </div>
 
       <div class="player-loading" id="player-loading">
@@ -799,15 +793,23 @@ async function playUrl(url, label, isEmbed = false) {
 let controlsTimer = null;
 
 function showControls() {
-  const ctrl = document.getElementById('video-controls');
-  if (!ctrl) return;
-  ctrl.classList.add('visible');
+  const wrapper = document.getElementById('player-wrapper');
+  if (!wrapper) return;
+  wrapper.classList.add('show-controls');
   clearTimeout(controlsTimer);
-  controlsTimer = setTimeout(() => ctrl.classList.remove('visible'), 3500);
+  controlsTimer = setTimeout(() => wrapper.classList.remove('show-controls'), 3000);
 }
 
 function initVideoControls(video) {
   const wrapper = document.getElementById('player-wrapper');
+  // إظهار وإخفاء تلقائي
+  wrapper.addEventListener('mousemove',  showControls);
+  wrapper.addEventListener('touchstart', showControls, { passive: true });
+  wrapper.addEventListener('mouseleave', () => {
+    clearTimeout(controlsTimer);
+    controlsTimer = setTimeout(() => wrapper.classList.remove('show-controls'), 500);
+  });
+  showControls();
 
   // تحديث شريط التقدم والوقت
   video.ontimeupdate = () => {
