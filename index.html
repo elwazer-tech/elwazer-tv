@@ -103,91 +103,82 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 #custom-player-container{width:100%;height:100%;background:#000;display:none;position:absolute;inset:0;}
 #custom-player-container iframe,#custom-player-container embed{width:100%!important;height:100%!important;border:none!important;}
 
-/* ══════════════════════════════════
-   PLAYER — Plyr-style dark controls
-   ══════════════════════════════════ */
+/* ══ PLAYER CONTROLS ══ */
 #video-click-zone{
   position:absolute;inset:0;z-index:10;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
 #center-icon{
   width:64px;height:64px;border-radius:50%;
-  background:rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.8);
+  background:rgba(0,0,0,0.55);border:2px solid rgba(255,255,255,.85);
   display:flex;align-items:center;justify-content:center;
   opacity:0;transition:opacity .2s;pointer-events:none;
 }
-#center-icon svg{width:28px;height:28px;fill:#fff;margin-right:-3px;}
+#center-icon svg{width:26px;height:26px;fill:#fff;}
 #center-icon.show{opacity:1;}
 
 #video-controls{
   position:absolute;bottom:0;left:0;right:0;
   background:linear-gradient(transparent,rgba(0,0,0,.75));
   padding:28px 12px 8px;
-  display:flex;flex-direction:column;gap:4px;
-  z-index:20;opacity:0;transition:opacity .25s;
-  pointer-events:none;
+  display:flex;flex-direction:column;gap:5px;
+  z-index:20;opacity:0;transition:opacity .25s;pointer-events:none;
 }
 .player-wrapper:hover #video-controls,
-.player-wrapper.show-controls #video-controls{
-  opacity:1;pointer-events:all;
-}
+.player-wrapper.show-controls #video-controls{opacity:1;pointer-events:all;}
 
 /* شريط التقدم */
 #progress-bar{
-  width:100%;height:4px;
-  background:rgba(255,255,255,0.25);
-  border-radius:2px;cursor:pointer;
-  position:relative;margin-bottom:2px;
-  transition:height .15s;
+  width:100%;height:4px;background:rgba(255,255,255,.25);
+  border-radius:2px;cursor:pointer;position:relative;margin-bottom:2px;
+  transition:height .12s;
 }
-#progress-bar:hover{height:5px;}
+#progress-bar:hover{height:6px;}
 #progress-fill{
   height:100%;background:#fff;border-radius:2px;
   width:0%;pointer-events:none;position:relative;
 }
 #progress-fill::after{
-  content:'';position:absolute;right:-5px;top:50%;
+  content:'';position:absolute;right:-6px;top:50%;
   transform:translateY(-50%) scale(0);
-  width:12px;height:12px;border-radius:50%;background:#fff;
-  transition:transform .15s;box-shadow:0 0 4px rgba(0,0,0,.5);
+  width:13px;height:13px;border-radius:50%;background:#fff;
+  transition:transform .12s;
 }
 #progress-bar:hover #progress-fill::after{transform:translateY(-50%) scale(1);}
 
-/* صف التحكم */
+/* صف الأزرار — مهم: direction ltr عشان الترتيب صح في صفحة RTL */
 .ctrl-row{
   display:flex;align-items:center;gap:2px;
-  height:36px;
+  direction:ltr !important;
+  unicode-bidi:bidi-override;
 }
 .ctrl-btn{
   background:none;border:none;color:rgba(255,255,255,.9);
   cursor:pointer;padding:6px;border-radius:4px;
   display:flex;align-items:center;justify-content:center;
-  transition:color .12s,background .12s;flex-shrink:0;
+  transition:all .12s;flex-shrink:0;
+  direction:ltr;
 }
-.ctrl-btn:hover{color:#fff;background:rgba(255,255,255,.1);}
-.ctrl-btn svg{display:block;fill:currentColor;}
-.ctrl-btn.sz-lg svg{width:22px;height:22px;}
-.ctrl-btn.sz-md svg{width:18px;height:18px;}
-.ctrl-btn.sz-sm svg{width:16px;height:16px;}
-
-/* الوقت */
-#time-display{
-  font-size:13px;font-weight:500;letter-spacing:.2px;
-  color:rgba(255,255,255,.9);
-  font-family:'Courier New',monospace;
-  white-space:nowrap;padding:0 6px;user-select:none;
-}
-
+.ctrl-btn:hover{color:#fff;background:rgba(255,255,255,.12);}
+.ctrl-btn svg{display:block;fill:currentColor;pointer-events:none;}
+.sz-lg svg{width:24px;height:24px;}
+.sz-md svg{width:20px;height:20px;}
+.sz-sm svg{width:17px;height:17px;}
 .ctrl-spacer{flex:1;}
-
-/* الصوت */
-#vol-wrap{display:flex;align-items:center;gap:6px;}
-#vol-bar{
-  width:72px;height:4px;border-radius:2px;
-  background:rgba(255,255,255,.25);cursor:pointer;
-  position:relative;overflow:visible;transition:height .15s;
+#time-display{
+  font-size:13px;font-weight:500;
+  color:rgba(255,255,255,.9);
+  font-family:monospace;white-space:nowrap;
+  padding:0 6px;letter-spacing:.2px;
+  direction:ltr;
 }
-#vol-bar:hover{height:5px;}
+#vol-wrap{display:flex;align-items:center;gap:5px;direction:ltr;}
+#vol-bar{
+  width:68px;height:4px;background:rgba(255,255,255,.25);
+  border-radius:2px;cursor:pointer;position:relative;
+  transition:height .12s;
+}
+#vol-bar:hover{height:6px;}
 #vol-fill{
   height:100%;background:#fff;border-radius:2px;
   pointer-events:none;width:100%;position:relative;
@@ -196,12 +187,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   content:'';position:absolute;right:-5px;top:50%;
   transform:translateY(-50%) scale(0);
   width:11px;height:11px;border-radius:50%;background:#fff;
-  transition:transform .15s;
+  transition:transform .12s;
 }
 #vol-bar:hover #vol-fill::after{transform:translateY(-50%) scale(1);}
-
-/* أيقونة ⚙️ Settings (placeholder) */
-.ctrl-divider{width:1px;height:18px;background:rgba(255,255,255,.15);margin:0 4px;flex-shrink:0;}
 
 .live-indicator{
   font-size:11px;font-weight:700;letter-spacing:.5px;
@@ -324,15 +312,14 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
       <div id="custom-player-container"></div>
       <img src="logo.png" class="custom-video-logo" id="custom-logo" alt="Logo">
 
-      <!-- click zone للـ play/pause -->
+      <!-- click zone -->
       <div id="video-click-zone" onclick="togglePlay()">
         <div id="center-icon">
-          <svg id="ci-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="ci-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
           <svg id="ci-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
         </div>
       </div>
 
-      <!-- CONTROLS -->
       <div id="video-controls">
 
         <!-- شريط التقدم -->
@@ -340,80 +327,48 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
           <div id="progress-fill"></div>
         </div>
 
-        <!-- صف الأزرار -->
+        <!-- أزرار التحكم — اتجاه LTR صريح -->
         <div class="ctrl-row">
 
-          <!-- ⏪ rewind 10s -->
+          <!-- ← يسار: rewind / play / forward / مكتوم / صوت / وقت -->
           <button class="ctrl-btn sz-md" onclick="seekRel(-10)" title="10 ثواني للخلف">
-            <svg viewBox="0 0 24 24"><path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/><text x="12" y="14.5" text-anchor="middle" font-size="5" fill="currentColor" font-family="sans-serif">10</text></svg>
+            <svg viewBox="0 0 24 24"><path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
           </button>
 
-          <!-- play/pause -->
           <button class="ctrl-btn sz-lg" onclick="togglePlay()" title="تشغيل/إيقاف">
-            <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="icon-play"  viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
           </button>
 
-          <!-- ⏩ forward 10s -->
           <button class="ctrl-btn sz-md" onclick="seekRel(10)" title="10 ثواني للأمام">
-            <svg viewBox="0 0 24 24"><path d="M12.01 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6H20c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/><text x="12" y="14.5" text-anchor="middle" font-size="5" fill="currentColor" font-family="sans-serif">10</text></svg>
+            <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
           </button>
 
-          <!-- صوت -->
           <button class="ctrl-btn sz-md" onclick="toggleMute()" title="صوت">
-            <svg id="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-            <svg id="icon-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 19l2 2L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+            <svg id="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0014 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+            <svg id="icon-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0014 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 19l2 2L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
           </button>
+
           <div id="vol-wrap">
-            <div id="vol-bar" onclick="setVolume(event)"><div id="vol-fill"></div></div>
+            <div id="vol-bar" onclick="setVolume(event)">
+              <div id="vol-fill"></div>
+            </div>
           </div>
 
-          <!-- الوقت -->
-          <span id="time-display">0:00 / --:--</span>
+          <span id="time-display">0:00 / 0:00</span>
 
+          <!-- → يمين: مساحة فارغة + pip + fullscreen -->
           <div class="ctrl-spacer"></div>
 
-          <!-- الجودة / إعدادات placeholder -->
-          <button class="ctrl-btn sz-sm" title="إعدادات">
-            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-          </button>
-
-          <!-- picture-in-picture -->
           <button class="ctrl-btn sz-sm" onclick="togglePiP()" title="نافذة داخل نافذة">
-            <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V4.98C23 3.88 22.1 3 21 3H3C1.88 3 1 3.88 1 4.98V19c0 1.1.88 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V5h18v14.02z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M19 11h-8v6h8v-6zm4 8V5c0-1.1-.9-2-2-2H3C1.9 3 1 3.9 1 5v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2zm-2 .02H3V5h18v14.02z"/></svg>
           </button>
 
-          <!-- fullscreen -->
           <button class="ctrl-btn sz-sm" onclick="toggleFullscreen()" title="ملء الشاشة">
-            <svg id="icon-fs" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            <svg id="icon-fs"     viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
             <svg id="icon-fs-exit" viewBox="0 0 24 24" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
           </button>
 
-        </div>
-      </div>
-
-      <div id="video-controls">
-        <div id="progress-bar" onclick="seekVideo(event)">
-          <div id="progress-fill"></div>
-        </div>
-        <div class="ctrl-row">
-          <button class="ctrl-btn big" onclick="togglePlay()" title="تشغيل/إيقاف">
-            <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-          </button>
-          <button class="ctrl-btn" onclick="toggleMute()" title="صوت">
-            <svg id="icon-vol" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-            <svg id="icon-mute" viewBox="0 0 24 24" style="display:none"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0 0 17.73 19l2 2L21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-          </button>
-          <div id="vol-wrap">
-            <div id="vol-bar" onclick="setVolume(event)"><div id="vol-fill"></div></div>
-          </div>
-          <span id="time-display">0:00:00 / --:--:--</span>
-          <div class="ctrl-spacer"></div>
-          <button class="ctrl-btn" onclick="toggleFullscreen()" title="ملء الشاشة">
-            <svg id="icon-fs" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            <svg id="icon-fs-exit" viewBox="0 0 24 24" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
-          </button>
         </div>
       </div>
 
@@ -1108,9 +1063,23 @@ function openVLC() {
 
 function toggleFullscreen() {
   const w = document.getElementById('player-wrapper');
-  if (!document.fullscreenElement) w.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
+  if (!document.fullscreenElement) {
+    w.requestFullscreen().catch(()=>{});
+    document.getElementById('icon-fs').style.display      = 'none';
+    document.getElementById('icon-fs-exit').style.display = '';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('icon-fs').style.display      = '';
+    document.getElementById('icon-fs-exit').style.display = 'none';
+  }
 }
+document.addEventListener('fullscreenchange', () => {
+  const isFs = !!document.fullscreenElement;
+  const fs    = document.getElementById('icon-fs');
+  const fsExit = document.getElementById('icon-fs-exit');
+  if (fs)     fs.style.display      = isFs ? 'none' : '';
+  if (fsExit) fsExit.style.display  = isFs ? '' : 'none';
+});
 
 // ══════════════════════════════════════════════════════
 //  TOAST
