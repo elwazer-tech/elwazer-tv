@@ -803,7 +803,7 @@ function buildServerStrip(servers, activeUrl, title) {
     strip.innerHTML = '';
     return;
   }
-  strip.innerHTML = '<span class="strip-label">سيرفر:</span>' +
+  strip.innerHTML = '<span class="strip-label"></span>' +
     servers.map((srv, i) => {
       const isActive = srv.url === activeUrl;
       return `<button class="strip-ch ${isActive ? 'active' : ''}"
