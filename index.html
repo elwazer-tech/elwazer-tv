@@ -121,20 +121,29 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   direction:ltr;
 }
 .player-wrapper:hover #video-controls,
-.player-wrapper.show-controls #video-controls{
+.player-wrapper.show-controls #video-controls,
+.player-wrapper:fullscreen.show-controls #video-controls,
+.player-wrapper:-webkit-full-screen.show-controls #video-controls{
   opacity:1;pointer-events:all;
+}
+/* fullscreen — controls تختفي بعد 3 ثواني */
+.player-wrapper:fullscreen #video-controls,
+.player-wrapper:-webkit-full-screen #video-controls{
+  opacity:0;pointer-events:none;
 }
 
 /* شريط التقدم فوق شريط التحكم */
 #progress-bar{
   position:absolute;bottom:44px;left:0;right:0;
   height:3px;background:rgba(255,255,255,.2);
-  cursor:pointer;transition:height .15s;
-  z-index:21;opacity:0;transition:opacity 0.3s ease, height 0.15s;
+  cursor:pointer;
+  z-index:21;opacity:0;
+  transition:opacity 0.3s ease, height 0.15s;
   pointer-events:none;
 }
-.player-wrapper:hover #progress-bar,
-.player-wrapper.show-controls #progress-bar{
+/* يظهر فقط لو مش live */
+.player-wrapper:not(.is-live):hover #progress-bar,
+.player-wrapper:not(.is-live).show-controls #progress-bar{
   opacity:1;pointer-events:all;
 }
 #progress-bar:hover{height:5px;bottom:42px;}
@@ -208,7 +217,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 }
 
 .custom-video-logo{position:absolute !important;top:-3.5% !important;right:2.1% !important;z-index:999999 !important;width:16% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
-#player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:16% !important;}
+#player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:18% !important;}
 
 
 
@@ -697,6 +706,8 @@ function openStream(encodedUrl, encodedTitle) {
   document.getElementById('player-sub').textContent   = 'بث مباشر';
   document.getElementById('channel-strip').innerHTML  = '';
   document.getElementById('player-live-indicator').style.display = 'flex';
+  // اضف is-live عشان يخفي شريط التقدم
+  document.getElementById('player-wrapper').classList.add('is-live');
   showPage('player');
   playUrl(url, title);
 }
@@ -734,6 +745,8 @@ function playMovie(i) {
   document.getElementById('player-sub').textContent   = (m.quality||'') + ' · ' + (m.genre||'');
   document.getElementById('channel-strip').innerHTML  = '';
   document.getElementById('player-live-indicator').style.display = 'none';
+  // شيل is-live عشان يظهر شريط التقدم في الأفلام
+  document.getElementById('player-wrapper').classList.remove('is-live');
   showPage('player');
   playUrl(m.url, m.title, m.isEmbed || false);
 }
@@ -802,13 +815,27 @@ function showControls() {
 
 function initVideoControls(video) {
   const wrapper = document.getElementById('player-wrapper');
-  // إظهار وإخفاء تلقائي
-  wrapper.addEventListener('mousemove',  showControls);
-  wrapper.addEventListener('touchstart', showControls, { passive: true });
-  wrapper.addEventListener('mouseleave', () => {
+
+  // تسجيل الأحداث على wrapper وعلى document (عشان fullscreen)
+  const onMove = () => showControls();
+  const onLeave = () => {
     clearTimeout(controlsTimer);
     controlsTimer = setTimeout(() => wrapper.classList.remove('show-controls'), 500);
+  };
+
+  wrapper.addEventListener('mousemove',  onMove);
+  wrapper.addEventListener('touchstart', onMove, { passive: true });
+  wrapper.addEventListener('mouseleave', onLeave);
+
+  // في fullscreen — استخدم document عشان يلتقط حركة الماوس
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement === wrapper) {
+      document.addEventListener('mousemove', onMove);
+    } else {
+      document.removeEventListener('mousemove', onMove);
+    }
   });
+
   showControls();
 
   // تحديث شريط التقدم والوقت
