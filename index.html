@@ -241,31 +241,35 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 
 
 .channel-strip{
-  background:#0d0d0d;
-  border-bottom:1px solid #222;
+  background:#111 !important;
+  border-bottom:1px solid #2a2a2a;
   padding:7px 14px;
   display:flex;gap:6px;
   flex-wrap:wrap;
   flex-shrink:0;
   align-items:center;
   justify-content:flex-end;
-  min-height:38px;
+  min-height:40px;
+  position:relative;
+  z-index:100 !important; /* فوق كل حاجة */
+  opacity:1 !important;   /* مش بيتأثر بأي opacity جوا المشغل */
 }
 .channel-strip:empty{display:none;}
 .channel-strip::-webkit-scrollbar{display:none;}
 .strip-ch{
-  flex-shrink:0;padding:5px 16px;border-radius:16px;
-  background:#1e1e1e;
-  border:1px solid #333;
-  color:#bbb;
-  font-size:13px;font-weight:600;
+  flex-shrink:0;padding:5px 18px;border-radius:16px;
+  background:#2a2a2a !important;
+  border:1px solid #444 !important;
+  color:#ddd !important;
+  font-size:13px;font-weight:700;
   cursor:pointer;font-family:'Tajawal',sans-serif;
   transition:all .15s;white-space:nowrap;
+  opacity:1 !important;
 }
-.strip-ch:hover{background:#2a2a2a;color:#fff;border-color:#444;}
+.strip-ch:hover{background:#3a3a3a !important;color:#fff !important;border-color:#666 !important;}
 .strip-ch.active{
-  background:var(--red);border-color:var(--red);
-  color:#fff;box-shadow:0 0 10px var(--red-glow);
+  background:var(--red) !important;border-color:var(--red) !important;
+  color:#fff !important;box-shadow:0 0 12px var(--red-glow);
 }
 
 #app-loading{position:fixed;inset:0;background:var(--void);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:999;}
