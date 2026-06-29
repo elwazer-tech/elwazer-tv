@@ -224,7 +224,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   animation:blink 1.2s infinite;margin-left:4px;
 }
 
-.custom-video-logo{position:absolute !important;top:-1% !important;right:2.1% !important;z-index:999999 !important;width:18% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
+.custom-video-logo{position:absolute !important;top:-3.5% !important;right:2.1% !important;z-index:999999 !important;width:16% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
 #player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:18% !important;}
 
 
@@ -233,7 +233,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .spinner-big{width:48px;height:48px;border:3px solid var(--border2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .player-loading p{color:#666;font-size:14px;}
-.player-error-box{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#000;z-index:10;}
+.player-error-box{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(0,0,0,0.92);z-index:8;}
 .player-error-box .err-icon{font-size:48px;}
 .player-error-box p{color:#888;font-size:14px;text-align:center;}
 .btn-vlc{background:#f60;border:none;color:#fff;border-radius:8px;padding:9px 20px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
@@ -241,28 +241,28 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 
 
 .channel-strip{
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(8px);
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  padding:6px 14px;
+  background:#0d0d0d;
+  border-bottom:1px solid #222;
+  padding:7px 14px;
   display:flex;gap:6px;
-  flex-wrap:wrap; /* بدل الـ scroll — بيلف لسطر جديد لو احتاج */
+  flex-wrap:wrap;
   flex-shrink:0;
   align-items:center;
-  justify-content:flex-end; /* من اليمين */
+  justify-content:flex-end;
+  min-height:38px;
 }
 .channel-strip:empty{display:none;}
 .channel-strip::-webkit-scrollbar{display:none;}
 .strip-ch{
-  flex-shrink:0;padding:4px 14px;border-radius:16px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.12);
-  color:rgba(255,255,255,0.6);
-  font-size:12px;font-weight:600;
+  flex-shrink:0;padding:5px 16px;border-radius:16px;
+  background:#1e1e1e;
+  border:1px solid #333;
+  color:#bbb;
+  font-size:13px;font-weight:600;
   cursor:pointer;font-family:'Tajawal',sans-serif;
   transition:all .15s;white-space:nowrap;
 }
-.strip-ch:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.strip-ch:hover{background:#2a2a2a;color:#fff;border-color:#444;}
 .strip-ch.active{
   background:var(--red);border-color:var(--red);
   color:#fff;box-shadow:0 0 10px var(--red-glow);
@@ -382,7 +382,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
     </div>
     <div class="nav-live-dot" id="player-live-indicator"><div class="live-dot"></div>LIVE</div>
   </div>
-  <!-- شريط السيرفرات فوق البث -->
+  <!-- شريط السيرفرات — فوق البث دايماً -->
   <div class="channel-strip" id="channel-strip"></div>
 
   <div class="player-wrapper-outer">
