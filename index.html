@@ -97,7 +97,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .nav-live-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--red);font-weight:600;}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:blink 1.2s infinite;}
 
-.player-wrapper-outer{flex:1;min-height:0;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.player-wrapper-outer{flex:1;min-height:0;background:#000;display:flex;align-items:stretch;justify-content:center;overflow:hidden;}
+.player-wrapper{width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:unset;border-radius:0;box-shadow:none;}
 .player-wrapper{position:relative;width:100%;height:100%;max-width:100%;max-height:calc(100vh - 116px);aspect-ratio:16/9;background:#000;}
 #main-video{width:100%;height:100%;background:#000;display:block;object-fit:fill;}
 /* إخفاء controls الافتراضي وإظهار controls المخصص */
@@ -223,7 +224,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   animation:blink 1.2s infinite;margin-left:4px;
 }
 
-.custom-video-logo{position:absolute !important;top:-3.5% !important;right:2.1% !important;z-index:999999 !important;width:16% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
+.custom-video-logo{position:absolute !important;top:-1% !important;right:2.1% !important;z-index:999999 !important;width:18% !important;aspect-ratio:1.45/1 !important;object-fit:contain !important;pointer-events:none !important;background:transparent !important;}
 #player-wrapper:fullscreen .custom-video-logo,#player-wrapper:-webkit-full-screen .custom-video-logo{right:2.1% !important;top:-1% !important;width:18% !important;}
 
 
@@ -239,12 +240,33 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 
 
 
-.channel-strip{background:#0a0a0f;border-top:1px solid #1a1a1a;padding:8px 14px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0;align-items:center;min-height:0;}
-.channel-strip:empty{display:none;} /* اختفاء تلقائي لو فارغ */
+.channel-strip{
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:6px 14px;
+  display:flex;gap:6px;
+  flex-wrap:wrap; /* بدل الـ scroll — بيلف لسطر جديد لو احتاج */
+  flex-shrink:0;
+  align-items:center;
+  justify-content:flex-end; /* من اليمين */
+}
+.channel-strip:empty{display:none;}
 .channel-strip::-webkit-scrollbar{display:none;}
-.strip-ch{flex-shrink:0;padding:6px 16px;border-radius:20px;background:#111;border:1px solid #222;color:#888;font-size:13px;font-weight:600;cursor:pointer;font-family:'Tajawal',sans-serif;transition:all .15s;white-space:nowrap;}
-.strip-ch:hover{border-color:#444;color:#ccc;}
-.strip-ch.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 12px var(--red-glow);}
+.strip-ch{
+  flex-shrink:0;padding:4px 14px;border-radius:16px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.6);
+  font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'Tajawal',sans-serif;
+  transition:all .15s;white-space:nowrap;
+}
+.strip-ch:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.strip-ch.active{
+  background:var(--red);border-color:var(--red);
+  color:#fff;box-shadow:0 0 10px var(--red-glow);
+}
 
 #app-loading{position:fixed;inset:0;background:var(--void);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:999;}
 .app-brand{font-size:28px;font-weight:800;}
@@ -360,6 +382,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
     </div>
     <div class="nav-live-dot" id="player-live-indicator"><div class="live-dot"></div>LIVE</div>
   </div>
+  <!-- شريط السيرفرات فوق البث -->
+  <div class="channel-strip" id="channel-strip"></div>
+
   <div class="player-wrapper-outer">
     <div class="player-wrapper" id="player-wrapper">
       <video id="main-video" playsinline></video>
@@ -446,7 +471,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
       </div>
     </div>
   </div>
-  <div class="channel-strip" id="channel-strip"></div>
 </div>
 
 <script>
