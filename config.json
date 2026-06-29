@@ -3,7 +3,7 @@
   "اليابان vs البرازيل": {
     "servers": [
       { "name": "Server 1", "url": "https://ss4.oz-tv.store/s1b/b_max_1_HD/tracks-v1a1/mono.m3u8?token=ZTkxMjc3ZjE2ZjQ0YjI4YjliMDVhMDQ5MmE2ZmZjYzQ4YzlmNGM2ZmU2OTc5ZDQ5YzI5Y2ZjOWE3Mzk3ODU1ZS1hNzJjMTk2YzJiZDg1NTA5LTE3ODI2MjA3OTE%3D" },
-      { "name": "Server 2", "url": "https://shoftv.net:80/live/277468210/118457482/321901.m3u8" }
+      { "name": "Server 2", "url": "http://shoftv.net:80/live/277468210/118457482/321901.m3u8" }
     ]
   },
    "العراق vs السنبغال": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8"
@@ -14,7 +14,7 @@
       "year": "2026",
       "quality": "HD",
       "emoji": "https://static.faselhdcdn.com/wp-content/uploads/2026/06/4a9cffe9f4615257bab2a455ef46a8c0-400x600.jpg",
-      "url": "https://shoftv.net:80/movie/277468210/118457482/4414.mkv",
+      "url": "http://shoftv.net:80/movie/277468210/118457482/4414.mkv",
       "isEmbed": false,
       "genre": "رعب"
     },
@@ -32,7 +32,7 @@
       "year": "2026",
       "quality": "تصوير سينما",
       "emoji": "https://media0103.elcinema.com/uploads/_315x420_cb2afb51a2df394d5b604818b92d024840b360f88d6c144cafa0911e051f7582.jpg",
-      "url": "https://shoftv.net:80/live/277468210/118457482/17516.m3u8",
+      "url": "http://shoftv.net:80/live/277468210/118457482/17516.m3u8",
       "isEmbed": false,
       "genre": "كوميدي"
     },
