@@ -246,7 +246,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   flex-wrap:wrap;
   flex-shrink:0;
   align-items:center;
-  /* التعديل: نقل السيرفرات لليمين بمحاذاة RTL */
+  /* التعديل: نقل السيرفرات لليمين بمحاذاة الـ RTL لتناسب الاتجاه العربي */
   justify-content:flex-start;
   min-height:40px;
   position:relative;
@@ -1294,7 +1294,7 @@ function setupHls(url, video, loading) {
       try {
         const origin = new URL(context.url).origin;
         initParams.headers = { ...initParams.headers, 'Referer': origin + '/', 'Origin': origin };
-      } catch(e) {}
+      } catch(e) { {}
       return new Request(context.url, initParams);
     }
   });
