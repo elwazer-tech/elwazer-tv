@@ -1,32 +1,47 @@
+// دالة فك التشفير العكسي
+function decodeURL(str) {
+  try {
+    if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('<')) {
+      return str;
+    }
+    const reversed = str.split('').reverse().join('');
+    return Buffer.from(reversed, 'base64').toString('utf-8');
+  } catch(e) {
+    return str;
+  }
+}
+
+// دالة التشفير العكسي لقطع الـ TS
+function encodeURL(str) {
+  try {
+    const b64 = Buffer.from(str, 'utf-8').toString('base64');
+    return b64.split('').reverse().join('');
+  } catch(e) {
+    return str;
+  }
+}
+
 export default async function handler(req, res) {
-  const { url } = req.query;
+  let { url } = req.query;
 
   if (!url) {
     return res.status(400).send('Missing target url');
   }
 
-  // ── قفل النطاق (Domain Lock) ──
-  // نسمح فقط بطلبات البث القادمة من موقعك على فيرسل أو بلوجر
-  const referer = req.headers['referer'] || '';
-  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
-  
-  const isAllowed = allowedDomains.some(domain => referer.includes(domain));
-  
-  if (!isAllowed && process.env.NODE_ENV === 'production') {
-    return res.status(403).send('Forbidden: Direct access is not allowed.');
-  }
+  // فك التشفير فوراً عند استقبال الطلب
+  const decryptedUrl = decodeURL(url);
 
-  const isM3u8 = url.endsWith('.m3u8');
-  const isTs = url.endsWith('.ts');
-  const isHtml = url.includes('/matches-'); 
+  const isM3u8 = decryptedUrl.endsWith('.m3u8');
+  const isTs = decryptedUrl.endsWith('.ts');
+  const isHtml = decryptedUrl.includes('/matches-'); 
 
   if (!isM3u8 && !isTs && !isHtml) {
-    res.writeHead(302, { Location: url });
+    res.writeHead(302, { Location: decryptedUrl });
     return res.end();
   }
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(decryptedUrl, {
       headers: {
         'User-Agent': 'VLC/3.0.18 LibVLC/3.0.18',
         'Accept': '*/*'
@@ -46,7 +61,7 @@ export default async function handler(req, res) {
     if (isM3u8) {
       let text = await response.text();
       
-      const finalUrl = response.url || url;
+      const finalUrl = response.url || decryptedUrl;
       const targetBase = finalUrl.substring(0, finalUrl.lastIndexOf('/') + 1);
       const protocol = req.headers['x-forwarded-proto'] || 'https';
       const host = req.headers['host'];
@@ -63,7 +78,9 @@ export default async function handler(req, res) {
           absoluteUrl = new URL(line, targetBase).href;
         }
         
-        return `${proxyUrl}?url=${encodeURIComponent(absoluteUrl)}`;
+        // تشفير روابط قطع الـ TS الداخلية لتبدو مشفرة تماماً في شاشة الـ Network
+        const encryptedTs = encodeURL(absoluteUrl);
+        return `${proxyUrl}?url=${encodeURIComponent(encryptedTs)}`;
       });
 
       res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
