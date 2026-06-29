@@ -5,6 +5,16 @@ export default async function handler(req, res) {
     return res.status(400).send('Missing target url');
   }
 
+  const isM3u8 = url.endsWith('.m3u8');
+  const isTs = url.endsWith('.ts');
+
+  // إذا لم يكن الطلب يخص بث المباريات (أي كان فيلماً كبيراً مثل mkv أو mp4)
+  // نقوم بعمل تحويل مباشر للمتصفح لتفادي انهيار فيرسل وحد الـ 4.5MB
+  if (!isM3u8 && !isTs) {
+    res.writeHead(302, { Location: url });
+    return res.end();
+  }
+
   try {
     const response = await fetch(url, {
       headers: {
@@ -17,7 +27,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
 
-    if (contentType.includes('mpegurl') || contentType.includes('mpegURL') || url.endsWith('.m3u8')) {
+    if (isM3u8) {
       let text = await response.text();
       
       const finalUrl = response.url || url;
@@ -44,7 +54,7 @@ export default async function handler(req, res) {
       return res.status(200).send(lines.join('\n'));
     }
 
-    // لقطع بث الـ TS الثنائية
+    // لقطع بث الـ TS الصغيرة الخاصة بالمباريات
     const buffer = await response.arrayBuffer();
     res.setHeader('Content-Type', contentType || 'video/mp2t');
     res.setHeader('Cache-Control', 'public, max-age=86400');
