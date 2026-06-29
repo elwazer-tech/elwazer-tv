@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>مشفّر الروابط - Elwazer TV</title>
+  <style>
+    body { font-family: sans-serif; background: #0e1014; color: #dde3f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .card { background: #13161c; border: 1px solid #1e2330; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px; text-align: center; }
+    input { width: 100%; padding: 10px; background: #191d26; border: 1px solid #2a3048; color: #fff; border-radius: 6px; margin-bottom: 20px; font-size: 14px; box-sizing: border-box; }
+    button { background: #e63946; color: #fff; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+    button:hover { background: #ff4757; }
+    textarea { width: 100%; height: 100px; background: #191d26; border: 1px solid #2a3048; color: #2ecc71; border-radius: 6px; margin-top: 20px; padding: 10px; font-family: monospace; resize: none; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>مشفّر الروابط التلقائي لكود config.json</h2>
+    <p style="color: #7a8499; margin-bottom: 20px; font-size: 13px;">ضع الرابط الأصلي بالأسفل لإنشاء الكود المشفر فوراً</p>
+    <input type="text" id="rawUrl" placeholder="أدخل الرابط هنا (مثل http://shoftv.net...)">
+    <button onclick="generate()">تشفير الرابط</button>
+    <textarea id="result" readonly="readonly" placeholder="سيظهر الكود المشفر هنا لتقوم بنسخه..."></textarea>
+  </div>
+  <script>
+    function generate() {
+      const url = document.getElementById('rawUrl').value.trim();
+      if(!url) return alert('الرجاء إدخال رابط أولاً');
+      const b64 = btoa(unescape(encodeURIComponent(url)));
+      const encrypted = b64.split('').reverse().join('');
+      document.getElementById('result').value = encrypted;
+    }
+  </script>
+</body>
+</html>
