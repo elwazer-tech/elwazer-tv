@@ -67,7 +67,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .vs-block{text-align:center;min-width:56px;}
 .vs-score{font-size:20px;font-weight:800;letter-spacing:1px;}
 .vs-dash{font-size:18px;color:var(--text3);font-weight:700;}
-.match-action{min-width:70px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
 .match-action{min-width:70px;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
 .btn-watch{background:var(--red);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Tajawal',sans-serif;transition:all .15s;box-shadow:0 4px 14px var(--red-glow);white-space:nowrap;}
 .btn-watch:hover{background:#ff4757;transform:scale(1.03);}
@@ -98,7 +97,6 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:blink 1.2s infinite;}
 
 .player-wrapper-outer{flex:1;min-height:0;background:#000;display:flex;align-items:stretch;justify-content:center;overflow:hidden;}
-.player-wrapper{width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:unset;border-radius:0;box-shadow:none;}
 .player-wrapper{position:relative;width:100%;height:100%;max-width:100%;max-height:calc(100vh - 116px);aspect-ratio:16/9;background:#000;}
 #main-video{width:100%;height:100%;background:#000;display:block;object-fit:fill;}
 /* إخفاء controls الافتراضي وإظهار controls المخصص */
@@ -144,7 +142,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   transition:opacity 0.3s ease, height 0.15s;
   pointer-events:none;
 }
-.player-wrapper:not(.is-live):hover #progress-bar,
+/* التعديل: إظهار شريط التقدم فقط عندما تظهر عناصر التحكم لتفادي بقائه ظاهراً في وضع ملء الشاشة */
 .player-wrapper:not(.is-live).show-controls #progress-bar{
   opacity:1;pointer-events:all;
 }
@@ -248,7 +246,8 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
   flex-wrap:wrap;
   flex-shrink:0;
   align-items:center;
-  justify-content:flex-end;
+  /* التعديل: نقل السيرفرات لليمين بمحاذاة RTL */
+  justify-content:flex-start;
   min-height:40px;
   position:relative;
   z-index:100 !important; /* فوق كل حاجة */
@@ -483,11 +482,12 @@ body{font-family:'Tajawal',sans-serif;background:var(--void);color:var(--text);m
 // ══════════════════════════════════════════════════════
 const STATIC_CONFIG = {
   timeOffset: 2,
-  proxy: 'https://corsproxy.io/?url=',
-  // proxies احتياطية لو corsproxy وقف
+  // التعديل: استخدام البروكسي الخاص بك على فيرسل لربط جدول المباريات وضمان سرعة فائقة جداً واستقرار تام دون تجميد
+  proxy: 'https://elwazer-tv.vercel.app/api/proxy?url=',
+  // proxies احتياطية لو فيرسل واجه أي مشكلة
   proxyFallbacks: [
-    'https://api.allorigins.win/raw?url=',
     'https://api.codetabs.com/v1/proxy?quest=',
+    'https://api.allorigins.win/raw?url=',
   ],
   sources: {
     today:     'https://www.ssirtv.com/matches-today/',
@@ -872,16 +872,8 @@ function openStream(encodedUrl, encodedTitle, encodedServers) {
   const servers = encodedServers ? JSON.parse(decodeURIComponent(encodedServers)) : [];
 
   document.getElementById('player-title').textContent = title;
-  document.getElementById('player-sub').textContent   = 'بث مباشر';
-  document.getElementById('player-live-indicator').style.display = 'flex';
-  document.getElementById('player-wrapper').classList.add('is-live');
-  // إخفاء عناصر الأفلام وإظهار عناصر البث
-  document.getElementById('live-badge').style.display       = 'flex';
-  document.getElementById('hd-badge').style.display         = '';
-  document.getElementById('current-time-box').style.display = 'none';
-  document.getElementById('total-time-box').style.display   = 'none';
-  document.getElementById('btn-rewind').style.display       = 'none';
-  document.getElementById('btn-forward').style.display      = 'none';
+  // التعديل: إخفاء كلمة "بث مباشر" تماماً من تحت أسماء الفريقين في واجهة المشغل بطلبك
+  document.getElementById('player-sub').textContent   = '';
 
   // إظهار LIVE badge وإخفاء الوقت
   const lb = document.getElementById('live-badge');
