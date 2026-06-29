@@ -515,6 +515,18 @@ let DYNAMIC = {
   movies: []
 };
 
+// دالة فك التشفير العكسي الذكي لفك تشفير روابط الـ JSON المخفية في الذاكرة العشوائية
+function decryptString(str) {
+  try {
+    if (!str) return '';
+    if (str.startsWith('http://') || str.startsWith('https://')) return str;
+    const reversed = str.split('').reverse().join('');
+    return decodeURIComponent(escape(atob(reversed)));
+  } catch(e) {
+    return str;
+  }
+}
+
 // جلب config.json مع cache-busting عشان يضمن أحدث نسخة دايماً
 async function fetchDynamicConfig() {
   try {
@@ -817,7 +829,7 @@ function renderMatches(matches) {
     const key2      = m.away + ' vs ' + m.home;
     const configVal = DYNAMIC.matchLinks[key1] || DYNAMIC.matchLinks[key2] || '';
 
-    // دعم الصيغتين: string مباشر أو object بـ servers array
+    // دعم الصيغتين وتفكيك التشفير داخلياً
     let servers = [];
     if (configVal) {
       if (typeof configVal === 'string') {
@@ -912,7 +924,7 @@ function buildServerStrip(servers, activeUrl, title) {
 }
 
 function switchServer(encodedUrl, encodedTitle, encodedServers, btn) {
-  const url     = decodeURIComponent(encodedUrl);
+  const url     = decryptString(decodeURIComponent(encodedUrl));
   const title   = decodeURIComponent(encodedTitle);
   const servers = JSON.parse(decodeURIComponent(encodedServers));
 
@@ -951,6 +963,8 @@ function buildMovies() {
 function playMovie(i) {
   const m = DYNAMIC.movies[i];
   if (!m || !m.url) { toast('⚠️ ضع رابط الفيلم في config.json'); return; }
+  // فك التشفير التلقائي لرابط الفيلم
+  const decryptedMovieUrl = decryptString(m.url);
   document.getElementById('player-title').textContent = m.title;
   document.getElementById('player-sub').textContent   = (m.quality||'') + ' · ' + (m.genre||'');
   document.getElementById('channel-strip').innerHTML  = '';
@@ -964,14 +978,15 @@ function playMovie(i) {
   document.getElementById('btn-rewind').style.display   = '';
   document.getElementById('btn-forward').style.display  = '';
   showPage('player');
-  playUrl(m.url, m.title, m.isEmbed || false);
+  playUrl(decryptedMovieUrl, m.title, m.isEmbed || false);
 }
 
 // ══════════════════════════════════════════════════════
 //  PLAYER ENGINE
 // ══════════════════════════════════════════════════════
 async function playUrl(url, label, isEmbed = false) {
-  currentStreamUrl = url;
+  const decryptedUrl = decryptString(url);
+  currentStreamUrl = decryptedUrl;
   retryCount = 0; // reset عداد الـ retry لكل رابط جديد
   clearTimeout(retryTimer);
   const video   = document.getElementById('main-video');
@@ -990,28 +1005,28 @@ async function playUrl(url, label, isEmbed = false) {
   iframe.style.display = 'none';
   custom.style.display = 'none';
 
-  const trimmed = url.trim();
+  const trimmed = decryptedUrl.trim();
 
   if (trimmed.startsWith('<')) {
     custom.style.display = 'block'; custom.innerHTML = trimmed;
     loading.style.display = 'none'; return;
   }
 
-  const isDirectStream = url.includes('.m3u8') || url.includes('.mp4') || url.includes('/hls/');
+  const isDirectStream = decryptedUrl.includes('.m3u8') || decryptedUrl.includes('.mp4') || decryptedUrl.includes('/hls/');
   if (isEmbed || !isDirectStream) {
-    extractAndPlay(url, video, iframe, loading);
+    extractAndPlay(decryptedUrl, video, iframe, loading);
     return;
   }
 
   video.style.display = 'block';
   initVideoControls(video);
 
-  try { await loadHlsJS(); } catch(e) { loading.style.display='none'; showPlayerError('فشل تحميل hls.js'); return; }
+  try { await loadHlsJS(); } catch { loading.style.display='none'; showPlayerError('فشل تحميل hls.js'); return; }
 
   if (typeof Hls !== 'undefined' && Hls.isSupported()) {
-    setupHls(url, video, loading);
+    setupHls(decryptedUrl, video, loading);
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
+    video.src = decryptedUrl;
     video.play().then(() => { loading.style.display='none'; }).catch(() => showPlayerError());
   } else {
     loading.style.display='none'; showPlayerError('المتصفح لا يدعم هذا البث');
@@ -1369,8 +1384,10 @@ function closePlayer() {
 }
 
 function openVLC() {
-  if (currentStreamUrl && !currentStreamUrl.trim().startsWith('<'))
-    window.location.href = 'vlc://' + currentStreamUrl;
+  if (currentStreamUrl && !currentStreamUrl.trim().startsWith('<')) {
+    const decryptedUrl = decryptString(currentStreamUrl);
+    window.location.href = 'vlc://' + decryptedUrl;
+  }
 }
 
 function toggleFullscreen() {
@@ -1479,7 +1496,8 @@ async function loadMatchesSilent(dayKey) {
   }
 }
 </script>
-  <script>
+
+<script>
 // تعطيل النقر الأيمن على كامل الموقع لمنع فحص العناصر
 document.addEventListener('contextmenu', event => event.preventDefault());
 
