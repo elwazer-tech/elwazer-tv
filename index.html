@@ -1294,7 +1294,7 @@ function setupHls(url, video, loading) {
       try {
         const origin = new URL(context.url).origin;
         initParams.headers = { ...initParams.headers, 'Referer': origin + '/', 'Origin': origin };
-      } catch(e) { {}
+      } catch(e) {}
       return new Request(context.url, initParams);
     }
   });
