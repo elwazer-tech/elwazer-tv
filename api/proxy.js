@@ -5,6 +5,17 @@ export default async function handler(req, res) {
     return res.status(400).send('Missing target url');
   }
 
+  // ── قفل النطاق (Domain Lock) ──
+  // نسمح فقط بطلبات البث القادمة من موقعك على فيرسل أو بلوجر
+  const referer = req.headers['referer'] || '';
+  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
+  
+  const isAllowed = allowedDomains.some(domain => referer.includes(domain));
+  
+  if (!isAllowed && process.env.NODE_ENV === 'production') {
+    return res.status(403).send('Forbidden: Direct access is not allowed.');
+  }
+
   const isM3u8 = url.endsWith('.m3u8');
   const isTs = url.endsWith('.ts');
   const isHtml = url.includes('/matches-'); 
