@@ -1,4 +1,4 @@
-// مفتاح التشفير السري الخاص بك (لا يظهر لأي زائر)
+// مفتاح التشفير السري الموحد
 const SECRET_KEY = 'elwazer_tv_secret_key'; 
 
 function xorEncryptDecrypt(str, key) {
@@ -33,7 +33,8 @@ function encodeURL(str) {
   }
 }
 
-export default async function handler(req, res) {
+// استخدام CommonJS لضمان قبول البناء على فيرسل 100% وبدون مشاكل
+module.exports = async (req, res) => {
   let { url } = req.query;
 
   if (!url) {
@@ -43,6 +44,7 @@ export default async function handler(req, res) {
   const decryptedUrl = decodeURL(url);
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
+  // نتحقق من الـ Referer لمنع تشغيل الروابط تماماً في VLC أو أي متصفح خارجي
   const referer = req.headers['referer'] || '';
   const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
   
@@ -118,4 +120,4 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).send('Proxy Error: ' + error.message);
   }
-}
+};
