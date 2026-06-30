@@ -1,21 +1,19 @@
-// دالة فك التشفير العكسي
+// دالة فك التشفير القياسي المتوافق 100%
 function decodeURL(str) {
   try {
     if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('<')) {
       return str;
     }
-    const reversed = str.split('').reverse().join('');
-    return Buffer.from(reversed, 'base64').toString('utf-8');
+    return Buffer.from(str, 'base64').toString('utf-8');
   } catch(e) {
     return str;
   }
 }
 
-// دالة التشفير العكسي لقطع الـ TS
+// دالة التشفير القياسي لقطع الـ TS
 function encodeURL(str) {
   try {
-    const b64 = Buffer.from(str, 'utf-8').toString('base64');
-    return b64.split('').reverse().join('');
+    return Buffer.from(str, 'utf-8').toString('base64');
   } catch(e) {
     return str;
   }
@@ -28,11 +26,9 @@ export default async function handler(req, res) {
     return res.status(400).send('Missing target url');
   }
 
-  // فك التشفير فوراً عند استقبال الطلب من الذاكرة
   const decryptedUrl = decodeURL(url);
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
-  // نتحقق من الـ Referer لمنع تشغيل الروابط تماماً في VLC أو أي متصفح خارجي
   const referer = req.headers['referer'] || '';
   const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
   
