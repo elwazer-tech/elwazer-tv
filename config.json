@@ -2,8 +2,8 @@
   "matchLinks": {
   "النرويج vs كوت ديفوار": {
     "servers": [
-      { "name": "Server 1", "url": "==ARzUSSE50MZpnTzkERPNTRUxEMFRUT4VEVPFzZUpVbKdVWwMGVNVDM5l1MFdlW1U1Vap3ZqlFaoRVT0UkMOxmRqlVNRJTTqxGVZVTQ61keNdkW1EleNhmSX9EeFdUT4VkMZdXQE9UMFpmTzk0VNhXWHpFaaRlTrJEVPRTVykVPuV2avR3P4U3Mt5ybu9WbvETYxYXLzt2YhJHdvQESfJzX4FWbfJ2LiFzcvUmcvR3cuYHdto3buQzcz9yL6MHc0RHa" },
-      { "name": "Server 2", "url": "=gTdz0mLxATOxIzMvIDO0cTN0gTMx8CMxIDO2QzN3IzLlZXas9CM4oDdl5mL2RnZvh2cv8iOwRHdo1DbyV3P5h3byB3LpBXYvAHch5CblNmclZnL2RXLyVmehdHbl9yL6MHc0RHa" }
+      { "name": "Server 1", "url": "=gTdz0mLxATOxIzMvIDO0cTN0gTMx8CMxIDO2QzN3IzLlZXas9CM4oDdl5mL2RnZvh2cv8iOwRHdo1DbyV3P5h3byB3LpBXYvAHch5CblNmclZnL2RXLyVmehdHbl9yL6MHc0RHa" },
+      { "name": "Server 2", "url": "" }
     ]
   },
    "العراق vs السنبغال": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8"
