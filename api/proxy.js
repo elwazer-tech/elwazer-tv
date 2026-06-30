@@ -31,10 +31,12 @@ export default async function handler(req, res) {
   // فك التشفير فوراً عند استقبال الطلب
   const decryptedUrl = decodeURL(url);
 
-  const isM3u8 = decryptedUrl.endsWith('.m3u8');
-  const isTs = decryptedUrl.endsWith('.ts');
+  // استخدام includes بدلاً من endsWith لضمان الكشف السليم حتى بوجود توكنات في الرابط
+  const isM3u8 = decryptedUrl.includes('.m3u8');
+  const isTs = decryptedUrl.includes('.ts');
   const isHtml = decryptedUrl.includes('/matches-'); 
 
+  // إذا لم يكن الطلب بث مباريات أو جدول، نقوم بالتحويل
   if (!isM3u8 && !isTs && !isHtml) {
     res.writeHead(302, { Location: decryptedUrl });
     return res.end();
@@ -78,7 +80,7 @@ export default async function handler(req, res) {
           absoluteUrl = new URL(line, targetBase).href;
         }
         
-        // تشفير روابط قطع الـ TS الداخلية لتبدو مشفرة تماماً في شاشة الـ Network
+        // تشفير قطع الفيديو الداخلية TS
         const encryptedTs = encodeURL(absoluteUrl);
         return `${proxyUrl}?url=${encodeURIComponent(encryptedTs)}`;
       });
@@ -87,6 +89,7 @@ export default async function handler(req, res) {
       return res.status(200).send(lines.join('\n'));
     }
 
+    // لقطع بث الـ TS الصغيرة الخاصة بالمباريات
     const buffer = await response.arrayBuffer();
     res.setHeader('Content-Type', contentType || 'video/mp2t');
     res.setHeader('Cache-Control', 'public, max-age=86400');
