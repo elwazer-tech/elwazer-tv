@@ -2,8 +2,9 @@
   "matchLinks": {
   "النرويج vs كوت ديفوار": {
     "servers": [
-      { "name": "Server 1", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
-      { "name": "Server 2", "url": "" }
+      { "name": "Server 4K", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/NA4aMzolDTk5" },
+      { "name": "Server HD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
+      { "name": "Server SD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEgBPA5HMzolDTk5" }
     ]
   },
    "العراق vs السنبغال": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8"
