@@ -3,7 +3,7 @@
   "النرويج vs كوت ديفوار": {
     "servers": [
       { "name": "Server 1", "url": "https://elwazer-tv.vercel.app/api/proxy?url=aHR0cDovL3Nob2Z0di5uZXQ6ODAvbGl2ZS8yNzc0NjgyMTAvMTE4NDU3NDgyLzMyMTkwMS5tM3U4" },
-      { "name": "Server 2", "url": "hhkUwMGRvZHTz40biJjWwQWa1UnWYFlNPRUQ2J2RsJjWThTeOp3Yw4kanlXTUFkdNRVR04ERVNjTEdWeMpXT51EVrdXTTVDdNNTV00DbyV3P5h3byB3LpBXYvAHch5CblNmclZnL2RXLyVmehdHbl9yL6MHc0RHa" }
+      { "name": "Server 2", "url": "aHR0cHM6Ly9lbHdhemVyLXR2LnZlcmNlbC5hcHAvYXBpL3Byb3h5P3VybD1hSFIwY0RvdkwzTm9iMlowZGk1dVpYUTZPREF2YkdsMlpTOHlOemMwTmpneU1UQXZNVEU0TkRVM05EZ3lMek15TVRrd01TNXRNM1U0" }
     ]
   },
    "العراق vs السنبغال": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8"
