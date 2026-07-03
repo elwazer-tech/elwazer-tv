@@ -33,31 +33,7 @@ function encodeURL(str) {
   }
 }
 
-// دالة فك تشفير حزم جافا سكريبت التلقائية Packer Unpacker
-function unpackPacker(code) {
-  try {
-    const matcher = code.match(/eval\(function\(p,a,c,k,e,r\)\{.*return\s+p\}\('(.*)',\s*(\d+),\s*(\d+),\s*'(.*)'\.split\('\|'\)/);
-    if (!matcher) {
-      const matcher2 = code.match(/eval\(function\(p,a,c,k,e,d\)\{.*return\s+p\}\('(.*)',\s*(\d+),\s*(\d+),\s*'(.*)'\.split\('\|'\)/);
-      if (!matcher2) return code;
-      return runUnpack(matcher2[1], parseInt(matcher2[2]), parseInt(matcher2[3]), matcher2[4].split('|'));
-    }
-    return runUnpack(matcher[1], parseInt(matcher[2]), parseInt(matcher[3]), matcher[4].split('|'));
-  } catch (e) {
-    return code;
-  }
-}
-
-function runUnpack(p, a, c, k) {
-  while (c--) {
-    if (k[c]) {
-      p = p.replace(new RegExp('\\b' + c.toString(a) + '\\b', 'g'), k[c]);
-    }
-  }
-  return p;
-}
-
-// البروكسي الخلفي المتوافق بالكامل مع فيرسل
+// البروكسي الخلفي المتوافق 100% مع فيرسل (نسخة كسر حظر التضمين Iframe)
 module.exports = async (req, res) => {
   let { url } = req.query;
 
@@ -80,7 +56,7 @@ module.exports = async (req, res) => {
     return res.status(403).send('Forbidden: Domain not allowed.');
   }
 
-  // ── مستخرج الروابط التلقائي الذكي من صفحات الـ Embed ──
+  // ── مستخرج وممرر صفحات الـ Embed لكسر حظر التضمين وبدون أخطاء ──
   const isEmbedPage = decryptedUrl.includes('/embed-') || 
                       decryptedUrl.includes('anafast.org') || 
                       decryptedUrl.includes('vidspeed') ||
@@ -89,7 +65,6 @@ module.exports = async (req, res) => {
   
   if (isEmbedPage) {
     try {
-      // توليد تزوير رأس الطلب ديناميكياً لتخطي حظر السيرفرات الرياضية المشابهة لـ mysportv
       const targetOrigin = new URL(decryptedUrl).origin;
       const embedResponse = await fetch(decryptedUrl, {
         headers: {
@@ -100,22 +75,20 @@ module.exports = async (req, res) => {
       });
       if (embedResponse.ok) {
         let html = await embedResponse.text();
-        const unpackedHtml = unpackPacker(html);
         
-        // البحث عن رابط البث المباشر الفعلي mp4 أو m3u8 المخفي بداخل كود الصفحة
-        const streamRx = /(https?:\/\/[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*)/i;
-        const match = unpackedHtml.match(streamRx);
+        // تعديل الروابط الداخلية للمشغل لتعمل من السورس الأصلي دون انقطاع
+        html = html.replace(/(src|href)=["'](?!https?:\/\/|\/\/)([^"']+)["']/g, `$1="${targetOrigin}/$2"`);
 
-        if (match && match[1]) {
-          const rawStreamUrl = match[1];
-          console.log('✅ Extracted raw stream from embed:', rawStreamUrl);
-          
-          res.writeHead(302, { Location: rawStreamUrl });
-          return res.end();
-        }
+        // كسر قفل الحماية وتخطي الـ X-Frame-Options للسماح بالتضمين لمدونتك
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('X-Frame-Options', 'ALLOWALL'); // السماح بالتضمين الكامل
+        res.removeHeader('Content-Security-Policy'); // إزالة سياسة الحظر
+        
+        return res.status(200).send(html);
       }
     } catch (e) {
-      console.error('Extraction failed:', e.message);
+      console.error('Iframe Bypass Failed:', e.message);
     }
   }
 
