@@ -2,9 +2,9 @@
   "matchLinks": {
   "أستراليا vs مصر": {
     "servers": [
-      { "name": "Server SD", "url": "" },
-      { "name": "Server HD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
-      { "name": "Server 4K", "url": "" }
+      { "name": "Server 1", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
+      { "name": "Server 2", "url": "https://ss4.oz-tv.store/s1b/b_max_1_HD/tracks-v1a1/mono.m3u8?token=NDI0MGZmNDIyYmMwN2VkNWE4YTc4MzU1ODQ5NjUzZGQxMTRhNjY0NzM2YmM2MzNhNjgwNThjOWE4MzFkYzgxYi0wYzE5Nzk2MmJmN2Q3YzlmLTE3ODMxMDg2MTM=" },
+      { "name": "Server 3", "url": "" }
       
     ]
   },
