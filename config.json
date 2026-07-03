@@ -4,7 +4,7 @@
     "servers": [
       { "name": "Server 1", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
       { "name": "Server 2", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJCswMgA7KA0VAykmKwIiMBojMCgfPCYZFjwHP1ULIhZDLTUJOys4Ih0ELRsRPDY4CCAtJBQiJEhQEBgONzswDlMUMxMZBTM7IDszBhE/KhslHhBBXVY/NCE6IBwaUiQ0UQMvGhZHICUcBi8LVRMNDDweIzsESjIfKBs/HB48PQoBMTkdMhEzDB8TMQ0WHxccMwUjIy5KLQ4zHygeAlwhGD8rPic9BBg3Aic9JAc9LxwOCSUyICkgIRInJh0qNCQhKDkOAgINIS4HJjEdGQUiDDQKLDIVViIlWiA2JC09KQIoFRJGAWc6Nlc5LjAeXzIqAhg8Jz9Y" },
-      { "name": "Server 3", "url": "https://elwazer-tv.vercel.app/api/proxy?url=https://mysportv.live/albaplayer/vip1" }
+      { "name": "Server 3", "url": "https://mysportv.live/albaplayer/vip1" }
       
     ]
   },
