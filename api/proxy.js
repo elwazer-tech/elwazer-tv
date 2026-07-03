@@ -33,31 +33,7 @@ function encodeURL(str) {
   }
 }
 
-// دالة فك تشفير حزم جافا سكريبت التلقائية Packer Unpacker
-function unpackPacker(code) {
-  try {
-    const matcher = code.match(/eval\(function\(p,a,c,k,e,r\)\{.*return\s+p\}\('(.*)',\s*(\d+),\s*(\d+),\s*'(.*)'\.split\('\|'\)/);
-    if (!matcher) {
-      const matcher2 = code.match(/eval\(function\(p,a,c,k,e,d\)\{.*return\s+p\}\('(.*)',\s*(\d+),\s*(\d+),\s*'(.*)'\.split\('\|'\)/);
-      if (!matcher2) return code;
-      return runUnpack(matcher2[1], parseInt(matcher2[2]), parseInt(matcher2[3]), matcher2[4].split('|'));
-    }
-    return runUnpack(matcher[1], parseInt(matcher[2]), parseInt(matcher[3]), matcher[4].split('|'));
-  } catch (e) {
-    return code;
-  }
-}
-
-function runUnpack(p, a, c, k) {
-  while (c--) {
-    if (k[c]) {
-      p = p.replace(new RegExp('\\b' + c.toString(a) + '\\b', 'g'), k[c]);
-    }
-  }
-  return p;
-}
-
-// البروكسي الخلفي المتوافق بالكامل مع فيرسل
+// البروكسي الخلفي المتوافق 100% مع فيرسل (نسخة CommonJS المحدثة لفايرفوكس)
 module.exports = async (req, res) => {
   let { url } = req.query;
 
@@ -67,49 +43,20 @@ module.exports = async (req, res) => {
 
   const decryptedUrl = decodeURL(url);
 
-  // ── قفل النطاق الصارم (Strict Domain Lock) ──
+  // ── قفل النطاق الصارم والمطور لمتصفح فايرفوكس (Strict Domain Lock for Firefox) ──
   const referer = req.headers['referer'] || '';
-  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'elwazer-tv.blogspot.com'];
+  const origin = req.headers['origin'] || ''; // فايرفوكس يرسل الـ Origin حتى لو قام بحظر الـ Referer للخصوصية
+  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
   
-  if (!referer) {
+  // منع الطلب تماماً إذا كان خالياً من الهيدرز (مثل برامج التحميل و VLC)
+  if (!referer && !origin) {
     return res.status(403).send('Forbidden: Direct access is not allowed.');
   }
   
-  const isAllowed = allowedDomains.some(domain => referer.includes(domain));
+  // التحقق من توافق الدومين عبر الـ Referer أو الـ Origin الاحتياطي
+  const isAllowed = allowedDomains.some(domain => referer.includes(domain) || origin.includes(domain));
   if (!isAllowed) {
     return res.status(403).send('Forbidden: Domain not allowed.');
-  }
-
-  // ── مستخرج الروابط التلقائي الذكي من صفحات الـ Embed ──
-  const isEmbedPage = decryptedUrl.includes('/embed-') || decryptedUrl.includes('anafast.org') || decryptedUrl.includes('vidspeed');
-  
-  if (isEmbedPage) {
-    try {
-      const embedResponse = await fetch(decryptedUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Referer': decryptedUrl
-        }
-      });
-      if (embedResponse.ok) {
-        let html = await embedResponse.text();
-        const unpackedHtml = unpackPacker(html);
-        
-        // البحث عن رابط البث المباشر الفعلي mp4 أو m3u8 المخفي بداخل الصفحة
-        const streamRx = /(https?:\/\/[^"'\s]+\.(?:mp4|m3u8)[^"'\s]*)/i;
-        const match = unpackedHtml.match(streamRx);
-        
-        if (match && match[1]) {
-          const rawStreamUrl = match[1];
-          // عمل تحويل تلقائي ولحظي للمتصفح إلى رابط الفيديو الفعلي لتشغيله بمشغلك الخاص!
-          res.writeHead(302, { Location: rawStreamUrl });
-          return res.end();
-        }
-      }
-    } catch (e) {
-      console.error('Auto Extraction Failed:', e.message);
-    }
   }
 
   const isM3u8 = decryptedUrl.includes('.m3u8');
