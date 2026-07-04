@@ -36,7 +36,7 @@ function encodeURL(str) {
   }
 }
 
-// البروكسي الخلفي المطور ليدعم تمرير وحقن الـ Referer المخصص في المجلدات والقطع
+// البروكسي الخلفي المطور والمعدل لدعم قطع البث الحديثة fmp4 و m4s
 module.exports = async (req, res) => {
   let { url, ref } = req.query; // قراءة الـ url والـ ref (الـ Referer المخصص)
 
@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
   const refererHeader = req.headers['referer'] || '';
-  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
+  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'elwazer-tv.blogspot.com'];
   
   if (!refererHeader) {
     return res.status(403).send('Forbidden: Direct access is not allowed.');
@@ -97,82 +97,25 @@ module.exports = async (req, res) => {
   }
 
   const isM3u8 = decryptedUrl.includes('.m3u8');
-  const isTs = decryptedUrl.includes('.ts');
   const isHtml = decryptedUrl.includes('/matches-'); 
 
-  if (!isM3u8 && !isTs && !isHtml) {
+  // دعم بروكسة جميع قطع البث المباشر الحديثة والتقليدية لمنع إعادة توجيه المتصفح للحظر
+  const isMediaSegment = decryptedUrl.includes('.ts') || 
+                         decryptedUrl.includes('.fmp4') || 
+                         decryptedUrl.includes('.m4s') || 
+                         decryptedUrl.includes('.mp4') || 
+                         decryptedUrl.includes('.key') || 
+                         decryptedUrl.includes('.aac') || 
+                         decryptedUrl.includes('seg');
+
+  if (!isM3u8 && !isMediaSegment && !isHtml) {
     res.writeHead(302, { Location: decryptedUrl });
     return res.end();
   }
 
   try {
-    // إعداد الرأسيات الافتراضية للطلب نحو سيرفر البث المباشر
     const headers = {
       'Accept': '*/*'
     };
 
-    if (targetReferer) {
-      headers['Referer'] = targetReferer;
-      try {
-        headers['Origin'] = new URL(targetReferer).origin;
-      } catch (e) {}
-      // نرسل رأسية متصفح حقيقي لتجاوز الحمايات الذكية للسيرفرات
-      headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-    } else {
-      headers['User-Agent'] = 'VLC/3.0.18 LibVLC/3.0.18';
-    }
-
-    const response = await fetch(decryptedUrl, { headers });
-
-    const contentType = response.headers.get('content-type') || '';
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-
-    if (isHtml) {
-      const htmlText = await response.text();
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(200).send(htmlText);
-    }
-
-    if (isM3u8) {
-      let text = await response.text();
-      
-      const finalUrl = response.url || decryptedUrl;
-      const targetBase = finalUrl.substring(0, finalUrl.lastIndexOf('/') + 1);
-      const protocol = req.headers['x-forwarded-proto'] || 'https';
-      const host = req.headers['host'];
-      const proxyUrl = `${protocol}://${host}/api/proxy`;
-
-      const lines = text.split('\n').map(line => {
-        line = line.trim();
-        if (line.startsWith('#') || line === '') {
-          return line;
-        }
-        
-        let absoluteUrl = line;
-        if (!line.startsWith('http://') && !line.startsWith('https://')) {
-          absoluteUrl = new URL(line, targetBase).href;
-        }
-        
-        const encryptedTs = encodeURL(absoluteUrl);
-        // التعديل الأهم: تمرير معامل الـ ref تلقائياً لطلبات ملفات الـ ts لتعمل بالـ Referer الصحيح ولا تقف القناة
-        let proxyRequestUrl = `${proxyUrl}?url=${encodeURIComponent(encryptedTs)}`;
-        if (ref) {
-          proxyRequestUrl += `&ref=${encodeURIComponent(ref)}`;
-        }
-        return proxyRequestUrl;
-      });
-
-      res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-      return res.status(200).send(lines.join('\n'));
-    }
-
-    const buffer = await response.arrayBuffer();
-    res.setHeader('Content-Type', contentType || 'video/mp2t');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-    return res.status(200).send(Buffer.from(buffer));
-
-  } catch (error) {
-    return res.status(500).send('Proxy Error: ' + error.message);
-  }
-};
+    if (target
