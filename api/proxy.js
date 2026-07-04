@@ -1,3 +1,5 @@
+// api/proxy.js
+
 // مفتاح التشفير السري الموحد
 const SECRET_KEY = 'elwazer_tv_secret_key'; 
 
@@ -13,6 +15,7 @@ function xorEncryptDecrypt(str, key) {
 // دالة فك التشفير الآمن باستخدام المفتاح السري
 function decodeURL(str) {
   try {
+    if (!str) return '';
     if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('<')) {
       return str;
     }
@@ -33,25 +36,26 @@ function encodeURL(str) {
   }
 }
 
-// البروكسي الخلفي المتوافق 100% مع فيرسل (نسخة كسر حظر التضمين Iframe)
+// البروكسي الخلفي المطور ليدعم تمرير وحقن الـ Referer المخصص في المجلدات والقطع
 module.exports = async (req, res) => {
-  let { url } = req.query;
+  let { url, ref } = req.query; // قراءة الـ url والـ ref (الـ Referer المخصص)
 
   if (!url) {
     return res.status(400).send('Missing target url');
   }
 
   const decryptedUrl = decodeURL(url);
+  const targetReferer = ref ? decodeURL(ref) : ''; // فك تشفير الـ Referer إذا كان ممرراً مشفراً
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
-  const referer = req.headers['referer'] || '';
+  const refererHeader = req.headers['referer'] || '';
   const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
   
-  if (!referer) {
+  if (!refererHeader) {
     return res.status(403).send('Forbidden: Direct access is not allowed.');
   }
   
-  const isAllowed = allowedDomains.some(domain => referer.includes(domain));
+  const isAllowed = allowedDomains.some(domain => refererHeader.includes(domain));
   if (!isAllowed) {
     return res.status(403).send('Forbidden: Domain not allowed.');
   }
@@ -70,7 +74,7 @@ module.exports = async (req, res) => {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Referer': targetOrigin + '/'
+          'Referer': targetReferer || (targetOrigin + '/')
         }
       });
       if (embedResponse.ok) {
@@ -102,12 +106,23 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const response = await fetch(decryptedUrl, {
-      headers: {
-        'User-Agent': 'VLC/3.0.18 LibVLC/3.0.18',
-        'Accept': '*/*'
-      }
-    });
+    // إعداد الرأسيات الافتراضية للطلب نحو سيرفر البث المباشر
+    const headers = {
+      'Accept': '*/*'
+    };
+
+    if (targetReferer) {
+      headers['Referer'] = targetReferer;
+      try {
+        headers['Origin'] = new URL(targetReferer).origin;
+      } catch (e) {}
+      // نرسل رأسية متصفح حقيقي لتجاوز الحمايات الذكية للسيرفرات
+      headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    } else {
+      headers['User-Agent'] = 'VLC/3.0.18 LibVLC/3.0.18';
+    }
+
+    const response = await fetch(decryptedUrl, { headers });
 
     const contentType = response.headers.get('content-type') || '';
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -140,7 +155,12 @@ module.exports = async (req, res) => {
         }
         
         const encryptedTs = encodeURL(absoluteUrl);
-        return `${proxyUrl}?url=${encodeURIComponent(encryptedTs)}`;
+        // التعديل الأهم: تمرير معامل الـ ref تلقائياً لطلبات ملفات الـ ts لتعمل بالـ Referer الصحيح ولا تقف القناة
+        let proxyRequestUrl = `${proxyUrl}?url=${encodeURIComponent(encryptedTs)}`;
+        if (ref) {
+          proxyRequestUrl += `&ref=${encodeURIComponent(ref)}`;
+        }
+        return proxyRequestUrl;
       });
 
       res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
