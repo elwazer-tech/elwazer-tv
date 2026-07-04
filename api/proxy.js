@@ -36,7 +36,7 @@ function encodeURL(str) {
   }
 }
 
-// البروكسي الخلفي المطور والمحسن بالكامل لسرعة جلب المباريات ودعم تشغيل fmp4
+// البروكسي الخلفي الذكي لفك تشفير الـ Referer المدمج تلقائياً وتسريع جلب المباريات
 module.exports = async (req, res) => {
   let { url, ref } = req.query; // قراءة الـ url والـ ref (الـ Referer المخصص)
 
@@ -44,8 +44,18 @@ module.exports = async (req, res) => {
     return res.status(400).send('Missing target url');
   }
 
-  const decryptedUrl = decodeURL(url);
-  const targetReferer = ref ? decodeURL(ref) : ''; // فك تشفير الـ Referer إذا كان ممرراً مشفراً
+  let decryptedUrl = decodeURL(url);
+  let targetReferer = ref ? decodeURL(ref) : ''; // فك تشفير الـ Referer إذا كان ممرراً مشفراً
+
+  // الكشف التلقائي والذكي عن الـ Referer المدمج داخل الرابط بعد فك تشفيره (لحل مشكلة التشفير المزدوج)
+  if (!targetReferer && decryptedUrl.includes('|')) {
+    const parts = decryptedUrl.split('|');
+    decryptedUrl = parts[0];
+    const refParam = parts.find(p => p.toLowerCase().startsWith('referer='));
+    if (refParam) {
+      targetReferer = refParam.split('=')[1];
+    }
+  }
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
   const refererHeader = req.headers['referer'] || '';
@@ -79,16 +89,11 @@ module.exports = async (req, res) => {
       });
       if (embedResponse.ok) {
         let html = await embedResponse.text();
-        
-        // تعديل الروابط الداخلية للمشغل لتعمل من السورس الأصلي دون انقطاع
         html = html.replace(/(src|href)=["'](?!https?:\/\/|\/\/)([^"']+)["']/g, `$1="${targetOrigin}/$2"`);
-
-        // كسر قفل الحماية وتخطي الـ X-Frame-Options للسماح بالتضمين لمدونتك
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('X-Frame-Options', 'ALLOWALL'); // السماح بالتضمين الكامل
-        res.removeHeader('Content-Security-Policy'); // إزالة سياسة الحظر
-        
+        res.setHeader('X-Frame-Options', 'ALLOWALL');
+        res.removeHeader('Content-Security-Policy');
         return res.status(200).send(html);
       }
     } catch (e) {
@@ -119,7 +124,6 @@ module.exports = async (req, res) => {
       'Accept': '*/*'
     };
 
-    // تحسين سرعة الاتصال بموقع المباريات عبر استخدام رأسية متصفح حقيقي لتجاوز قيود الخوادم وجدران الحماية
     if (isHtml) {
       headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
     } else if (targetReferer) {
@@ -133,7 +137,6 @@ module.exports = async (req, res) => {
     }
 
     const response = await fetch(decryptedUrl, { headers });
-
     const contentType = response.headers.get('content-type') || '';
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
@@ -146,30 +149,25 @@ module.exports = async (req, res) => {
 
     if (isM3u8) {
       let text = await response.text();
-      
       const finalUrl = response.url || decryptedUrl;
       const targetBase = finalUrl.substring(0, finalUrl.lastIndexOf('/') + 1);
       const protocol = req.headers['x-forwarded-proto'] || 'https';
       const host = req.headers['host'];
       const proxyUrl = `${protocol}://${host}/api/proxy`;
 
-      // دالة مساعدة لتشفير الروابط وتمريرها عبر البروكسي مع الـ Referer المخصص
       const getProxyUrl = (targetUrl) => {
         const encrypted = encodeURL(targetUrl);
         let pUrl = `${proxyUrl}?url=${encodeURIComponent(encrypted)}`;
-        if (ref) {
-          pUrl += `&ref=${encodeURIComponent(ref)}`;
+        if (targetReferer) { // نستخدم targetReferer لضمان تمريره لقطع الفيديو حتى في التشفير المزدوج
+          pUrl += `&ref=${encodeURIComponent(targetReferer)}`;
         }
         return pUrl;
       };
 
       const lines = text.split('\n').map(line => {
         line = line.trim();
-        if (line === '') {
-          return line;
-        }
+        if (line === '') return line;
 
-        // تطوير معالج الأسطر البرمجية: الكشف عن ملفات التهيئة والخرائط fmp4 ومفاتيح التشفير وتمريرها بالـ Referer المخصص
         if (line.startsWith('#')) {
           if (line.includes('URI=')) {
             return line.replace(/URI=["']([^"']+)["']/g, (match, relUrl) => {
@@ -187,7 +185,6 @@ module.exports = async (req, res) => {
         if (!line.startsWith('http://') && !line.startsWith('https://')) {
           absoluteUrl = new URL(line, targetBase).href;
         }
-        
         return getProxyUrl(absoluteUrl);
       });
 
