@@ -2,14 +2,13 @@
   "matchLinks": {
   "النرويج vs البرازيل": {
     "servers": [
-      
-      { "name": "Server SD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJDE3DxMIPVQ/BjkcLwo9NBk+JSgmIzcKDjYXIyAdJyQ2Azk3MB4nETwFJyERKycoLSA/ICVK" },
+      { "name": "Server Elwazer", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
       { "name": "Server Auto", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJAA3MQcJLjQsBC0bDhQgGmYjNCgYACdCET8YESAoIBUTBTsSRhwhIDAKMiEwJzMLXzY7HVQvJwNUOBcdBRc1NyE7NhgsBC0/PzQyFi8zNg0iOhcnIDo6HzEIOAJEWA==" },
+      { "name": "Server SD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJDE3DxMIPVQ/BjkcLwo9NBk+JSgmIzcKDjYXIyAdJyQ2Azk3MB4nETwFJyERKycoLSA/ICVK" },
       { "name": "Server SD", "url": "" }
       
     ]
   },
-    { "name": "Server Elwazer", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
    "العراق vs السنبغال": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8"
   }
 }
