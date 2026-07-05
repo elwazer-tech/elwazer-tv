@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
   const refererHeader = req.headers['referer'] || '';
-  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'blogspot.com'];
+  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'elwazer-tv.blogspot.com'];
   
   if (!refererHeader) {
     return res.status(403).send('Forbidden: Direct access is not allowed.');
