@@ -2,11 +2,11 @@
   "matchLinks": {
   "الأرجنتين vs مصر": {
     "servers": [
-      { "name": "VIP", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNwo2PQcgEgA1MR8XLlVJBi02IxYwQwkjNQ4mJyE0MywNPA04NCsTIywjPDsiMwkdPVIwKiEJOSMtDgAvMEg/Nw1HMzolDTk5" },
+      { "name": "VIP", "url": "" },
       { "name": "Auto", "url": "DRgDEQlfXXARGigSHwYASAApRgAbCgJZFx8XEToYWD4DFUwTFR1wGxcWHRVIFAgJTxsmERs2NA8UPSweCCAtFjoyMC8EMzMbGBobXDQwEh86L1UNLisNJCsgCzsQNyhHJjYkCg0IKSc7IjhDMjgdSgcyD245LQoBLTINKSwqCR8YKTw/KhoDIwk3NzU+LSAaMi0DIDskBkdY" },
-      { "name": "HD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJDE3DxMIPVQ/BjkcLwo9NBk+JSgmIzcKDjYXIyAdJyQ2Azk3MB4nETwFJyERKycoLSA/ICVK" },
-      { "name": "SD", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJCQzVjEHKAIeMS8PUU8gGSw7Nx5HICAzUTUHPwYrLRYyICwfChkiRg0EJAQBATUdOT89IAcmMh1YTw==" },
-      { "name": "Auto 2", "url": "DRgDEQlfXXARGigSHwYASAApRRMcFw8SDVQEAi9bFy8aShMACgwmVBALCVEzMx0hNw4YEAcrJDo1Dxc5LQ5NACg2KEw3Iw4nNB42MiAzJDUZBSAYIBUDAjsnARwjMwkcMFIoLiEzWiAsIFQVJAASKwxHBh06VCUwJx8JBSYeATwkIEsgJydNPw0eEjEjCz4UKQkjID81Kwo9NDs2Ix4UMjUKFjEOOiQgIgYUBzwOKB49RxkHLgsBNzceWzAhICIjMgBRIA0zEhoxJDk5JzYaUiEeKA4iUAohJzcAIQ0JCSIjIUAJMzMdJjQyUUwyNCc5Nw4YMTQnUCYNBj87NDsHJy9UNBM2MxpYJg8nBCIzEyovHQA8MD0SKg1GFQwxVDUUJzE7HyESDSIhBhYhJho5MQ1BCTk3IhgaPVQNLS0lNwomFQ0/OTgyByAgPCMHP1E6IzQ1Ji8zPxwnHjxALQQBNjcOPiA/Mz0+MCkVPw==" }
+      { "name": "HD", "url": "" },
+      { "name": "SD", "url": "" },
+      { "name": "Auto 2", "url": "" }
     ]
   },
    "العراق vs السنبغال": "https://edge22.776740.ir.cdn.ir/hls2/sport.m3u8"
