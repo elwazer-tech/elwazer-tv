@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
 
   // ── قفل النطاق الصارم (Strict Domain Lock) ──
   const refererHeader = req.headers['referer'] || '';
-  const allowedDomains = ['elwazer-tv.vercel.app', 'elwazer-tech.github.io', 'elwazer-tv.blogspot.com'];
+  const allowedDomains = ['elwazer-tv-ebon.vercel.app', 'elwazer-tech.github.io', 'elwazer-tv.blogspot.com'];
   
   if (!refererHeader) {
     return res.status(403).send('Forbidden: Direct access is not allowed.');
@@ -102,7 +102,7 @@ module.exports = async (req, res) => {
   }
 
   const isM3u8 = decryptedUrl.includes('.m3u8');
-  // تم تعديل هذا السطر فقط ليدعم سحب الـ HTML لجدول مباريات في الجول وباقي الجداول بنجاح عبر البروكسي
+  // تعديل السحب ليدعم سحب الـ HTML لموقع في الجول وباقي الجداول بنجاح
   const isHtml = decryptedUrl.includes('/matches') || decryptedUrl.includes('/matches-') || decryptedUrl.includes('filgoal.com'); 
 
   // دعم بروكسة جميع قطع البث المباشر الحديثة والتقليدية وملفات التكوين لمنع الحظر والتقطيع
