@@ -102,7 +102,8 @@ module.exports = async (req, res) => {
   }
 
   const isM3u8 = decryptedUrl.includes('.m3u8');
-  const isHtml = decryptedUrl.includes('/matches-'); 
+  // تعديل السحب ليدعم سحب الـ HTML لموقع في الجول وباقي الجداول بنجاح
+  const isHtml = decryptedUrl.includes('/matches') || decryptedUrl.includes('/matches-') || decryptedUrl.includes('filgoal.com'); 
 
   // دعم بروكسة جميع قطع البث المباشر الحديثة والتقليدية وملفات التكوين لمنع الحظر والتقطيع
   const isMediaSegment = decryptedUrl.includes('.ts') || 
