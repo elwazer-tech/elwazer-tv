@@ -102,7 +102,7 @@ module.exports = async (req, res) => {
   }
 
   const isM3u8 = decryptedUrl.includes('.m3u8');
-  // تعديل السحب ليدعم سحب الـ HTML لموقع في الجول وباقي الجداول بنجاح
+  // تم تعديل هذا السطر فقط ليدعم سحب الـ HTML لجدول مباريات في الجول وباقي الجداول بنجاح عبر البروكسي
   const isHtml = decryptedUrl.includes('/matches') || decryptedUrl.includes('/matches-') || decryptedUrl.includes('filgoal.com'); 
 
   // دعم بروكسة جميع قطع البث المباشر الحديثة والتقليدية وملفات التكوين لمنع الحظر والتقطيع
