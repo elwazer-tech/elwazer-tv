@@ -3,7 +3,7 @@
   "المغرب vs فرنسا": {
     "servers": [
       { "name": "VIP", "url": "DRgDEQlfXXADFyUWF00FBA46GQgYFh5FU1QSHS0fEy0ASwcXE1tgHhcVWCglBj4gJx0/LgwEBiQmDjwaW1UaJC01DS9UJAg3JwoxJyUkPSYIAyQoIgg1NzwrFgkxIDErVCE9MCINLTESCTQmUyAgIGwxEwkbPyg=" },
-      { "name": "Auto", "url": "" },
+      { "name": "Auto", "url": "DRgDEQlfXXADFyUWF00FBA46GQgYFh5FU1QSHS0fEy0ASwcXE1tgHhcVWCglBj4gIzMSLgcyBiYmFiIaOjAYJAAYDz8NSwg2ATQWIVMGLjMlLjQ8HAgTIA1RMQoiGSYkJyEwIiBrOCcBXTQxGEsvOjYHPhkhJyohCQcwIyMjPSkANCwhIAk4Pgs2PCsIICMMDFhE" },
       { "name": "SD", "url": "DRgDEQlfXXADFyUWF00FBA46GQgYFh5FU1QSHS0fEy0ASwcXE1tgHhcVWCglBj4gIzMSLgcyPSEfUDcMHCwuJy4uGD4CNw42MxYmIQsWLjM1Ji0rLS02JysSMxoiGSYkJyEw" },
       { "name": "SD", "url": "" },
       { "name": "Auto 2", "url": "" }
