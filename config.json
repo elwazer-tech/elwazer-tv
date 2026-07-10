@@ -2,8 +2,8 @@
   "matchLinks": {
   "إسبانيا vs بلجيكا": {
     "servers": [
-      { "name": "VIP", "url": "DRgDEQlfXXADFyUWF00FBA46GQgYFh5FU1QSHS0fEy0ASwcXE1tgHhcVWCglBj4gJx0/LgwEBiQmDjwaW1UaJC01DS9UJAg3JwoxJyUkPSYIAyQoIgg1NzwrFgkxIDErVCE9MCINLTESCTQmUyAgIGwxEwkbPyg=" },
-      { "name": "Auto", "url": "DRgDEQlfXXADFyUWF00FBA46GQgYFh5FU1QSHS0fEy0ASwcXE1tgHhcVWCglBj4gIzMSLgcyBiYmFiIaOjAYJAAYDz8NSwg2ATQWIVMGLjMlLjQ8HAgTIA1RMQoiGSYkJyEwIiBrOCcBXTQxGEsvOjYHPhkhJyohCQcwIyMjPSkANCwhIAk4Pgs2PCsIICMMDFhE" },
+      { "name": "VIP", "url": "DRgDEQlfXXADEyUcCk0XCQM+EQALUltFTw0KADQRBCxdAQYESksqGQlEIT4QJT8wMBQsJSgQIjcZLTFvWwY4JC4bNEszJRwlIx0xIzUqNyM3KjQ+AS4hJzQBJBoiGAdCJywnMyYZPw4VPT1FOz83QRoRIDcpLg==" },
+      { "name": "Auto", "url": "DRgDEQlfXXADEyUcCk0XCQM+EQALUltFTw0KADQRBCxdAQYESksqGQlEIT4QJT80HjksLh4QIDcBMzEOPgQ4CQMZJBJcJR0DHTo3VRc5Ig4aOiAAAQg2Fk4mJwkbDwgxJyE1MUAMKR1BPSoOUDAtGyw8MA0xLDAeFhsXLT8hIBsiNz43JBM8IhoqLRk3Mic4Vlg=" },
       { "name": "SD", "url": "DRgDEQlfXXADFyUWF00FBA46GQgYFh5FU1QSHS0fEy0ASwcXE1tgHhcVWCglBj4gIzMSLgcyPSEfUDcMHCwuJy4uGD4CNw42MxYmIQsWLjM1Ji0rLS02JysSMxoiGSYkJyEw" },
       { "name": "SD", "url": "" },
       { "name": "Low", "url": "" }
