@@ -3,7 +3,7 @@
     "إنجلترا vs النرويج": {
       "time": "12:00 AM",
       "servers": [
-        { "name": "VIP", "url": "DRgDEQlfXXADEyUcCk0XCQM+EQALUltFTw0KADQRBCxdAQYESksqGQlEIT4QJT8wMBQsJSgQIjcZLTFvWwY4JC4bNEszJRwlIx0xIzUqNyM3KjQ+AS4hJzQBJBoiGAdCJywnMyYZPw4VPT1FOz83QRoRIDcpLg==" },
+        { "name": "VIP", "url": "http://shoftv.net:80/live/277468210/118457482/321901.m3u8" },
         { "name": "Auto", "url": "" },
         { "name": "SD", "url": "" }
       ]
