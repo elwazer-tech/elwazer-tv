@@ -7,6 +7,14 @@
         { "name": "Auto", "url": "" },
         { "name": "SD", "url": "" }
       ]
+    },
+    "سويسرا vs الأرجنتين": {
+      "time": "12:00 AM",
+      "servers": [
+        { "name": "VIP", "url": "" },
+        { "name": "Auto", "url": "" },
+        { "name": "SD", "url": "" }
+      ]
     }
   }
 }
