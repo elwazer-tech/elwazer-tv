@@ -54,12 +54,12 @@
       font-weight: 600;
     }
 
-    /* الحاوية الرئيسية (شاشة سينمائية عريضة) */
+    /* الحاوية الرئيسية */
     .container {
       width: 100%;
       max-width: 1450px;
       display: grid;
-      grid-template-columns: 1fr 280px; /* إعطاء المشغل المساحة الأكبر */
+      grid-template-columns: 1fr 310px;
       gap: 25px;
       align-items: start;
     }
@@ -70,7 +70,7 @@
       }
     }
 
-    /* قسم مشغل الفيديو الفخم */
+    /* قسم مشغل الفيديو - مظبوط بالمللي */
     .video-section {
       background: #10121a;
       border-radius: 16px;
@@ -79,31 +79,38 @@
       box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7);
     }
 
+    /* تم حذف aspect-ratio الثابت ليلتصق المشغل بالفيديو تماماً بدون فراغ */
     .video-wrapper {
       position: relative;
       background: #000;
       width: 100%;
-      aspect-ratio: 16 / 9;
+      line-height: 0;
+    }
+
+    .video-wrapper .plyr {
+      width: 100%;
+      height: 100%;
     }
 
     .video-wrapper video {
       width: 100%;
-      height: 100%;
+      height: auto;
       display: block;
     }
 
-    /* شريط العنوان أسفل الفيديو بعد حذف الأزرار */
+    /* شريط العنوان أسفل الفيديو ملتصق بالمشغل */
     .video-info {
-      padding: 18px 24px;
+      padding: 15px 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(180deg, #10121a 0%, #0c0e15 100%);
+      background: #10121a;
       border-top: 1px solid #1c202c;
+      line-height: normal;
     }
 
     .video-info h2 {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       color: #ffffff;
       font-weight: 600;
     }
@@ -129,7 +136,7 @@
       box-shadow: 0 0 8px #00e676;
     }
 
-    /* قسم قائمة الحلقات الجانبي */
+    /* قسم قائمة الحلقات والمواسم الجانبي */
     .episodes-section {
       background: #10121a;
       border-radius: 16px;
@@ -140,12 +147,54 @@
       max-height: 640px;
     }
 
-    .episodes-section h3 {
+    .section-title {
       font-size: 1.1rem;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       color: #aaa;
+    }
+
+    /* شريط اختيار المواسم */
+    .seasons-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      overflow-x: auto;
+      padding-bottom: 6px;
       border-bottom: 1px solid #1e2230;
-      padding-bottom: 10px;
+    }
+
+    .seasons-bar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .seasons-bar::-webkit-scrollbar-thumb {
+      background: #252a3b;
+      border-radius: 4px;
+    }
+
+    .season-tab {
+      background: #171a26;
+      border: 1px solid #23283b;
+      color: #8b92a8;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .season-tab:hover {
+      background: #222738;
+      color: #fff;
+    }
+
+    .season-tab.active {
+      background: #00e676;
+      color: #07080b;
+      font-weight: bold;
+      border-color: #00e676;
+      box-shadow: 0 2px 10px rgba(0, 230, 118, 0.2);
     }
 
     /* شبكة الحلقات */
@@ -155,6 +204,7 @@
       gap: 10px;
       overflow-y: auto;
       padding-left: 5px;
+      max-height: 500px;
     }
 
     .episodes-grid::-webkit-scrollbar {
@@ -214,9 +264,14 @@
       </div>
     </div>
 
-    <!-- قائمة الحلقات -->
+    <!-- قائمة المواسم والحلقات -->
     <div class="episodes-section">
-      <h3>قائمة الحلقات</h3>
+      <h3 class="section-title">المواسم</h3>
+      
+      <!-- شريط تبديل المواسم -->
+      <div class="seasons-bar" id="seasons-container"></div>
+
+      <!-- شبكة الحلقات -->
       <div class="episodes-grid" id="episodes-container"></div>
     </div>
 
@@ -227,75 +282,63 @@
 
   <script>
     /* ========================================================
-       بيانات المسلسل والحلقات
+       بيانات المسلسل والمواسم والحلقات
        ======================================================== */
-    const SERIES_NAME = "مسلسل lioness - الموسم الأول";
+    const SERIES_NAME = "مسلسل Lioness";
 
-    const EPISODES = [
+    const SEASONS = [
       {
-        number: 1,
-        title: "الحلقة 1",
-        url: "http://shoftv.net:80/series/277468210/118457482/206784.mkv"
+        seasonName: "الموسم الأول",
+        episodes: [
+          { number: 1, title: "الحلقة 1", url: "http://shoftv.net:80/series/277468210/118457482/206784.mkv" },
+          { number: 2, title: "الحلقة 2", url: "http://shoftv.net:80/series/277468210/118457482/206785.mkv" },
+          { number: 3, title: "الحلقة 3", url: "http://shoftv.net:80/series/277468210/118457482/206786.mkv" },
+          { number: 4, title: "الحلقة 4", url: "http://shoftv.net:80/series/277468210/118457482/206787.mkv" },
+          { number: 5, title: "الحلقة 5", url: "http://shoftv.net:80/series/277468210/118457482/207465.mkv" },
+          { number: 6, title: "الحلقة 6", url: "http://shoftv.net:80/series/277468210/118457482/264183.mkv" },
+          { number: 7, title: "الحلقة 7", url: "http://shoftv.net:80/series/277468210/118457482/207625.mkv" },
+          { number: 8, title: "الحلقة 8", url: "http://shoftv.net:80/series/277468210/118457482/207831.mkv" }
+        ]
       },
       {
-        number: 2,
-        title: "الحلقة 2",
-        url: "http://shoftv.net:80/series/277468210/118457482/206785.mkv"
-      },
-      {
-        number: 3,
-        title: "الحلقة 3",
-        url: "http://shoftv.net:80/series/277468210/118457482/206786.mkv"
-      },
-      {
-        number: 4,
-        title: "الحلقة 4",
-        url: "http://shoftv.net:80/series/277468210/118457482/206787.mkv"
-      },
-      {
-        number: 5,
-        title: "الحلقة 5",
-        url: "http://shoftv.net:80/series/277468210/118457482/207465.mkv"
-      },
-      {
-        number: 6,
-        title: "الحلقة 6",
-        url: "http://shoftv.net:80/series/277468210/118457482/264183.mkv"
-      },
-      {
-        number: 7,
-        title: "الحلقة 7",
-        url: "http://shoftv.net:80/series/277468210/118457482/207625.mkv"
-      },
-      {
-        number: 8,
-        title: "الحلقة 8",
-        url: "http://shoftv.net:80/series/277468210/118457482/207831.mkv"
+        seasonName: "الموسم الثاني",
+        episodes: [
+          { number: 1, title: "الحلقة 1", url: "http://shoftv.net:80/series/277468210/118457482/277625.mkv" },
+          { number: 2, title: "الحلقة 2", url: "http://shoftv.net:80/series/277468210/118457482/277626.mkv" },
+          { number: 3, title: "الحلقة 3", url: "http://shoftv.net:80/series/277468210/118457482/277627.mkv" },
+          { number: 4, title: "الحلقة 4", url: "http://shoftv.net:80/series/277468210/118457482/277628.mkv" },
+          { number: 5, title: "الحلقة 5", url: "http://shoftv.net:80/series/277468210/118457482/277629.mkv" },
+          { number: 6, title: "الحلقة 6", url: "http://shoftv.net:80/series/277468210/118457482/277630.mkv" },
+          { number: 7, title: "الحلقة 7", url: "http://shoftv.net:80/series/277468210/118457482/277631.mkv" },
+          { number: 8, title: "الحلقة 8", url: "http://shoftv.net:80/series/277468210/118457482/277632.mkv" }
+        ]
       }
     ];
 
     /* ========================================================
-       كود التشغيل مع البروكسي
+       كود البرمجة والتشغيل
        ======================================================== */
     document.getElementById('series-title').innerText = SERIES_NAME;
 
     const videoElement = document.getElementById('player');
     const episodeTitleEl = document.getElementById('current-episode-text');
+    const seasonsContainer = document.getElementById('seasons-container');
     const episodesContainer = document.getElementById('episodes-container');
 
     const player = new Plyr(videoElement, {
       controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
     });
 
-    function playEpisode(episode) {
-      episodeTitleEl.innerText = `${SERIES_NAME} - ${episode.title}`;
+    let currentSeasonIndex = 0;
 
-      // الرابط عبر Cloudflare Worker
+    function playEpisode(seasonName, episode) {
+      episodeTitleEl.innerText = `${SERIES_NAME} - ${seasonName} - ${episode.title}`;
+
       const proxiedUrl = `https://wazer.wazermasr22.workers.dev/?url=${encodeURIComponent(episode.url)}`;
 
       player.source = {
         type: 'video',
-        title: episode.title,
+        title: `${seasonName} - ${episode.title}`,
         sources: [
           {
             src: proxiedUrl,
@@ -309,10 +352,13 @@
       });
     }
 
-    // إنشاء أزرار الحلقات
-    function renderEpisodes() {
+    function renderEpisodes(seasonIdx, autoPlayFirst = true) {
       episodesContainer.innerHTML = '';
-      EPISODES.forEach((ep, index) => {
+      const currentSeason = SEASONS[seasonIdx];
+
+      if (!currentSeason || !currentSeason.episodes.length) return;
+
+      currentSeason.episodes.forEach((ep, index) => {
         const btn = document.createElement('div');
         btn.className = 'episode-btn' + (index === 0 ? ' active' : '');
         btn.innerText = ep.title;
@@ -320,18 +366,41 @@
         btn.addEventListener('click', () => {
           document.querySelectorAll('.episode-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          playEpisode(ep);
+          playEpisode(currentSeason.seasonName, ep);
         });
 
         episodesContainer.appendChild(btn);
       });
 
-      if (EPISODES.length > 0) {
-        playEpisode(EPISODES[0]);
+      if (autoPlayFirst && currentSeason.episodes.length > 0) {
+        playEpisode(currentSeason.seasonName, currentSeason.episodes[0]);
       }
     }
 
-    renderEpisodes();
+    function renderSeasons() {
+      seasonsContainer.innerHTML = '';
+      SEASONS.forEach((season, index) => {
+        const tab = document.createElement('div');
+        tab.className = 'season-tab' + (index === currentSeasonIndex ? ' active' : '');
+        tab.innerText = season.seasonName;
+
+        tab.addEventListener('click', () => {
+          if (currentSeasonIndex === index) return;
+          currentSeasonIndex = index;
+
+          document.querySelectorAll('.season-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+
+          renderEpisodes(currentSeasonIndex, true);
+        });
+
+        seasonsContainer.appendChild(tab);
+      });
+
+      renderEpisodes(0, true);
+    }
+
+    renderSeasons();
   </script>
 </body>
 </html>
