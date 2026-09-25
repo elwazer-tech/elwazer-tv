@@ -266,7 +266,6 @@
   <script>
     const SERIES_NAME = "مسلسل Lioness";
 
-    // تم حذف :80 من جميع الروابط لحل مشكلة error 1003
     const SEASONS = [
       {
         seasonName: "الموسم الأول",
@@ -312,7 +311,8 @@
     function playEpisode(seasonName, episode) {
       episodeTitleEl.innerText = `${SERIES_NAME} - ${seasonName} - ${episode.title}`;
 
-      const proxiedUrl = `https://wazer.wazermasr22.workers.dev/?url=${encodeURIComponent(episode.url)}`;
+      // الرابط عبر بروكسي Vercel المباشر (يدعم بورت 2095 بدون أي أخطاء)
+      const proxiedUrl = `/api/proxy?url=${encodeURIComponent(episode.url)}`;
 
       player.source = {
         type: 'video',
