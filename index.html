@@ -273,7 +273,7 @@
       vlcBtn.href = `vlc://${episode.url}`;
 
       // تحويل الرابط للمرور عبر البروكسي لفك حظر الـ HTTPS والـ CORS
-      const proxiedUrl = `https://wazer.wazermasr22.workers.dev/api/proxy?url=${encodeURIComponent(episode.url)}`;
+      const proxiedUrl = `https://wazer.wazermasr22.workers.dev/?url=${encodeURIComponent(episode.url)}`;
 
       player.source = {
         type: 'video',
