@@ -17,51 +17,66 @@
     }
 
     body {
-      background-color: #0b0c10;
+      background-color: #07080b;
       color: #fff;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 15px;
+      padding: 15px 25px;
     }
 
+    /* الهيدر الموسع */
     header {
       width: 100%;
-      max-width: 1200px;
-      padding: 15px 0;
+      max-width: 1450px;
+      padding: 12px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #1f222e;
+      border-bottom: 1px solid #1a1d29;
       margin-bottom: 20px;
     }
 
     header h1 {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       color: #00e676;
+      letter-spacing: 0.5px;
     }
 
+    .brand-tag {
+      background: #141722;
+      border: 1px solid #232738;
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: #00e676;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* الحاوية الرئيسية (شاشة سينمائية عريضة) */
     .container {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1450px;
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 20px;
+      grid-template-columns: 1fr 280px; /* إعطاء المشغل المساحة الأكبر */
+      gap: 25px;
+      align-items: start;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 992px) {
       .container {
         grid-template-columns: 1fr;
       }
     }
 
-    /* قسم مشغل الفيديو */
+    /* قسم مشغل الفيديو الفخم */
     .video-section {
-      background: #14161f;
-      border-radius: 12px;
+      background: #10121a;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid #1e2230;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7);
     }
 
     .video-wrapper {
@@ -74,110 +89,107 @@
     .video-wrapper video {
       width: 100%;
       height: 100%;
+      display: block;
     }
 
+    /* شريط العنوان أسفل الفيديو بعد حذف الأزرار */
     .video-info {
-      padding: 15px 20px;
+      padding: 18px 24px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content: space-between;
+      background: linear-gradient(180deg, #10121a 0%, #0c0e15 100%);
+      border-top: 1px solid #1c202c;
     }
 
     .video-info h2 {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       color: #ffffff;
+      font-weight: 600;
     }
 
-    .actions-btns {
-      display: flex;
-      gap: 8px;
-    }
-
-    .action-btn {
-      color: white;
-      text-decoration: none;
-      padding: 7px 12px;
+    .now-playing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 230, 118, 0.1);
+      color: #00e676;
+      border: 1px solid rgba(0, 230, 118, 0.25);
+      padding: 4px 10px;
       border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      border: none;
-      transition: 0.2s;
+      font-size: 0.8rem;
     }
 
-    .vlc-btn {
-      background: #e65100;
-    }
-    .vlc-btn:hover {
-      background: #f57c00;
-    }
-
-    .copy-btn {
-      background: #2b3147;
-    }
-    .copy-btn:hover {
-      background: #3b4360;
+    .now-playing-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #00e676;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00e676;
     }
 
-    /* قسم قائمة الحلقات */
+    /* قسم قائمة الحلقات الجانبي */
     .episodes-section {
-      background: #14161f;
-      border-radius: 12px;
+      background: #10121a;
+      border-radius: 16px;
       padding: 18px;
       display: flex;
       flex-direction: column;
-      max-height: 600px;
+      border: 1px solid #1e2230;
+      max-height: 640px;
     }
 
     .episodes-section h3 {
       font-size: 1.1rem;
       margin-bottom: 15px;
       color: #aaa;
-      border-bottom: 1px solid #232738;
+      border-bottom: 1px solid #1e2230;
       padding-bottom: 10px;
     }
 
     /* شبكة الحلقات */
     .episodes-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
       gap: 10px;
       overflow-y: auto;
       padding-left: 5px;
     }
 
     .episodes-grid::-webkit-scrollbar {
-      width: 6px;
+      width: 5px;
     }
     .episodes-grid::-webkit-scrollbar-thumb {
-      background: #2a2e42;
+      background: #252a3b;
       border-radius: 4px;
     }
 
     .episode-btn {
-      background: #1f2333;
-      border: 1px solid #2a2e42;
-      color: #ddd;
-      padding: 12px 5px;
-      border-radius: 8px;
+      background: #171a26;
+      border: 1px solid #23283b;
+      color: #cfd3e0;
+      padding: 12px 6px;
+      border-radius: 10px;
       text-align: center;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       transition: all 0.2s ease;
       user-select: none;
     }
 
     .episode-btn:hover {
-      background: #2b3147;
+      background: #222738;
       color: #fff;
+      transform: translateY(-2px);
     }
 
     .episode-btn.active {
       background: #00e676;
-      color: #0b0c10;
+      color: #07080b;
       font-weight: bold;
       border-color: #00e676;
+      box-shadow: 0 4px 15px rgba(0, 230, 118, 0.25);
     }
   </style>
 </head>
@@ -185,12 +197,12 @@
 
   <header>
     <h1 id="series-title">اسم المسلسل</h1>
-    <span style="color: #777; font-size: 0.9rem;">Elwazer Cinema</span>
+    <span class="brand-tag">Elwazer Cinema HD</span>
   </header>
 
   <div class="container">
     
-    <!-- مشغل الفيديو -->
+    <!-- مشغل الفيديو السينمائي -->
     <div class="video-section">
       <div class="video-wrapper">
         <video id="player" playsinline controls></video>
@@ -198,10 +210,7 @@
 
       <div class="video-info">
         <h2 id="current-episode-text">اختر حلقة للتشغيل</h2>
-        <div class="actions-btns">
-          <button class="action-btn copy-btn" id="copy-btn">نسخ الرابط</button>
-          <a id="vlc-btn" href="#" class="action-btn vlc-btn" target="_blank">فتح خارجي</a>
-        </div>
+        <span class="now-playing-badge">جاري المشاهدة</span>
       </div>
     </div>
 
@@ -247,6 +256,21 @@
         number: 5,
         title: "الحلقة 5",
         url: "http://shoftv.net:80/series/277468210/118457482/207465.mkv"
+      },
+      {
+        number: 6,
+        title: "الحلقة 6",
+        url: "http://shoftv.net:80/series/277468210/118457482/264183.mkv"
+      },
+      {
+        number: 7,
+        title: "الحلقة 7",
+        url: "http://shoftv.net:80/series/277468210/118457482/207625.mkv"
+      },
+      {
+        number: 8,
+        title: "الحلقة 8",
+        url: "http://shoftv.net:80/series/277468210/118457482/207831.mkv"
       }
     ];
 
@@ -257,22 +281,16 @@
 
     const videoElement = document.getElementById('player');
     const episodeTitleEl = document.getElementById('current-episode-text');
-    const vlcBtn = document.getElementById('vlc-btn');
-    const copyBtn = document.getElementById('copy-btn');
     const episodesContainer = document.getElementById('episodes-container');
 
     const player = new Plyr(videoElement, {
       controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen']
     });
 
-    let activeEpisodeUrl = "";
-
     function playEpisode(episode) {
-      activeEpisodeUrl = episode.url;
       episodeTitleEl.innerText = `${SERIES_NAME} - ${episode.title}`;
-      vlcBtn.href = `vlc://${episode.url}`;
 
-      // تحويل الرابط للمرور عبر البروكسي لفك حظر الـ HTTPS والـ CORS
+      // الرابط عبر Cloudflare Worker
       const proxiedUrl = `https://wazer.wazermasr22.workers.dev/?url=${encodeURIComponent(episode.url)}`;
 
       player.source = {
@@ -290,15 +308,6 @@
         console.log("في انتظار بدء التشغيل...");
       });
     }
-
-    // زر نسخ الرابط
-    copyBtn.addEventListener('click', () => {
-      if (activeEpisodeUrl) {
-        navigator.clipboard.writeText(activeEpisodeUrl);
-        copyBtn.innerText = "تم النسخ ✓";
-        setTimeout(() => copyBtn.innerText = "نسخ الرابط", 2000);
-      }
-    });
 
     // إنشاء أزرار الحلقات
     function renderEpisodes() {
