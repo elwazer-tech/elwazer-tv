@@ -79,12 +79,6 @@
     .video-info {
       padding: 15px 20px;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .video-info-top {
-      display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
@@ -124,16 +118,6 @@
     }
     .copy-btn:hover {
       background: #3b4360;
-    }
-
-    .alert-box {
-      background: rgba(255, 152, 0, 0.1);
-      border: 1px solid rgba(255, 152, 0, 0.3);
-      padding: 10px 15px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: #ffb74d;
-      line-height: 1.5;
     }
 
     /* قسم قائمة الحلقات */
@@ -209,20 +193,14 @@
     <!-- مشغل الفيديو -->
     <div class="video-section">
       <div class="video-wrapper">
-        <video id="player" playsinline controls referrerpolicy="no-referrer"></video>
+        <video id="player" playsinline controls></video>
       </div>
 
       <div class="video-info">
-        <div class="video-info-top">
-          <h2 id="current-episode-text">اختر حلقة للتشغيل</h2>
-          <div class="actions-btns">
-            <button class="action-btn copy-btn" id="copy-btn">نسخ الرابط</button>
-            <a id="vlc-btn" href="#" class="action-btn vlc-btn" target="_blank">تشغيل في VLC / تطبيق خارجي</a>
-          </div>
-        </div>
-
-        <div class="alert-box">
-          ⚠️ <strong>ملاحظة:</strong> إذا ظهرت شاشة سوداء أو لم يبدأ الفيديو داخل المتصفح بسبب تشفير السيرفر، اضغط على زر <strong>(تشغيل في VLC)</strong> وسيعمل معك البث بجودته الكاملة بدون تقطيع.
+        <h2 id="current-episode-text">اختر حلقة للتشغيل</h2>
+        <div class="actions-btns">
+          <button class="action-btn copy-btn" id="copy-btn">نسخ الرابط</button>
+          <a id="vlc-btn" href="#" class="action-btn vlc-btn" target="_blank">فتح خارجي</a>
         </div>
       </div>
     </div>
@@ -235,13 +213,12 @@
 
   </div>
 
-  <!-- مكتبات التشغيل -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+  <!-- مكتبة المشغل Plyr -->
   <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
 
   <script>
     /* ========================================================
-       بيانات المسلسل والحلقات الخاصة بك (كما هي دون تعديل)
+       بيانات المسلسل والحلقات
        ======================================================== */
     const SERIES_NAME = "مسلسل lioness - الموسم الأول";
 
@@ -274,7 +251,7 @@
     ];
 
     /* ========================================================
-       كود التشغيل والتحكم
+       كود التشغيل مع البروكسي
        ======================================================== */
     document.getElementById('series-title').innerText = SERIES_NAME;
 
@@ -293,15 +270,24 @@
     function playEpisode(episode) {
       activeEpisodeUrl = episode.url;
       episodeTitleEl.innerText = `${SERIES_NAME} - ${episode.title}`;
-      
-      // تجهيز رابط VLC المباشر
       vlcBtn.href = `vlc://${episode.url}`;
 
-      // محاولة تشغيل الفيديو داخل الصفحة
-      videoElement.src = episode.url;
-      videoElement.load();
-      videoElement.play().catch(error => {
-        console.warn("المتصفح منع التشغيل التلقائي بسبب قيود الأمان HTTP/CORS");
+      // تحويل الرابط للمرور عبر البروكسي لفك حظر الـ HTTPS والـ CORS
+      const proxiedUrl = `/api/proxy?url=${encodeURIComponent(episode.url)}`;
+
+      player.source = {
+        type: 'video',
+        title: episode.title,
+        sources: [
+          {
+            src: proxiedUrl,
+            type: 'video/mp4',
+          }
+        ]
+      };
+
+      player.play().catch(e => {
+        console.log("في انتظار بدء التشغيل...");
       });
     }
 
@@ -314,7 +300,7 @@
       }
     });
 
-    // رسم أزرار الحلقات
+    // إنشاء أزرار الحلقات
     function renderEpisodes() {
       episodesContainer.innerHTML = '';
       EPISODES.forEach((ep, index) => {
